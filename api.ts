@@ -5,8 +5,7 @@ import * as path from 'path';
 import type { GuardSettings, Mode } from './lib/types';
 import type { GuardServices } from './lib/services';
 import { SNAPSHOT_DIR_ALARM, SNAPSHOT_DIR_MOTION } from './lib/types';
-import { classify, isCamera, sensorType } from './lib/Capabilities';
-import type { SensorType } from './lib/Capabilities';
+import { buildZoneCaps, isUsefulZone } from './lib/ZoneCapabilities';
 import { t } from './lib/i18n';
 import { sortByZoneName } from './lib/ZoneDirectory';
 
@@ -81,45 +80,10 @@ module.exports = {
       homey.app.services.homeyApi.zones.getZones(),
       homey.app.services.homeyApi.devices.getDevices(),
     ]);
-    type ZoneSensor = { id: string; name: string; type: SensorType };
-    type ZoneLight = { id: string; name: string };
-    type ZoneCamera = { id: string; name: string };
-    type ZoneCaps = {
-      hasAudio: boolean; hasVideo: boolean; hasLights: boolean; hasCameras: boolean;
-      audioDevices: string[]; videoDevices: string[]; lightDevices: string[];
-      lights: ZoneLight[];
-      cameras: ZoneCamera[];
-      sensors: ZoneSensor[];
-    };
-    const caps: Record<string, ZoneCaps> = {};
-    for (const d of Object.values(devices) as any[]) {
-      if (!d.zone) continue;
-      const c = caps[d.zone] ?? (caps[d.zone] = {
-        hasAudio: false,
-        hasVideo: false,
-        hasLights: false,
-        hasCameras: false,
-        audioDevices: [],
-        videoDevices: [],
-        lightDevices: [],
-        lights: [],
-        cameras: [],
-        sensors: [],
-      });
-      const k = classify(d);
-      const name = String(d.name ?? d.id ?? '');
-      if (k.isAudio) { c.hasAudio = true; c.audioDevices.push(name); }
-      if (k.isVideo) { c.hasVideo = true; c.videoDevices.push(name); }
-      if (k.isLight) {
-        c.hasLights = true;
-        c.lightDevices.push(name);
-        c.lights.push({ id: String(d.id), name });
-      }
-      if (isCamera(d)) { c.hasCameras = true; c.cameras.push({ id: String(d.id), name }); }
-      const st = sensorType(d);
-      if (st) c.sensors.push({ id: String(d.id), name, type: st });
-    }
-    const result = Object.values(zones).map((z: any) => {
+    const caps = buildZoneCaps(Object.values(devices) as any[]);
+    // Only rooms the guard can act on: containers such as "1st floor" (no sensor, light, camera or
+    // media device of their own) are left out of the list.
+    const result = (Object.values(zones) as any[]).filter((z) => isUsefulZone(caps[z.id])).map((z: any) => {
       const c = caps[z.id];
       return {
         id: z.id,

@@ -1,6 +1,7 @@
 'use strict';
 
 import type Homey from 'homey/lib/Homey';
+import { buildZoneCaps, isUsefulZone } from './ZoneCapabilities';
 
 const REFRESH_MS = 60_000;
 
@@ -25,6 +26,8 @@ export function sortByZoneName<T extends { name?: string }>(items: T[], language
 export default class ZoneDirectory {
 
   private names = new Map<string, string>();
+  /** Zones holding at least one sensor, light, camera or media device. null = unknown (device list unavailable). */
+  private useful: Set<string> | null = null;
   private timer: NodeJS.Timeout | null = null;
 
   constructor(
@@ -62,6 +65,11 @@ export default class ZoneDirectory {
       }
       this.names = next;
     } catch { /* best-effort */ }
+    try {
+      const devices = await this.homeyApi.devices.getDevices();
+      const caps = buildZoneCaps(Object.values(devices) as any[]);
+      this.useful = new Set(Object.keys(caps).filter((id) => isUsefulZone(caps[id])));
+    } catch { /* keep the previous answer; unknown means "list every zone" */ }
   }
 
   /** Fresh zone and device names for a sensor event (falls back to ids when the API fails). */
@@ -83,11 +91,15 @@ export default class ZoneDirectory {
     return { zoneName, deviceName };
   }
 
-  /** Autocomplete results for flow-card zone arguments, in alphabetical order. */
+  /**
+   * Autocomplete results for flow-card zone arguments, in alphabetical order. Only rooms the guard
+   * can act on are offered (containers such as "1st floor" are left out).
+   */
   autocomplete(query: string): { id: string; name: string }[] {
     const q = (query ?? '').toLowerCase();
     const results: { id: string; name: string }[] = [];
     for (const [id, name] of this.names) {
+      if (this.useful && !this.useful.has(id)) continue;
       if (!q || name.toLowerCase().includes(q)) results.push({ id, name });
     }
     return sortByZoneName(results, this.homey.i18n.getLanguage());
