@@ -1,14 +1,17 @@
 {
   "title": {
     "en": "Alarm !{{was|was not}} triggered in zone [[zone]]",
+    "nl": "Alarm !{{werd|werd niet}} geactiveerd in zone [[zone]]",
     "no": "Alarm !{{ble|ble ikke}} utløst i sone [[zone]]"
   },
   "titleFormatted": {
     "en": "Alarm !{{was|was not}} triggered in zone [[zone]]",
+    "nl": "Alarm !{{werd|werd niet}} geactiveerd in zone [[zone]]",
     "no": "Alarm !{{ble|ble ikke}} utløst i sone [[zone]]"
   },
   "hint": {
     "en": "True when the active alarm or perimeter alert was triggered by a sensor in the selected zone. Use this to run different deterrence reactions per zone.",
+    "nl": "Waar wanneer het actieve alarm of de perimeterwaarschuwing werd geactiveerd door een sensor in de geselecteerde zone. Gebruik dit om per zone een andere afschrikkingsreactie uit te voeren.",
     "no": "Sann når aktiv alarm eller skallsikringsvarsel ble utløst av en sensor i valgt sone. Bruk dette for å kjøre ulik avskrekking per sone."
   },
   "args": [
@@ -17,6 +20,7 @@
       "type": "autocomplete",
       "placeholder": {
         "en": "Select zone…",
+        "nl": "Selecteer zone…",
         "no": "Velg sone…"
       }
     }

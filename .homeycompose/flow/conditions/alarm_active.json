@@ -1,10 +1,12 @@
 {
   "title": {
     "en": "Alarm !{{is|is not}} active",
+    "nl": "Alarm !{{is|is niet}} actief",
     "no": "Alarm !{{er|er ikke}} aktiv"
   },
   "hint": {
     "en": "True when an alarm is currently triggered (independent of mode).",
+    "nl": "Waar wanneer er op dit moment een alarm actief is (onafhankelijk van de modus).",
     "no": "Sann når en alarm er utløst akkurat nå (uavhengig av modus)."
   }
 }

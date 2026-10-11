@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
@@ -962,58 +962,58 @@
 <body>
   <div class="page-header">
     <h2>McCallister Guard</h2>
-    <button class="help-btn" id="btn-help" title="Hjelp og dokumentasjon">❓</button>
+    <button class="help-btn" id="btn-help" data-i18n-title="header.help_title">❓</button>
   </div>
 
   <!-- Fixed bottom navigation bar (5 items — icon-only) -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="dashboard" title="Dashboard">
+    <button class="nav-btn active" data-tab="dashboard" data-i18n-title="nav.dashboard">
       <span class="nav-icon" aria-hidden="true">🏠</span>
-      <span class="nav-label">Dashboard</span>
+      <span class="nav-label" data-i18n="nav.dashboard">Dashboard</span>
     </button>
-    <button class="nav-btn" data-tab="zones" title="Soneoversikt">
+    <button class="nav-btn" data-tab="zones" data-i18n-title="nav.zones_title">
       <span class="nav-icon" aria-hidden="true">🗺️</span>
-      <span class="nav-label">Soner</span>
+      <span class="nav-label" data-i18n="nav.zones">Zones</span>
     </button>
-    <button class="nav-btn" data-tab="settings" title="Innstillinger">
+    <button class="nav-btn" data-tab="settings" data-i18n-title="nav.settings">
       <span class="nav-icon" aria-hidden="true">⚙️</span>
-      <span class="nav-label">Innstillinger</span>
+      <span class="nav-label" data-i18n="nav.settings">Settings</span>
     </button>
-    <button class="nav-btn" data-tab="images" title="Bilder">
+    <button class="nav-btn" data-tab="images" data-i18n-title="nav.images">
       <span class="nav-icon" aria-hidden="true">📷</span>
-      <span class="nav-label">Bilder</span>
+      <span class="nav-label" data-i18n="nav.images">Images</span>
     </button>
-    <button class="nav-btn" data-tab="log" title="Hendelseslogg">
+    <button class="nav-btn" data-tab="log" data-i18n-title="nav.log">
       <span class="nav-icon" aria-hidden="true">📋</span>
-      <span class="nav-label">Hendelseslogg</span>
+      <span class="nav-label" data-i18n="nav.log">Event log</span>
     </button>
   </nav>
 
   <section class="tab-panel active" id="tab-dashboard">
 
     <!-- Current mode status -->
-    <div id="status" class="status-card" data-mode="disarmed">Laster status…</div>
+    <div id="status" class="status-card" data-mode="disarmed" data-i18n="dashboard.loading_status">Loading status…</div>
 
     <!-- Stop alarm — only visible during alert states -->
-    <button class="mode-btn stop" id="btn-stop" style="display:none;">Stopp alarm</button>
+    <button class="mode-btn stop" id="btn-stop" style="display:none;" data-i18n="dashboard.stop_alarm">Stop alarm</button>
 
     <!-- Mode selector -->
     <div class="dash-section">
-      <div class="dash-section-label">Modus</div>
+      <div class="dash-section-label" data-i18n="dashboard.mode_section_label">Mode</div>
       <div class="mode-seg">
-        <button class="mode-btn off" data-mode="off">Av</button>
-        <button class="mode-btn disarmed" data-mode="disarmed">Hjemme</button>
-        <button class="mode-btn armed" data-mode="armed">Borte</button>
-        <button class="mode-btn armed_perimeter" data-mode="armed_perimeter">Skallsikring</button>
+        <button class="mode-btn off" data-mode="off" data-i18n="dashboard.mode_off">Off</button>
+        <button class="mode-btn disarmed" data-mode="disarmed" data-i18n="dashboard.mode_home">Home</button>
+        <button class="mode-btn armed" data-mode="armed" data-i18n="dashboard.mode_away">Away</button>
+        <button class="mode-btn armed_perimeter" data-mode="armed_perimeter" data-i18n="dashboard.mode_perimeter">Perimeter</button>
       </div>
     </div>
 
     <!-- Utility toggles -->
     <div class="dash-section">
-      <div class="dash-section-label">Tilvalg</div>
+      <div class="dash-section-label" data-i18n="dashboard.options_label">Options</div>
       <div class="dash-row">
-        <button class="util-btn cam-off" id="btn-camera-motion">Bilder uten alarm: Av</button>
-        <button class="util-btn" id="btn-bypass">Forbigå perimeter: Av</button>
+        <button class="util-btn cam-off" id="btn-camera-motion">…</button>
+        <button class="util-btn" id="btn-bypass">…</button>
         <select id="bypass-duration">
           <option value="30">30 s</option>
           <option value="60" selected>60 s</option>
@@ -1027,74 +1027,70 @@
 
     <!-- Test controls -->
     <div class="dash-section">
-      <div class="dash-section-label">Test</div>
+      <div class="dash-section-label" data-i18n="dashboard.test_label">Test</div>
       <div class="dash-row">
         <select id="test-zone-select" style="flex:1; min-width:140px;">
-          <option value="">Velg sone…</option>
+          <option value="" data-i18n="dashboard.select_zone_placeholder">Select zone…</option>
         </select>
-        <button class="util-btn test-deter" id="btn-test-deterrence">Test avskrekking</button>
-        <button class="util-btn test-alarm" id="btn-test-alarm">Test alarm</button>
+        <button class="util-btn test-deter" id="btn-test-deterrence" data-i18n="dashboard.test_deterrence_btn">Test deterrence</button>
+        <button class="util-btn test-alarm" id="btn-test-alarm" data-i18n="dashboard.test_alarm_btn">Test alarm</button>
       </div>
     </div>
 
     <div id="mode-error"
       style="display:none; background:#D32F2F; color:#fff; border-radius:8px; padding:10px 14px; margin-bottom:8px; font-size:13px;">
     </div>
-    <div class="info-banner">Alarmen aktiveres kun via knappene over eller en flow. Bruk «Stopp alarm» for å avbryte
-      eskalering og avskrekking uten å endre modus.</div>
+    <div class="info-banner" data-i18n="dashboard.info_banner">The alarm is only activated via the buttons above or a flow. Use
+      “Stop alarm” to cancel escalation and deterrence without changing mode.</div>
   </section>
 
   <section class="tab-panel" id="tab-zones">
-    <div class="info-banner">Klikk på en sone for å sette reaksjonssone (sone-matrise), Kevin-modus,
-      blink-tider, og for å teste oppsettet.</div>
+    <div class="info-banner" data-i18n="zones.info_banner">Click a zone to set its reaction zone (zone matrix), Kevin mode,
+      blink timing, and to test the setup.</div>
     <div id="zones"></div>
     <div style="margin-top:16px;">
-      <button class="save-btn" id="btn-save-zones">Lagre sone-innstillinger</button>
-      <span class="saved-toast" id="saved-toast-zones">✓ Lagret</span>
+      <button class="save-btn" id="btn-save-zones" data-i18n="zones.save_btn">Save zone settings</button>
+      <span class="saved-toast" id="saved-toast-zones" data-i18n="common.saved">✓ Saved</span>
     </div>
   </section>
 
   <section class="tab-panel" id="tab-settings">
-    <div class="info-banner">Globale innstillinger for hele systemet. Sone-spesifikke innstillinger finner du under
-      «Soneoversikt».</div>
+    <div class="info-banner" data-i18n="settings.info_banner">Global settings for the whole system. Zone-specific settings are
+      under “Zone overview”.</div>
     <div class="settings-grid" id="settings-grid"></div>
     <div style="margin-top:16px;">
-      <button class="save-btn" id="btn-save">Lagre innstillinger</button>
-      <span class="saved-toast" id="saved-toast">✓ Lagret</span>
+      <button class="save-btn" id="btn-save" data-i18n="settings.save_btn">Save settings</button>
+      <span class="saved-toast" id="saved-toast" data-i18n="common.saved">✓ Saved</span>
     </div>
   </section>
 
   <section class="tab-panel" id="tab-log">
     <div class="snap-header" style="margin: 0 0 8px;">
-      <h3 style="margin:0;">Hendelseslogg</h3>
+      <h3 style="margin:0;" data-i18n="nav.log">Event log</h3>
       <div style="display:flex;gap:8px;">
-        <button class="btn-secondary" id="btn-copy-log">Kopier logg</button>
-        <button class="btn-secondary" id="btn-download-log">Last ned</button>
-        <button class="snap-delete-btn" id="btn-clear-log">Tøm logg</button>
+        <button class="btn-secondary" id="btn-copy-log" data-i18n="log.copy_btn">Copy log</button>
+        <button class="btn-secondary" id="btn-download-log" data-i18n="log.download_btn">Download</button>
+        <button class="snap-delete-btn" id="btn-clear-log" data-i18n="log.clear_btn">Clear log</button>
       </div>
     </div>
     <div id="log" style="max-height: 460px; overflow-y: auto; border:1px solid #eee; border-radius:6px;"></div>
   </section>
 
   <section class="tab-panel" id="tab-images">
-    <div class="info-banner">Lagrede kamerabilder. Antall bilder som beholdes stilles inn under «Innstillinger».</div>
-    <div class="info-banner">⚠️ <strong>Kun kameraer som støtter snapshot-bilde URL fungerer.</strong>
-      Konfigurer manuell snapshot-URL under <strong>Soneoversikt → kamera</strong> om bildetaking ikke fungerer.
-      Les <a
-        href="https://github.com/thomasekdahlN/mcallisteralarm#kamera-snapshot--alt-vi-har-prøvd-og-hvorfor-det-ikke-fungerer"
-        target="_blank" rel="noopener">README</a> for mer informasjon om kamerastøtte.
-    </div>
+    <div class="info-banner" data-i18n="images.info_banner1">Stored camera images. The number of images kept is configured
+      under “Settings”.</div>
+    <div class="info-banner" id="images-info-banner2"></div>
 
     <div class="snap-header">
-      <h3>Alarmbilder</h3>
-      <button class="snap-delete-btn" id="btn-delete-alarm">Slett alle alarmbilder</button>
+      <h3 data-i18n="images.alarm_title">Alarm images</h3>
+      <button class="snap-delete-btn" id="btn-delete-alarm" data-i18n="images.delete_all_alarm">Delete all alarm images</button>
     </div>
     <div id="grid-alarm" class="snapshot-grid"></div>
     <div id="more-alarm-wrap"></div>
 
     <div class="snap-header">
-      <h3>Bevegelsesbilder</h3>
-      <button class="snap-delete-btn" id="btn-delete-motion">Slett alle bevegelsesbilder</button>
+      <h3 data-i18n="images.motion_title">Motion images</h3>
+      <button class="snap-delete-btn" id="btn-delete-motion" data-i18n="images.delete_all_motion">Delete all motion images</button>
     </div>
     <div id="grid-motion" class="snapshot-grid"></div>
     <div id="more-motion-wrap"></div>
@@ -1109,150 +1105,97 @@
 
   <!-- Documentation overlay — shown via ❓ button in header, not a bottom-nav tab -->
   <div class="docs-overlay" id="tab-docs">
-    <button class="docs-back-btn" id="btn-docs-back">← Tilbake</button>
+    <button class="docs-back-btn" id="btn-docs-back" data-i18n="docs.back_btn">← Back</button>
     <div class="docs">
-      <h3>Hva er McCallister Guard?</h3>
-      <p>Et sikkerhetssystem inspirert av <em>Alene Hjemme</em>: i stedet for å bare utløse en alarm, prøver appen
-        å <strong>avskrekke</strong> tyver med psykologiske triks — blålys i naborommet, sirener, bjeffende hunder,
-        eller videoklipp av en stor person i vinduet. Målet er at tyven snur før noe skjer.</p>
+      <h3 data-i18n="docs.title_what_is">What is McCallister Guard?</h3>
+      <p data-i18n-html="docs.what_is_body"></p>
 
-      <h3>Modi</h3>
+      <h3 data-i18n="docs.title_modes">Modes</h3>
       <ul>
-        <li><strong>Hjemme</strong> — Default. Ingen overvåking, ingen avskrekking. Lys styres normalt.</li>
-        <li><strong>Borte</strong> — Full overvåking. Kevin-simulering (lys av/på) starter automatisk for å late
-          som noen er hjemme. Bevegelse i en sone trigger avskrekking i reaksjonssonen.</li>
-        <li><strong>Skallsikring</strong> — Du sover. Kun sensorer du selv har valgt som <em>skallsikring</em>
-          (typisk ytterdører, vinduer og uteområder) kan utløse alarmen. Bevegelse innendørs ignoreres så du
-          kan gå på badet uten å sette i gang sirenen. Velg sensorer under «Soneoversikt».</li>
+        <li data-i18n-html="docs.modes_home"></li>
+        <li data-i18n-html="docs.modes_away"></li>
+        <li data-i18n-html="docs.modes_perimeter"></li>
       </ul>
 
-      <h3>Skallsikring — velg sensorer per sone</h3>
-      <p>Under hver sone i Soneoversikten lister appen alle dør-/vindu- og bevegelses-sensorer i sonen. Den
-        første avkrysningsboksen (uten ikon) markerer sensoren som <strong>aktiv i Skallsikring</strong> —
-        typisk ytterdører, vinduer og uteområder. Når Skallsikring er aktiv, ignoreres alle andre sensorer.
-        Hvis ingen sensorer er valgt globalt brukes alle som før (bakoverkompatibelt).</p>
+      <h3 data-i18n="docs.title_perimeter_sensors">Perimeter — select sensors per zone</h3>
+      <p data-i18n-html="docs.perimeter_sensors_body"></p>
 
-      <h3>Inngangsforsinkelse (⏱) — autorisert inngang</h3>
-      <p>For dør-/vindu-sensorer kan du krysse av <strong>⏱</strong> for å gi den sensoren en
-        <em>inngangsforsinkelse</em>. Når en slik dør åpnes (i Borte eller Skallsikring), starter en
-        nedtelling på <code>entry_delay</code> sekunder (default 30) før alarmen utløses — slik at en
-        autorisert bruker som kommer inn med kodelås eller smart-lås rekker å deaktivere systemet uten å
-        sette i gang sirenen. Anbefales for hoveddør og bakdør med kodelås.
-      </p>
-      <p>Tips: kombiner med en flow som <em>automatisk</em> deaktiverer systemet når smartlåsen din rapporterer
-        en autorisert opplåsing (NÅR «smart-låsen ble låst opp med kode X» → SÅ «sett McCallister Guard til
-        Hjemme»). Da rekker systemet å gå i Hjemme-modus før døren åpnes, og ingen alarm utløses i det hele
-        tatt. Inngangsforsinkelsen er fallback hvis flowen feiler eller låsen ikke rapporterer riktig.</p>
+      <h3 data-i18n="docs.title_entry_delay">Entry delay (⏱) — authorised entry</h3>
+      <p data-i18n-html="docs.entry_delay_body1"></p>
+      <p data-i18n-html="docs.entry_delay_body2"></p>
 
-      <h3>Avskrekking (sone-matrise)</h3>
-      <p>Når bevegelse oppdages i en sone, slår appen opp <strong>reaksjonssonen</strong> i sone-matrisen. F.eks.: tyv
-        oppdaget i <code>Gang</code> → blålys + lyd i <code>Stue</code>. Tyven tror noen er i stua. Hvis tyven beveger
-        seg <em>mot</em> reaksjonssonen, mørklegges den umiddelbart og en ny reaksjonssone aktiveres.</p>
-      <p>Konfigurer reaksjonssone og lyd/video per sone under «Soneoversikt».</p>
+      <h3 data-i18n="docs.title_deterrence_matrix">Deterrence (zone matrix)</h3>
+      <p data-i18n-html="docs.deterrence_matrix_body1"></p>
+      <p data-i18n-html="docs.deterrence_matrix_body2"></p>
 
-      <h3>Kevin-modus (lys-simulering)</h3>
-      <p>I Borte-modus aktiveres soner som er markert som <strong>Kevin-soner</strong> automatisk med naturlige
-        lys-mønstre fra <code>solnedgang − offset</code> til <code>bedtime</code>. Lysene slås av/på i tilfeldige
-        intervaller mellom <code>random_min</code> og <code>random_max</code> minutter.</p>
+      <h3 data-i18n="docs.title_kevin">Kevin mode (light simulation)</h3>
+      <p data-i18n-html="docs.kevin_body"></p>
 
-      <h3>Falsk-alarm-filter</h3>
-      <p>Alarmen eskalerer <strong>kun</strong> ved (kontakt-sensor + bevegelse) eller bevegelse i to forskjellige
-        soner innen 90 sekunder. Enkeltbevegelse uten kontakt utløser <em>ikke</em> eskalering. Dette hindrer at
-        f.eks. katten din eller solinnstråling utløser sirenen.</p>
+      <h3 data-i18n="docs.title_arming_check">Open-door check at arming (✔︎)</h3>
+      <p data-i18n-html="docs.arming_check_body"></p>
 
-      <h3>Eskalering</h3>
-      <p>Når kriterier er oppfylt starter eskaleringstimeren (<code>escalation_minutes</code>). Hvis systemet ikke
-        deaktiveres innen tiden, går det i <strong>ALARM</strong>-modus: full sirene på alle høyttalere og strobe på
-        alle lys.</p>
+      <h3 data-i18n="docs.title_escalation">Escalation</h3>
+      <p data-i18n-html="docs.escalation_body"></p>
 
-      <h3>Lys-vakt (LightAuthGuard)</h3>
-      <p>I armert modus (Borte/Skallsikring) holder appen kontroll over lysene: hvis noen (f.eks. en tyv) prøver å slå
-        på et lys utenom appens egne kommandoer, slås det umiddelbart av igjen. Under <em>aktiv avskrekking</em> er
-        vakta deaktivert i reaksjonssonen slik at en eventuell ekstern avskrekkings-flow trygt kan styre lys (f.eks.
-        sette en Hue-scene) parallelt med blinkingen.</p>
+      <h3 data-i18n="docs.title_reliability">Safety and reliability</h3>
+      <p data-i18n-html="docs.reliability_body"></p>
 
-      <h3>Stopp alarm</h3>
-      <p>«Stopp alarm»-knappen avbryter pågående eskalering, sirener og avskrekking og returnerer til forrige armerte
-        modus (Borte eller Skallsikring). Bruk den ved falsk alarm når du fortsatt vil at systemet skal være armert.</p>
+      <h3 data-i18n="docs.title_stop_alarm">Stop alarm</h3>
+      <p data-i18n-html="docs.stop_alarm_body"></p>
 
-      <h3>Smart-lås og automatisk deaktivering</h3>
-      <p>Bruk flow-kortet <code>set_mode</code> med verdien <strong>Hjemme</strong> i en flow som trigges av
-        smart-lås-opplåsing for å deaktivere alarmen automatisk. To viktige regler gjelder:</p>
+      <h3 data-i18n="docs.title_smart_lock">Smart lock and automatic disarming</h3>
+      <p data-i18n-html="docs.smart_lock_body"></p>
       <ul>
-        <li><strong>Skallsikring forblir aktiv</strong> — hvis systemet er i Skallsikring og en flow sender
-          <code>set_mode = Hjemme</code>, ignoreres kommandoen. Noen som kommer sent hjem deaktiverer
-          <em>ikke</em> nattmodus automatisk. Bruk «Stopp alarm»-knappen eller endre modus manuelt.
+        <li data-i18n-html="docs.smart_lock_rule1"></li>
+        <li data-i18n-html="docs.smart_lock_rule2"></li>
+      </ul>
+
+      <h3 data-i18n="docs.title_activation">Activation</h3>
+      <p data-i18n-html="docs.activation_body"></p>
+
+      <h3 data-i18n="docs.title_flow_cards">Available flow cards</h3>
+      <ul>
+        <li><strong data-i18n="docs.flow_cards_trigger_label">Trigger:</strong>
+          <span data-i18n-html="docs.flow_cards_trigger_tokens"></span>
         </li>
-        <li><strong>Alarm → Hjemme</strong> — hvis systemet er i full Alarm og en flow sender
-          <code>set_mode = Hjemme</code>, stoppes alarmen og systemet deaktiveres helt (inklusive
-          <code>alarm_stopped</code>-trigger).
+        <li><strong data-i18n="docs.flow_cards_condition_label">Condition:</strong>
+          <span data-i18n-html="docs.flow_cards_condition_list"></span>
+        </li>
+        <li><strong data-i18n="docs.flow_cards_action_label">Action:</strong>
+          <span data-i18n-html="docs.flow_cards_action_list"></span>
         </li>
       </ul>
 
-      <h3>Aktivering</h3>
-      <p>Alarmen aktiveres <strong>kun</strong> manuelt via knappene på Dashboard, eller via flow-kort
-        <code>set_mode</code>. Systemet starter <em>aldri</em> automatisk i armert modus etter installasjon eller
-        omstart.
-      </p>
+      <p data-i18n-html="docs.flow_cards_tip"></p>
 
-      <h3>Tilgjengelige flow-kort</h3>
-      <ul>
-        <li><strong>Trigger:</strong>
-          <code>alarm_triggered</code> (tokens: <em>zone, sensor, sensor_type, mode, timestamp</em>),
-          <code>alarm_triggered_intrusion</code>,
-          <code>alarm_triggered_entry_delay</code>,
-          <code>alarm_stopped</code> (tokens: <em>zone, sensor, reason</em>),
-          <code>alarm_stopped_intrusion</code>,
-          <code>alarm_stopped_entry_delay</code>,
-          <code>mode_changed</code> (tokens: <em>mode_new, mode_previous</em>),
-          <code>snapshot_taken</code>,
-          <code>health_check_failed</code> (token: <em>offline_count</em>)
-        </li>
-        <li><strong>Condition:</strong> <code>alarm_active</code>, <code>is_armed</code>,
-          <code>deterrence_active</code>
-        </li>
-        <li><strong>Action:</strong> <code>set_mode</code>, <code>trigger_deterrence</code>, <code>trigger_alarm</code>
-        </li>
-      </ul>
-
-      <p><strong>Tips:</strong> Bruk <code>mode_changed</code> til å bygge automatikker rundt modus-bytter
-        (f.eks. send push når noen setter til Borte, tenn utelys ved Skallsikring, eller logg modus-historikk
-        til Google Sheet). <code>timestamp</code>-token på <code>alarm_triggered</code> gir presis ISO-tid
-        som kan inkluderes i SMS og push.</p>
-
-      <h3>Avskrekking pr. sone — hvordan det fungerer</h3>
-      <p>Når avskrekking starter i en sone:</p>
+      <h3 data-i18n="docs.title_deterrence_per_zone">Deterrence per zone — how it works</h3>
+      <p data-i18n="docs.deterrence_per_zone_intro">When deterrence starts in a zone:</p>
       <ol>
-        <li>Appen blinker lys i reaksjonssonen med en sakte PÅ/AV-syklus (default 15 sek hver vei).
-          Dette krever at sonen har minst én enhet med <code>device.class === 'light'</code>.</li>
-        <li>Hendelsen logges til Event Log og Homey Timeline.</li>
+        <li data-i18n-html="docs.deterrence_step1"></li>
+        <li data-i18n="docs.deterrence_step2">The event is logged to the Event Log and Homey Timeline.</li>
       </ol>
-      <p>💡 i sone-overskriften viser at <em>Kevin-modus</em> er aktiv for sonen (Borte-modus lys-simulering).
-        Soner uten lys får ikke Kevin-modus-valg.</p>
+      <p data-i18n-html="docs.deterrence_per_zone_footer"></p>
 
-      <h3>Inkluderte mediafiler</h3>
-      <p>Disse filene er pakket inn i appen og kan brukes direkte som URL i Homey-flows (f.eks. Sonos
-        «Spill URL», Chromecast, VLC). Kopier URLen og lim den inn i ønsket flow-kort.</p>
+      <h3 data-i18n="docs.title_media">Included media files</h3>
+      <p data-i18n-html="docs.media_body"></p>
       <table class="media-table">
         <thead>
           <tr>
-            <th>Fil</th>
-            <th>URL (klikk Kopier)</th>
+            <th data-i18n="docs.media_table_file_col">File</th>
+            <th data-i18n="docs.media_table_url_col">URL (click Copy)</th>
           </tr>
         </thead>
         <tbody id="media-url-tbody">
           <tr>
-            <td colspan="2" style="color:#888;font-style:italic;padding:8px;">Laster…</td>
+            <td colspan="2" style="color:#888;font-style:italic;padding:8px;" data-i18n="common.loading">Loading…</td>
           </tr>
         </tbody>
       </table>
 
-      <h3>Eksempel: vakthund-bjeffing på Sonos overalt</h3>
+      <h3 data-i18n="docs.title_example">Example: guard dog barking on Sonos everywhere</h3>
       <ol>
-        <li><strong>NÅR:</strong> McCallister Guard → Avskrekking startet i sone</li>
-        <li><strong>SÅ:</strong> Sonos → <code>Spill URL</code> (på gruppen «Hele huset») →
-          kopier URL for <strong>guard-dog.ogg</strong> fra tabellen over, volum: 80 %
-        </li>
+        <li data-i18n-html="docs.example_step1"></li>
+        <li data-i18n-html="docs.example_step2"></li>
       </ol>
     </div>
   </div>
@@ -1262,6 +1205,48 @@
       Homey.ready();
 
       const $ = (id) => document.getElementById(id);
+
+      // ── i18n helpers ─────────────────────────────────────────────
+      const T = (key, vars) => {
+        let str = Homey.__(key);
+        if (typeof str !== 'string' || str === key) str = key;
+        if (vars) {
+          for (const [k, v] of Object.entries(vars)) {
+            str = str.split(`{${k}}`).join(String(v));
+          }
+        }
+        return str;
+      };
+
+      function applyStaticI18n() {
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          el.textContent = T(el.dataset.i18n);
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+          el.innerHTML = T(el.dataset.i18nHtml);
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+          el.title = T(el.dataset.i18nTitle);
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+          el.placeholder = T(el.dataset.i18nPlaceholder);
+        });
+      }
+      applyStaticI18n();
+
+      $('images-info-banner2').innerHTML = T('images.info_banner2_html');
+
+      // ── Locale-aware date formatting ────────────────────────────
+      // Resolved once from the backend (homey.i18n.getLanguage()) since the
+      // settings-page client API does not expose the active language directly.
+      let dateLocale = 'en-GB';
+      const LOCALE_MAP = { en: 'en-GB', nl: 'nl-NL', no: 'nb-NO' };
+      Homey.api('GET', '/language').then((res) => {
+        const lang = res && LOCALE_MAP[res.language] ? res.language : 'en';
+        dateLocale = LOCALE_MAP[lang];
+        document.documentElement.lang = lang;
+      }).catch(() => { /* keep default */ });
+
       const fmtTs = (ts) => {
         if (!ts) return '–';
         const d = new Date(ts);
@@ -1277,7 +1262,7 @@
       let settings = null;
       let lastStatus = { activeMotionZone: null, activeDeterrenceZone: null, recentMotionZones: [] };
 
-      const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
       // ── Tab navigation ──────────────────────────────────────────────
       function openTab(tabId) {
@@ -1304,21 +1289,21 @@
         $('tab-docs').classList.remove('open');
       });
 
-      // ── Inkluderte mediafiler — bygg URL-tabell dynamisk ────────────
+      // ── Included media files — build the URL table dynamically ─────
       let mediaUrlsPopulated = false;
       function populateMediaUrls() {
         if (mediaUrlsPopulated) return;
         mediaUrlsPopulated = true;
 
         const files = [
-          { name: 'guard-dog.ogg', emoji: '🐕', label: 'Vakthund', desc: 'Bjeffende vakthund' },
-          { name: 'police-siren.ogg', emoji: '🚨', label: 'Politisirene', desc: 'Politisirene' },
-          { name: 'fire-alarm.ogg', emoji: '🔥', label: 'Brannalarm', desc: 'Brannalarm-pip' },
-          { name: 'alarm-beep.ogg', emoji: '🔔', label: 'Advarselstone', desc: 'Kort advarselstone' },
-          { name: 'intruder-voice.m4a', emoji: '🗣️', label: 'Advarselsstemme', desc: 'Talemelding til innbruddstyv' },
-          { name: 'blue-lights.mp4', emoji: '🔵', label: 'Blålys', desc: 'Blålys-animasjon (Chromecast/TV)' },
-          { name: 'cop-silhouette.mp4', emoji: '👮', label: 'Politisilhuett', desc: 'Politisilhuett i vindu (Chromecast/TV)' },
-          { name: 'large-dog.mp4', emoji: '🐩', label: 'Stor hund', desc: 'Stor hund-video (Chromecast/TV)' },
+          { name: 'guard-dog.ogg', emoji: '🐕', label: T('media.guard_dog_label'), desc: T('media.guard_dog_desc') },
+          { name: 'police-siren.ogg', emoji: '🚨', label: T('media.police_siren_label'), desc: T('media.police_siren_desc') },
+          { name: 'fire-alarm.ogg', emoji: '🔥', label: T('media.fire_alarm_label'), desc: T('media.fire_alarm_desc') },
+          { name: 'alarm-beep.ogg', emoji: '🔔', label: T('media.warning_tone_label'), desc: T('media.warning_tone_desc') },
+          { name: 'intruder-voice.m4a', emoji: '🗣️', label: T('media.warning_voice_label'), desc: T('media.warning_voice_desc') },
+          { name: 'blue-lights.mp4', emoji: '🔵', label: T('media.blue_lights_label'), desc: T('media.blue_lights_desc') },
+          { name: 'cop-silhouette.mp4', emoji: '👮', label: T('media.cop_silhouette_label'), desc: T('media.cop_silhouette_desc') },
+          { name: 'large-dog.mp4', emoji: '🐩', label: T('media.large_dog_label'), desc: T('media.large_dog_desc') },
         ];
 
         const base = window.location.origin + '/app/com.ekdahl.mccallister-guard/assets/media/';
@@ -1332,7 +1317,7 @@
               <em style="font-size:11px;color:#666;font-weight:normal;">${f.desc}</em></td>
             <td><div class="media-url-cell">
               <span class="media-url">${url}</span>
-              <button class="copy-url-btn" data-copy="${url}">Kopier</button>
+              <button class="copy-url-btn" data-copy="${url}">${T('common.copy')}</button>
             </div></td>
           </tr>`;
         }).join('');
@@ -1341,10 +1326,10 @@
           btn.addEventListener('click', async () => {
             try {
               await navigator.clipboard.writeText(btn.dataset.copy);
-              btn.textContent = '✓ Kopiert';
-              setTimeout(() => { btn.textContent = 'Kopier'; }, 2000);
+              btn.textContent = T('common.copied');
+              setTimeout(() => { btn.textContent = T('common.copy'); }, 2000);
             } catch {
-              prompt('Kopier URL manuelt:', btn.dataset.copy);
+              prompt(T('docs.media_copy_prompt'), btn.dataset.copy);
             }
           });
         });
@@ -1362,7 +1347,7 @@
           renderZoneBlocks();
           populateTestZoneSelect();
         } catch (err) {
-          $('status').textContent = 'Feil ved lasting: ' + (err.message || err);
+          $('status').textContent = T('status.load_error', { err: err.message || err });
         }
       }
 
@@ -1389,40 +1374,40 @@
           updateZoneStatusPills(status);
           renderLog(log);
         } catch (err) {
-          $('status').textContent = 'Feil: ' + (err.message || err);
+          $('status').textContent = T('status.error', { err: err.message || err });
         }
       }
 
       function modeLabel(mode) {
-        if (mode === 'off') return 'Av (deaktivert)';
-        if (mode === 'armed') return 'Borte';
-        if (mode === 'armed_perimeter') return 'Skallsikring';
-        if (mode === 'deterrence') return 'Avskrekking aktiv';
-        if (mode === 'alarm') return 'ALARM';
-        return 'Hjemme';
+        if (mode === 'off') return T('mode.off');
+        if (mode === 'armed') return T('mode.armed');
+        if (mode === 'armed_perimeter') return T('mode.armed_perimeter');
+        if (mode === 'deterrence') return T('mode.deterrence');
+        if (mode === 'alarm') return T('mode.alarm');
+        return T('mode.disarmed');
       }
 
       function renderStatus(s) {
         const el = $('status');
         el.dataset.mode = s.mode || 'disarmed';
         const extras = [];
-        if (s.mode === 'deterrence') extras.push('Avskrekking pågår' + (s.testActive ? ' (TEST)' : ''));
-        if (s.mode === 'alarm') extras.push('FULL ALARM');
-        if (s.escalationPending) extras.push('⏳ Eskalering starter snart');
-        if (s.simulationRunning) extras.push('Kevin aktiv');
-        if (s.activeDeterrenceZone) extras.push('Reaksjonssone: ' + s.activeDeterrenceZone);
+        if (s.mode === 'deterrence') extras.push(T('status.deterrence_ongoing') + (s.testActive ? T('status.test_suffix') : ''));
+        if (s.mode === 'alarm') extras.push(T('status.full_alarm'));
+        if (s.escalationPending) extras.push(T('status.escalation_pending'));
+        if (s.simulationRunning) extras.push(T('status.kevin_active'));
+        if (s.activeDeterrenceZone) extras.push(T('status.reaction_zone', { zone: s.activeDeterrenceZone }));
         if (s.entryDelayActive && s.entryDelayEndsAt) {
           const rem = Math.max(0, Math.ceil((s.entryDelayEndsAt - Date.now()) / 1000));
-          extras.push(`⏱ Inngangsforsinkelse: ${rem}s — deaktiver for å avbryte`);
+          extras.push(T('status.entry_delay', { secs: rem }));
         }
         let modeText = modeLabel(s.mode);
         if (s.exitDelayActive && s.exitDelayEndsAt) {
           const rem = Math.max(0, Math.ceil((s.exitDelayEndsAt - Date.now()) / 1000));
-          modeText = `${modeLabel(s.mode)} → ${modeLabel(s.exitDelayTarget || 'armed')} (aktiveres om ${rem}s)`;
+          modeText = T('status.mode_arrow', { from: modeLabel(s.mode), to: modeLabel(s.exitDelayTarget || 'armed'), secs: rem });
         }
-        el.innerHTML = `<div class="mode-label">Modus: ${modeText}</div>`
-          + `<div class="meta">Sist endret: ${fmtTs(s.modeChangedAt)}</div>`
-          + (extras.length ? `<div class="meta">${extras.join(' · ')}</div>` : '');
+        el.innerHTML = `<div class="mode-label">${esc(T('status.mode_prefix', { mode: modeText }))}</div>`
+          + `<div class="meta">${esc(T('status.last_changed', { time: fmtTs(s.modeChangedAt) }))}</div>`
+          + (extras.length ? `<div class="meta">${esc(extras.join(' · '))}</div>` : '');
         const pendingMode = s.exitDelayActive ? (s.exitDelayTarget || 'armed') : null;
         document.querySelectorAll('.mode-btn[data-mode]').forEach((b) => {
           const isActive = b.dataset.mode === s.mode;
@@ -1442,7 +1427,7 @@
       function updateCameraMotionBtn(enabled) {
         const btn = $('btn-camera-motion');
         btn.dataset.enabled = enabled ? 'true' : 'false';
-        btn.textContent = enabled ? 'Bilder uten alarm: På' : 'Bilder uten alarm: Av';
+        btn.textContent = T('dashboard.camera_motion_label', { state: T(enabled ? 'common.enabled' : 'common.disabled') });
         btn.className = 'util-btn ' + (enabled ? 'cam-on' : 'cam-off');
       }
 
@@ -1450,17 +1435,19 @@
         const btn = $('btn-bypass');
         if (active && endsAt) {
           const secsLeft = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
-          btn.textContent = `Forbigå perimeter: På (${secsLeft}s igjen)`;
+          btn.textContent = T('dashboard.bypass_label_on', { secs: secsLeft });
           btn.className = 'util-btn bypass-on';
         } else {
-          btn.textContent = 'Forbigå perimeter: Av';
+          btn.textContent = T('dashboard.bypass_label_off');
           btn.className = 'util-btn';
         }
       }
+      updateCameraMotionBtn(false);
+      updateBypassBtn(false, null);
 
       function zoneStatusPill(zoneId) {
-        if (zoneId === lastStatus.activeDeterrenceZone) return '<span class="status-pill deter">AVSKREKKING</span>';
-        if ((lastStatus.recentMotionZones || []).includes(zoneId)) return '<span class="status-pill motion">BEVEGELSE</span>';
+        if (zoneId === lastStatus.activeDeterrenceZone) return `<span class="status-pill deter">${esc(T('zones.pill_deterrence'))}</span>`;
+        if ((lastStatus.recentMotionZones || []).includes(zoneId)) return `<span class="status-pill motion">${esc(T('zones.pill_motion'))}</span>`;
         return '<span class="status-pill">–</span>';
       }
 
@@ -1469,30 +1456,31 @@
         const kevinLights = settings.kevin_lights || [];
         const zoneKevinLights = (z.lights || []).filter((l) => kevinLights.includes(l.id));
         if (zoneKevinLights.length > 0) {
-          const lightList = zoneKevinLights.map((l) => l.name).join(', ') || 'ingen';
-          badges.push(`<span title="Kevin-modus aktiv – lys: ${esc(lightList)}">💡</span>`);
+          const lightList = zoneKevinLights.map((l) => l.name).join(', ') || '–';
+          badges.push(`<span title="${esc(T('zones.kevin_light_title'))} – ${esc(lightList)}">💡</span>`);
         }
         if (z.hasCameras) {
-          const camList = (z.cameras || []).map((c) => c.name).join(', ') || 'ukjent';
-          badges.push(`<span title="Kamera: ${esc(camList)}">📷</span>`);
+          const camList = (z.cameras || []).map((c) => c.name).join(', ') || '–';
+          badges.push(`<span title="${esc(T('zones.cameras_label'))}: ${esc(camList)}">📷</span>`);
         }
         return badges.length ? `<span class="cap-badges">${badges.join('')}</span>` : '';
       }
 
       function renderZoneBlocks() {
-        if (!zones.length) { $('zones').innerHTML = '<em>Ingen soner funnet.</em>'; return; }
+        if (!zones.length) { $('zones').innerHTML = `<em>${esc(T('zones.none_found'))}</em>`; return; }
         $('zones').innerHTML = zones.map((z) => {
           const opts = zones.map((r) => `<option value="${esc(r.id)}" ${settings.zone_matrix[z.id] === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('');
 
           const perimeterSet = new Set(settings.perimeter_sensors || []);
           const perimeterSeenSet = new Set(settings.perimeter_sensors_seen || []);
           const entryDelaySet = new Set(settings.entry_delay_sensors || []);
+          const armingExcludedSet = new Set(settings.arming_check_excluded || []);
           const sensors = z.sensors || [];
           let sensorBlock = '';
           if (sensors.length > 0) {
             const sensorRows = sensors.map((s) => {
               const icon = s.type === 'contact' ? '🚪' : '👁️';
-              const typeLabel = s.type === 'contact' ? 'dør/vindu' : 'bevegelse';
+              const typeLabel = s.type === 'contact' ? T('zones.sensor_type_contact') : T('zones.sensor_type_motion');
               // New sensors (never seen before) default based on type:
               //   door/window (contact) → perimeter ON by default
               //   motion → perimeter OFF by default
@@ -1501,20 +1489,26 @@
               const perim = (perimeterSet.has(s.id) || perimDefault) ? 'checked' : '';
               const entry = entryDelaySet.has(s.id) ? 'checked' : '';
               const entryBox = s.type === 'contact'
-                ? `<label class="sensor-flag" title="Inngangsforsinkelse — gi tid til å deaktivere før alarm utløses (f.eks. hoveddør med kodelås)."><input type="checkbox" data-entry-delay="${esc(s.id)}" ${entry}> ⏱</label>`
+                ? `<label class="sensor-flag" title="${esc(T('zones.entry_delay_title'))}"><input type="checkbox" data-entry-delay="${esc(s.id)}" ${entry}> ⏱</label>`
+                : '';
+              // Open-door check when arming Away: on by default, unchecked = excluded (e.g. interior doors).
+              const armingChecked = armingExcludedSet.has(s.id) ? '' : 'checked';
+              const armingBox = s.type === 'contact'
+                ? `<label class="sensor-flag" title="${esc(T('zones.arming_check_title'))}"><input type="checkbox" data-arming-check="${esc(s.id)}" ${armingChecked}> ✔︎</label>`
                 : '';
               return `<div class="sensor-row">`
-                + `<label class="sensor-flag" title="Aktiv i Skallsikring"><input type="checkbox" data-perimeter="${esc(s.id)}" ${perim}></label>`
-                + `<span class="sensor-name">${icon} ${esc(s.name)} <em class="sensor-type">(${typeLabel})</em></span>`
+                + `<label class="sensor-flag" title="${esc(T('zones.perimeter_flag_title'))}"><input type="checkbox" data-perimeter="${esc(s.id)}" ${perim}></label>`
+                + `<span class="sensor-name">${icon} ${esc(s.name)} <em class="sensor-type">(${esc(typeLabel)})</em></span>`
+                + armingBox
                 + entryBox
                 + `</div>`;
             }).join('');
-            sensorBlock = `<label>Skallsikring</label><div class="sensor-list">${sensorRows}</div>`;
+            sensorBlock = `<label>${esc(T('zones.perimeter_label'))}</label><div class="sensor-list">${sensorRows}</div>`;
           } else {
-            sensorBlock = `<label>Skallsikring</label><div class="sensor-empty">Ingen dør/vindu- eller bevegelses-sensorer i denne sonen.</div>`;
+            sensorBlock = `<label>${esc(T('zones.perimeter_label'))}</label><div class="sensor-empty">${esc(T('zones.perimeter_empty'))}</div>`;
           }
 
-          // blink_on/blink_off are now global — configured under Innstillinger.
+          // blink_on/blink_off are now global — configured under Settings.
 
           const cameraAlarmCams = settings.camera_alarm_cams || {};
           const cameraMotionCams = settings.camera_motion_cams || {};
@@ -1528,27 +1522,27 @@
               const manualUrl = esc(cameraSnapshotUrls[cam.id] || '');
               return `<div class="sensor-row camera-row">`
                 + `<span class="sensor-name">📷 ${esc(cam.name)}</span>`
-                + `<label class="sensor-flag" title="Ta bilder ved alarm"><input type="checkbox" data-camera-alarm-cam="${esc(cam.id)}" ${alarmOn}> 🔴 Alarm</label>`
-                + `<label class="sensor-flag" title="Ta bilder ved bevegelse (uten alarm)"><input type="checkbox" data-camera-motion-cam="${esc(cam.id)}" ${motionOn}> 🟢 Bevegelse</label>`
+                + `<label class="sensor-flag" title="${esc(T('zones.camera_alarm_title'))}"><input type="checkbox" data-camera-alarm-cam="${esc(cam.id)}" ${alarmOn}> ${T('zones.camera_alarm_label')}</label>`
+                + `<label class="sensor-flag" title="${esc(T('zones.camera_motion_title'))}"><input type="checkbox" data-camera-motion-cam="${esc(cam.id)}" ${motionOn}> ${T('zones.camera_motion_label')}</label>`
                 + `<div style="flex-basis:100%; display:flex; flex-direction:column; gap:2px; margin-top:4px;">`
-                + `<label style="font-size:0.8em; color:#666; font-weight:normal;" title="Oppgi full URL til kameraets snapshot-endepunkt (f.eks. http://192.168.1.x/snap.jpg). Brukes når kameradriveren ikke støtter Homeys native snapshot-API.">`
-                + `Manuell snapshot-URL (valgfri)</label>`
+                + `<label style="font-size:0.8em; color:#666; font-weight:normal;" title="${esc(T('zones.manual_snapshot_title'))}">`
+                + `${esc(T('zones.manual_snapshot_label'))}</label>`
                 + `<input type="url" data-camera-snapshot-url="${esc(cam.id)}" value="${manualUrl}" placeholder="http://192.168.1.x/snapshot.jpg" style="width:100%; box-sizing:border-box; padding:4px 8px; border:1px solid #ccc; border-radius:4px; font-size:0.9em;">`
                 + `</div>`
                 + `</div>`;
             }).join('');
-            cameraBlock = `<label>Kameraer</label><div class="sensor-list">${cameraRows}</div>`;
+            cameraBlock = `<label>${esc(T('zones.cameras_label'))}</label><div class="sensor-list">${cameraRows}</div>`;
           }
 
           const kevinLights = settings.kevin_lights || [];
           const kevinBlock = (z.lights && z.lights.length > 0)
-            ? `<label>Kevin-modus</label>`
+            ? `<label>${esc(T('zones.kevin_label'))}</label>`
             + `<div class="sensor-list">`
             + z.lights.map((l) => {
               const checked = kevinLights.includes(l.id) ? 'checked' : '';
               return `<div class="sensor-row">`
                 + `<span class="sensor-name">💡 ${esc(l.name)}</span>`
-                + `<label class="sensor-flag" title="Inkluder i lys-simulering (Kevin-modus)"><input type="checkbox" data-kevin-light="${esc(l.id)}" ${checked}> Simuler</label>`
+                + `<label class="sensor-flag" title="${esc(T('zones.kevin_light_title'))}"><input type="checkbox" data-kevin-light="${esc(l.id)}" ${checked}> ${esc(T('zones.simulate_label'))}</label>`
                 + `</div>`;
             }).join('')
             + `</div>`
@@ -1557,8 +1551,8 @@
           return `<details class="zone-block" data-zone="${esc(z.id)}">`
             + `<summary><span>${esc(z.name)}${capBadges(z)}</span>${zoneStatusPill(z.id)}</summary>`
             + `<div class="zone-body">`
-            + `<label>Reaksjonssone</label>`
-            + `<select data-matrix="${esc(z.id)}"><option value="">— ingen —</option>${opts}</select>`
+            + `<label>${esc(T('zones.reaction_zone_label'))}</label>`
+            + `<select data-matrix="${esc(z.id)}"><option value="">${esc(T('zones.none_option'))}</option>${opts}</select>`
             + kevinBlock
             + sensorBlock
             + cameraBlock
@@ -1574,8 +1568,8 @@
           if (!pill) return;
           pill.className = 'status-pill';
           pill.textContent = '–';
-          if (id === s.activeDeterrenceZone) { pill.classList.add('deter'); pill.textContent = 'AVSKREKKING'; }
-          else if (recent.includes(id)) { pill.classList.add('motion'); pill.textContent = 'BEVEGELSE'; }
+          if (id === s.activeDeterrenceZone) { pill.classList.add('deter'); pill.textContent = T('zones.pill_deterrence'); }
+          else if (recent.includes(id)) { pill.classList.add('motion'); pill.textContent = T('zones.pill_motion'); }
         });
       }
 
@@ -1586,41 +1580,41 @@
         }
         $('log').innerHTML = entries.map((e) => `<div class="log-entry">`
           + `<span class="lvl ${e.level}">${e.level.toUpperCase()}</span> `
-          + `<span>${fmtTs(e.ts)}</span> — ${fmtMsg(e.message)}</div>`).join('') || '<em>Tom logg.</em>';
+          + `<span>${fmtTs(e.ts)}</span> — ${fmtMsg(e.message)}</div>`).join('') || `<em>${esc(T('log.empty'))}</em>`;
       }
 
       function renderGlobalSettings() {
         const fields = [
-          ['bedtime', 'Bedtime (HH:MM)', 'time'],
-          ['sunset_offset', 'Sunset offset (min)', 'number'],
-          ['random_min', 'Random min (min)', 'number'],
-          ['random_max', 'Random max (min)', 'number'],
-          ['deterrence_delay', 'Deterrence delay (s)', 'number'],
-          ['exit_delay', 'Exit delay (s)', 'number'],
-          ['entry_delay', 'Entry delay (s)', 'number'],
-          ['escalation_minutes', 'Escalation time (min)', 'number'],
-          ['blink_on', 'Avskrekking lys på (sek)', 'number'],
-          ['blink_off', 'Avskrekking lys av (sek)', 'number'],
-          ['alarm_blink_on', 'Alarm blink på (s)', 'number'],
-          ['alarm_blink_off', 'Alarm blink av (s)', 'number'],
-          ['snapshot_max_count', 'Maks bilder per kategori (alarm/bevegelse)', 'number'],
-          ['camera_alarm_burst', 'Bilder per kamera ved alarm', 'number'],
-          ['camera_motion_burst', 'Bilder per kamera ved bevegelse', 'number'],
+          ['bedtime', T('settings.field_bedtime'), 'time'],
+          ['sunset_offset', T('settings.field_sunset_offset'), 'number'],
+          ['random_min', T('settings.field_random_min'), 'number'],
+          ['random_max', T('settings.field_random_max'), 'number'],
+          ['deterrence_delay', T('settings.field_deterrence_delay'), 'number'],
+          ['exit_delay', T('settings.field_exit_delay'), 'number'],
+          ['entry_delay', T('settings.field_entry_delay'), 'number'],
+          ['escalation_minutes', T('settings.field_escalation_minutes'), 'number'],
+          ['blink_on', T('settings.field_blink_on'), 'number'],
+          ['blink_off', T('settings.field_blink_off'), 'number'],
+          ['alarm_blink_on', T('settings.field_alarm_blink_on'), 'number'],
+          ['alarm_blink_off', T('settings.field_alarm_blink_off'), 'number'],
+          ['snapshot_max_count', T('settings.field_snapshot_max_count'), 'number'],
+          ['camera_alarm_burst', T('settings.field_camera_alarm_burst'), 'number'],
+          ['camera_motion_burst', T('settings.field_camera_motion_burst'), 'number'],
         ];
-        let html = fields.map(([k, label, t]) => `<label for="set_${k}">${label}</label>`
+        let html = fields.map(([k, label, t]) => `<label for="set_${k}">${esc(label)}</label>`
           + `<input id="set_${k}" type="${t}" value="${esc(settings[k] ?? '')}">`).join('');
 
-        // Skallsikring auto-planlegger (checkbox + two time pickers on one row)
+        // Perimeter auto-scheduler (checkbox + two time pickers on one row)
         const autoChecked = settings.armed_perimeter_auto ? 'checked' : '';
         const onVal = esc(settings.armed_perimeter_on ?? '22:00');
         const offVal = esc(settings.armed_perimeter_off ?? '06:00');
-        html += `<label>Automatisk skallsikring</label>`
+        html += `<label>${esc(T('settings.auto_perimeter_label'))}</label>`
           + `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">`
           + `<label style="display:flex;align-items:center;gap:6px;font-weight:normal;">`
-          + `<input type="checkbox" id="set_armed_perimeter_auto" ${autoChecked}> Aktiver tidsplan</label>`
-          + `<label for="set_armed_perimeter_on" style="font-weight:normal;">Fra</label>`
+          + `<input type="checkbox" id="set_armed_perimeter_auto" ${autoChecked}> ${esc(T('settings.enable_schedule'))}</label>`
+          + `<label for="set_armed_perimeter_on" style="font-weight:normal;">${esc(T('settings.from'))}</label>`
           + `<input id="set_armed_perimeter_on" type="time" value="${onVal}" style="width:110px;">`
-          + `<label for="set_armed_perimeter_off" style="font-weight:normal;">Til</label>`
+          + `<label for="set_armed_perimeter_off" style="font-weight:normal;">${esc(T('settings.to'))}</label>`
           + `<input id="set_armed_perimeter_off" type="time" value="${offVal}" style="width:110px;">`
           + `</div>`;
 
@@ -1658,7 +1652,7 @@
           $('mode-error').style.display = 'none';
           const result = await Homey.api('POST', '/mode', { mode: b.dataset.mode });
           if (result && result.success === false) {
-            showModeError(result.error || 'Ugyldig modusovergang.');
+            showModeError(result.error || T('dashboard.mode_error_invalid'));
           } else {
             refreshLive();
           }
@@ -1699,7 +1693,7 @@
       $('btn-test-deterrence').addEventListener('click', async () => {
         const btn = $('btn-test-deterrence');
         const zoneId = $('test-zone-select').value;
-        if (!zoneId) { alert('Velg en sone for å teste avskrekking.'); return; }
+        if (!zoneId) { alert(T('dashboard.select_zone_alert')); return; }
         btn.disabled = true;
         try {
           await Homey.api('POST', '/test-deterrence', { zoneId });
@@ -1710,7 +1704,7 @@
       });
       $('btn-test-alarm').addEventListener('click', async () => {
         const btn = $('btn-test-alarm');
-        if (!confirm('Kjøre test av full alarm (eskalering)? Alarmen stopper automatisk etter 15 sekunder.')) return;
+        if (!confirm(T('dashboard.confirm_test_alarm'))) return;
         btn.disabled = true;
         try {
           await Homey.api('POST', '/test-alarm', {});
@@ -1723,14 +1717,18 @@
         const payload = {};
         const timeKeys = new Set(['bedtime', 'armed_perimeter_on', 'armed_perimeter_off']);
         ['bedtime', 'sunset_offset', 'random_min', 'random_max', 'deterrence_delay', 'exit_delay', 'entry_delay', 'escalation_minutes', 'blink_on', 'blink_off', 'alarm_blink_on', 'alarm_blink_off', 'snapshot_max_count', 'camera_alarm_burst', 'camera_motion_burst', 'armed_perimeter_on', 'armed_perimeter_off']
-          .forEach((k) => { const v = $('set_' + k).value; payload[k] = timeKeys.has(k) ? v : Number(v); });
+          .forEach((k) => {
+            const v = $('set_' + k).value.trim();
+            if (v === '') return; // never send blank fields — the server keeps the current value
+            payload[k] = timeKeys.has(k) ? v : Number(v);
+          });
         payload.armed_perimeter_auto = $('set_armed_perimeter_auto').checked;
         await saveSettings(payload, $('btn-save'), 'saved-toast');
       });
       $('btn-save-zones').addEventListener('click', async () => {
         const payload = {
           kevin_zones: {}, kevin_lights: [], zone_matrix: {}, perimeter_sensors: [], perimeter_sensors_seen: [],
-          entry_delay_sensors: [],
+          entry_delay_sensors: [], arming_check_excluded: [],
           camera_alarm_cams: {}, camera_motion_cams: {},
           camera_snapshot_urls: {},
         };
@@ -1743,6 +1741,16 @@
         document.querySelectorAll('[data-perimeter]').forEach((c) => { nowSeen.push(c.dataset.perimeter); });
         payload.perimeter_sensors_seen = [...new Set([...previousSeen, ...nowSeen])];
         document.querySelectorAll('[data-perimeter]:checked').forEach((c) => { payload.perimeter_sensors.push(c.dataset.perimeter); });
+        // Unchecked contact sensors are excluded from the open-door check at arming. Sensors that are not
+        // rendered in the UI (e.g. temporarily unavailable) keep their previous exclusion.
+        const renderedArming = new Set();
+        document.querySelectorAll('[data-arming-check]').forEach((c) => {
+          renderedArming.add(c.dataset.armingCheck);
+          if (!c.checked) payload.arming_check_excluded.push(c.dataset.armingCheck);
+        });
+        (settings.arming_check_excluded || []).forEach((id) => {
+          if (!renderedArming.has(id) && !payload.arming_check_excluded.includes(id)) payload.arming_check_excluded.push(id);
+        });
         document.querySelectorAll('[data-entry-delay]:checked').forEach((c) => { payload.entry_delay_sensors.push(c.dataset.entryDelay); });
         document.querySelectorAll('[data-camera-alarm-cam]').forEach((c) => {
           payload.camera_alarm_cams[c.dataset.cameraAlarmCam] = c.checked;
@@ -1769,14 +1777,14 @@
 
       function openLightbox(type, filename, timestamp, size) {
         $('lightbox-img').src = '';
-        $('lightbox-meta').textContent = 'Laster…';
+        $('lightbox-meta').textContent = T('common.loading');
         $('lightbox').style.display = 'flex';
         Homey.api('GET', '/snapshot-image', { type, filename }).then((res) => {
           if (res && res.data) {
             $('lightbox-img').src = 'data:image/jpeg;base64,' + res.data;
-            $('lightbox-meta').textContent = new Date(timestamp).toLocaleString('no-NO') + '  •  ' + fmtBytes(size);
+            $('lightbox-meta').textContent = new Date(timestamp).toLocaleString(dateLocale) + '  •  ' + fmtBytes(size);
           }
-        }).catch(() => { $('lightbox-meta').textContent = 'Kunne ikke laste bildet.'; });
+        }).catch(() => { $('lightbox-meta').textContent = T('lightbox.load_failed'); });
       }
 
       $('lightbox-close').addEventListener('click', () => { $('lightbox').style.display = 'none'; $('lightbox-img').src = ''; });
@@ -1789,7 +1797,7 @@
         moreWrap.innerHTML = '';
 
         if (!items || items.length === 0) {
-          grid.innerHTML = '<p class="snap-empty">Ingen bilder lagret.</p>';
+          grid.innerHTML = `<p class="snap-empty">${esc(T('images.none_stored'))}</p>`;
           return;
         }
 
@@ -1797,7 +1805,7 @@
         const summary = document.createElement('p');
         summary.className = 'snap-empty';
         summary.style.marginBottom = '8px';
-        summary.textContent = items.length + ' bilde' + (items.length !== 1 ? 'r' : '') + '  •  totalt ' + fmtBytes(totalBytes);
+        summary.textContent = T(items.length === 1 ? 'images.count_summary_one' : 'images.count_summary_other', { count: items.length, size: fmtBytes(totalBytes) });
         grid.appendChild(summary);
 
         let shown = 0;
@@ -1807,7 +1815,7 @@
           for (const item of slice) {
             const img = document.createElement('img');
             img.className = 'snapshot-thumb';
-            img.alt = new Date(item.timestamp).toLocaleString('no-NO');
+            img.alt = new Date(item.timestamp).toLocaleString(dateLocale);
             img.title = img.alt + ' • ' + fmtBytes(item.size);
             img.loading = 'lazy';
             // Lazy-load image data when it becomes visible.
@@ -1828,7 +1836,7 @@
           if (shown < items.length) {
             const btn = document.createElement('button');
             btn.className = 'snap-load-more';
-            btn.textContent = 'Vis flere (' + (items.length - shown) + ' igjen)';
+            btn.textContent = T('images.load_more', { n: items.length - shown });
             btn.addEventListener('click', showPage);
             moreWrap.appendChild(btn);
           }
@@ -1875,13 +1883,13 @@
         await loadImages();
       }
       const btnDelAlarm = $('btn-delete-alarm');
-      if (btnDelAlarm) withConfirm(btnDelAlarm, 'Slett alle alarmbilder', 'Klikk igjen for å bekrefte', () => deleteSnapshotsOfType('alarm'));
+      if (btnDelAlarm) withConfirm(btnDelAlarm, T('images.delete_all_alarm'), T('common.confirm_again'), () => deleteSnapshotsOfType('alarm'));
       const btnDelMotion = $('btn-delete-motion');
-      if (btnDelMotion) withConfirm(btnDelMotion, 'Slett alle bevegelsesbilder', 'Klikk igjen for å bekrefte', () => deleteSnapshotsOfType('motion'));
+      if (btnDelMotion) withConfirm(btnDelMotion, T('images.delete_all_motion'), T('common.confirm_again'), () => deleteSnapshotsOfType('motion'));
 
       const btnClearLog = $('btn-clear-log');
       if (btnClearLog) {
-        withConfirm(btnClearLog, 'Tøm logg', 'Klikk igjen for å bekrefte', async () => {
+        withConfirm(btnClearLog, T('log.clear_btn'), T('common.confirm_again'), async () => {
           await Homey.api('DELETE', '/events');
           await refreshLive();
         });
@@ -1889,32 +1897,32 @@
 
       $('btn-copy-log').addEventListener('click', async () => {
         const events = /** @type {Array<{ts:number,level:string,message:string}>} */ (await Homey.api('GET', '/events'));
-        if (!events || events.length === 0) { alert('Ingen hendelser å kopiere.'); return; }
+        if (!events || events.length === 0) { alert(T('log.no_events_copy_alert')); return; }
         const lines = events.map((e) => {
           const d = new Date(e.ts);
-          const date = d.toLocaleDateString('nb-NO');
-          const time = d.toLocaleTimeString('nb-NO');
+          const date = d.toLocaleDateString(dateLocale);
+          const time = d.toLocaleTimeString(dateLocale);
           return `${date} ${time}\t${e.level}\t${e.message}`;
         });
         await navigator.clipboard.writeText(lines.join('\n'));
-        alert('Logg kopiert til utklippstavlen.');
+        alert(T('log.copied_alert'));
       });
 
       $('btn-download-log').addEventListener('click', async () => {
         const events = /** @type {Array<{ts:number,level:string,message:string}>} */ (await Homey.api('GET', '/events'));
-        if (!events || events.length === 0) { alert('Ingen hendelser å laste ned.'); return; }
-        const rows = ['Dato;Tid;Nivå;Melding'];
+        if (!events || events.length === 0) { alert(T('log.no_events_download_alert')); return; }
+        const rows = [T('log.csv_header')];
         events.forEach((e) => {
           const d = new Date(e.ts);
-          const date = d.toLocaleDateString('nb-NO');
-          const time = d.toLocaleTimeString('nb-NO');
+          const date = d.toLocaleDateString(dateLocale);
+          const time = d.toLocaleTimeString(dateLocale);
           const msg = e.message.replace(/"/g, '""');
           rows.push(`${date};${time};${e.level};"${msg}"`);
         });
         const csv = rows.join('\r\n');
         const today = new Date().toISOString().slice(0, 10);
-        const filename = `${today}-mcallister-hendelseslogg.csv`;
-        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const filename = `${today}-${T('log.csv_filename_suffix')}.csv`;
+        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url; a.download = filename; a.click();

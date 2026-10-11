@@ -2,7 +2,7 @@
 
 import type Homey from 'homey/lib/Homey';
 import {
-  EVENT_LOG_MAX_AGE_MS, EventEntry, EventLevel, SETTINGS_KEYS,
+  EVENT_LOG_MAX_AGE_MS, EVENT_LOG_MAX_ENTRIES, EventEntry, EventLevel, SETTINGS_KEYS,
 } from './types';
 
 export type ZoneNameResolver = (zoneId: string) => string | undefined;
@@ -29,7 +29,7 @@ export default class EventLog {
       ts: Date.now(), level, message: humanMessage, zoneId, zoneName, deviceId,
     };
     this.buffer.push(entry);
-    // Prune entries older than 14 days (pure time-based rolling window).
+    // Prune entries older than 14 days and enforce the entry cap.
     this.buffer = this.pruneOld(this.buffer);
     this.homey.settings.set(SETTINGS_KEYS.EVENT_LOG, this.buffer);
     return entry;
@@ -47,7 +47,8 @@ export default class EventLog {
 
   private pruneOld(entries: EventEntry[]): EventEntry[] {
     const cutoff = Date.now() - EVENT_LOG_MAX_AGE_MS;
-    return entries.filter((e) => e.ts >= cutoff);
+    const recent = entries.filter((e) => e.ts >= cutoff);
+    return recent.length > EVENT_LOG_MAX_ENTRIES ? recent.slice(-EVENT_LOG_MAX_ENTRIES) : recent;
   }
 
   private resolveZoneName(zoneId: string): string | undefined {

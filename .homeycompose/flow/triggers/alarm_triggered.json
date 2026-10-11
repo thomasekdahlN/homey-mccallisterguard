@@ -1,14 +1,17 @@
 {
   "title": {
     "en": "Alarm triggered in zone",
+    "nl": "Alarm geactiveerd in zone",
     "no": "Alarm utløst i sone"
   },
   "titleFormatted": {
     "en": "Alarm triggered [[zone_filter]] [[zone]] by [[sensor_type]]",
+    "nl": "Alarm geactiveerd [[zone_filter]] [[zone]] door [[sensor_type]]",
     "no": "Alarm utløst [[zone_filter]] [[zone]] av [[sensor_type]]"
   },
   "hint": {
     "en": "Fires when a sensor trips the alarm while in Away (armed) mode. Filter by zone and/or sensor type — choose 'NOT in zone' to exclude one zone and fire for all others. Use alarm_perimeter_triggered for Perimeter breaches.",
+    "nl": "Wordt geactiveerd wanneer een sensor het alarm activeert in Afwezig-modus (armed). Filter op zone en/of sensortype — kies 'NIET in zone' om één zone uit te sluiten en voor alle andere te activeren. Gebruik alarm_perimeter_triggered voor perimeterinbreuken.",
     "no": "Utløses når en sensor aktiverer alarmen i Borte-modus. Filtrer på sone og/eller sensortype — velg 'IKKE i sone' for å ekskludere én sone og utløse for alle andre. Bruk alarm_perimeter_triggered for skallsikringsbrudd."
   },
   "args": [
@@ -16,22 +19,61 @@
       "name": "zone_filter",
       "type": "dropdown",
       "values": [
-        { "id": "include", "label": { "en": "in zone",     "no": "i sone" } },
-        { "id": "exclude", "label": { "en": "NOT in zone", "no": "IKKE i sone" } }
+        {
+          "id": "include",
+          "label": {
+            "en": "in zone",
+            "nl": "in zone",
+            "no": "i sone"
+          }
+        },
+        {
+          "id": "exclude",
+          "label": {
+            "en": "NOT in zone",
+            "nl": "NIET in zone",
+            "no": "IKKE i sone"
+          }
+        }
       ]
     },
     {
       "name": "zone",
       "type": "autocomplete",
-      "placeholder": { "en": "Select zone…", "no": "Velg sone…" }
+      "placeholder": {
+        "en": "Select zone…",
+        "nl": "Selecteer zone…",
+        "no": "Velg sone…"
+      }
     },
     {
       "name": "sensor_type",
       "type": "dropdown",
       "values": [
-        { "id": "*",       "label": { "en": "Any sensor type",       "no": "Alle sensortyper" } },
-        { "id": "motion",  "label": { "en": "Motion",                "no": "Bevegelse" } },
-        { "id": "contact", "label": { "en": "Contact (door/window)", "no": "Kontakt (dør/vindu)" } }
+        {
+          "id": "*",
+          "label": {
+            "en": "Any sensor type",
+            "nl": "Elk sensortype",
+            "no": "Alle sensortyper"
+          }
+        },
+        {
+          "id": "motion",
+          "label": {
+            "en": "Motion",
+            "nl": "Beweging",
+            "no": "Bevegelse"
+          }
+        },
+        {
+          "id": "contact",
+          "label": {
+            "en": "Contact (door/window)",
+            "nl": "Contact (deur/raam)",
+            "no": "Kontakt (dør/vindu)"
+          }
+        }
       ]
     }
   ],
@@ -41,10 +83,12 @@
       "type": "string",
       "title": {
         "en": "Zone",
+        "nl": "Zone",
         "no": "Sone"
       },
       "example": {
         "en": "Living room",
+        "nl": "Woonkamer",
         "no": "Stua"
       }
     },
@@ -53,10 +97,12 @@
       "type": "string",
       "title": {
         "en": "Sensor",
+        "nl": "Sensor",
         "no": "Sensor"
       },
       "example": {
         "en": "Motion sensor (hallway)",
+        "nl": "Bewegingssensor (hal)",
         "no": "Bevegelsessensor (gang)"
       }
     },
@@ -65,10 +111,12 @@
       "type": "string",
       "title": {
         "en": "Sensor type",
+        "nl": "Sensortype",
         "no": "Sensortype"
       },
       "example": {
         "en": "motion",
+        "nl": "motion",
         "no": "bevegelse"
       }
     },
@@ -77,10 +125,12 @@
       "type": "string",
       "title": {
         "en": "Current mode",
+        "nl": "Huidige modus",
         "no": "Aktiv modus"
       },
       "example": {
         "en": "armed",
+        "nl": "armed",
         "no": "armed"
       }
     },
@@ -89,10 +139,12 @@
       "type": "string",
       "title": {
         "en": "Timestamp (ISO 8601)",
+        "nl": "Tijdstempel (ISO 8601)",
         "no": "Tidsstempel (ISO 8601)"
       },
       "example": {
         "en": "2026-05-25T19:05:42.123Z",
+        "nl": "2026-05-25T19:05:42.123Z",
         "no": "2026-05-25T19:05:42.123Z"
       }
     }

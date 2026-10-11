@@ -1,14 +1,17 @@
 {
   "title": {
     "en": "Mode !{{is|is not}} [[mode]]",
+    "nl": "Modus !{{is|is niet}} [[mode]]",
     "no": "Modus !{{er|er ikke}} [[mode]]"
   },
   "titleFormatted": {
     "en": "Mode !{{is|is not}} [[mode]]",
+    "nl": "Modus !{{is|is niet}} [[mode]]",
     "no": "Modus !{{er|er ikke}} [[mode]]"
   },
   "hint": {
     "en": "Check the current guard mode. Replaces the deprecated is_armed condition.",
+    "nl": "Controleer de huidige bewakingsmodus. Vervangt de verouderde is_armed-voorwaarde.",
     "no": "Sjekk aktiv vaktstatus. Erstatter den utdaterte is_armed betingelsen."
   },
   "args": [
@@ -20,6 +23,7 @@
           "id": "off",
           "label": {
             "en": "Off (app disabled)",
+            "nl": "Uit (app uitgeschakeld)",
             "no": "Av (app deaktivert)"
           }
         },
@@ -27,6 +31,7 @@
           "id": "disarmed",
           "label": {
             "en": "Home (disarmed)",
+            "nl": "Thuis (uitgeschakeld)",
             "no": "Hjemme (deaktivert)"
           }
         },
@@ -34,6 +39,7 @@
           "id": "armed",
           "label": {
             "en": "Away (armed)",
+            "nl": "Afwezig (ingeschakeld)",
             "no": "Borte (armed)"
           }
         },
@@ -41,6 +47,7 @@
           "id": "armed_perimeter",
           "label": {
             "en": "Perimeter armed",
+            "nl": "Perimeter ingeschakeld",
             "no": "Skallsikring"
           }
         },
@@ -48,6 +55,7 @@
           "id": "perimeter_alarm",
           "label": {
             "en": "Perimeter alarm triggered",
+            "nl": "Perimeteralarm geactiveerd",
             "no": "Skallsikring alarm utløst"
           }
         },
@@ -55,6 +63,7 @@
           "id": "deterrence",
           "label": {
             "en": "Deterrence active",
+            "nl": "Afschrikking actief",
             "no": "Avskrekking aktiv"
           }
         },
@@ -62,6 +71,7 @@
           "id": "alarm",
           "label": {
             "en": "Alarm triggered",
+            "nl": "Alarm geactiveerd",
             "no": "Alarm utløst"
           }
         }

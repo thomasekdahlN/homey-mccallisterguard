@@ -10,14 +10,15 @@ McCallister Guard is not yet another passive alarm system. Instead of just beepi
 
 ## Features
 
-- **Six modes** — `Home` / `disarmed`, `Away` / `armed` (full monitoring + Kevin simulation), `Perimeter` / `armed_perimeter` (only selected perimeter sensors active — typically when sleeping), `Perimeter alarm` / `perimeter_alarm` (perimeter sensor triggered while home — push + flow card, no siren), `Deterrence` / `deterrence` (light blinking in reaction zone — warning phase), `Alarm` / `alarm` (full crisis — siren and strobe)
+- **Seven modes** — `Off` / `off` (**GUI only** — app fully disabled; cannot be set or cleared by flows), `Home` / `disarmed`, `Away` / `armed` (full monitoring + Kevin simulation), `Perimeter` / `armed_perimeter` (only selected perimeter sensors active — typically when sleeping), `Perimeter alarm` / `perimeter_alarm` (perimeter sensor triggered while home — push + flow card, no siren), `Deterrence` / `deterrence` (light blinking in reaction zone — warning phase), `Alarm` / `alarm` (full crisis — siren and strobe)
 - **Perimeter mode with sensor selection** — specify exactly which sensors (exterior doors, windows, outdoor areas) should trigger an alarm in Perimeter mode; indoor motion is ignored
 - **Entry delay (⏱) per sensor** — mark the front door / back door with ⏱ to give an `entry_delay` countdown (default 30 s) when opened, so an authorised user with a key pad / smart lock has time to disarm before the alarm fires. All other perimeter sensors (motion and non-⏱ contact) also go through the entry delay window before firing the perimeter alarm, giving you time to disarm
+- **Open-door check at arming (✔︎) per sensor** — when you arm *Away*, every open door/window contact sensor is reported (log, notification and the `open_sensors_at_arming` trigger). Uncheck ✔︎ on a contact sensor in the zone overview to exclude it, e.g. interior doors that are often left open. New sensors are checked by default
 - **Zone-based deterrence** — motion in one zone triggers deterrence in another "reaction zone" (configurable matrix per zone), so the intruder never encounters the response where they are
 - **Configurable light deterrence** — the app blinks lights in the reaction zone with a slow cycle (global ON/OFF time configurable in Settings, default 15 s each way). Mode changes can be used in the `mode_changed` trigger to build custom Homey flows
 - **Kevin mode** — automatic presence simulation in Away mode (lights on/off in a plausible sequence). The `kevin_zone_on` / `kevin_zone_off` triggers fire per zone with zone filtering in WHEN — use them to also control TV, radio, etc. in the same room
-- **Escalation** — if deterrence does not make the intruder turn back, the system automatically escalates to Alarm mode after a configurable time (full siren, strobe on all lights)
-- **False alarm filter** — multiple independent sensor hits are required before escalation starts
+- **Escalation** — if deterrence does not make the intruder turn back, the system automatically escalates to Alarm mode after a configurable time (speakers at full volume, strobe on all lights of class `light` — plugs and appliances are never touched — and the `alarm_escalated` trigger). Lights and speakers are restored when the alarm ends
+- **Reliable by design** — settings are validated on save, the app recovers to its armed mode if it restarts during an alert, sensors paired after startup are monitored automatically, and the escalation strobe only touches real lights and restores their previous state afterwards
 - **Flow cards** — actions, conditions and triggers with **built-in filtering directly in WHEN**: pick a zone, mode, or sensor type in the trigger card itself — no extra AND conditions needed. Includes `mode_changed`, `alarm_triggered`, `alarm_perimeter_triggered`, `snapshot_taken`, `open_sensors_at_arming` and Kevin zone triggers
 - **Automatic push notifications** — the app sends push notifications to the Homey app for critical events: deterrence started, perimeter alarm, full alarm triggered, alarm stopped, open sensors at arming, and sensors offline. Mode changes are also posted to the Homey timeline. Everything happens via `homey.notifications.createNotification`, in parallel with the app's internal event log
 - **Multilingual UI** — settings panel in English and Norwegian
@@ -43,7 +44,7 @@ flowchart TB
     DASH[Dashboard]
     ZONES[Zone overview - sensor selection, ⏱ entry-delay, Kevin]
     DOCS[Documentation]
-    LOG[Event log - 14 days, copy/download/clear]
+    LOG[Event log - 14 days / max 1000, copy/download/clear]
   end
 
   subgraph API[Internal HTTP API]
@@ -56,15 +57,17 @@ flowchart TB
     SAVE[/settings/]
   end
 
-  subgraph APP[McCallisterGuardApp]
-    SM[StateMachine - 6 modes + entry/exit delay]
-    FAF[FalseAlarmFilter - 90s confidence]
+  subgraph APP[McCallisterGuardApp - composition root]
+    SM[StateMachine - 7 modes + entry/exit delay]
+    MODE[ModeController - guards + side effects]
+    ALARM[AlarmController - alert lifecycle]
+    SENS[SensorMonitor - sensor routing + entry delay]
     DE[DeterrenceEngine - reaction zone matrix]
     MC[MediaCaster - global blink_on/off]
     SIM[SimulationEngine - Kevin mode]
     EM[EscalationManager - crisis timer]
     CAM[CameraManager - snapshot burst]
-    EL[EventLog - 14-day rolling log]
+    EL[EventLog - 14 days, max 1000 entries]
   end
 
   subgraph SETTINGS[GuardSettings]
@@ -102,6 +105,23 @@ flowchart TB
 stateDiagram-v2
   [*] --> Home
 
+  state "Off (GUI only)" as Off
+  note right of Off
+    Only the dashboard Av button sets Off.
+    Only Home / Away / Perimeter buttons clear it.
+    Flows cannot enter or exit Off mode.
+  end note
+
+  Home --> Off: dashboard Av button
+  Away --> Off: dashboard Av button
+  Perimeter --> Off: dashboard Av button
+  Deterrence --> Off: dashboard Av button
+  Alarm --> Off: dashboard Av button
+
+  Off --> Home: dashboard Hjemme button
+  Off --> Away: dashboard Borte button
+  Off --> Perimeter: dashboard Skallsikring button
+
   Home --> Away: setMode(armed)\n(exit delay)
   Home --> Perimeter: setMode(armed_perimeter)\nor scheduler (22:00)
   Home --> Deterrence: testDeterrence()
@@ -113,7 +133,6 @@ stateDiagram-v2
   Away --> Alarm: testAlarm()
 
   Perimeter --> Home: dashboard setMode(disarmed)\n[force=true, always OK]\nor scheduler (06:00)
-  Perimeter --> Home: flow card setMode(disarmed)\n[without force: ignored]
   Perimeter --> Away: setMode(armed)
   Perimeter --> PerimeterAlarm: perimeter sensor triggered\n→ mode=perimeter_alarm\npush + alarm_perimeter_triggered
   Perimeter --> Alarm: testAlarm()
@@ -150,7 +169,7 @@ flowchart TD
   ED1 -- yes --> DELAY[startEntryDelay\nentry_delay sec]
   ED1 -- no --> MOTION_AWAY{Sensor type?}
   MOTION_AWAY -- motion --> MOT_DELAY[startEntryDelay\nentry_delay sec]
-  MOTION_AWAY -- contact --> CONFIRM[handleConfirmedMotion\nvia false-alarm-filter]
+  MOTION_AWAY -- contact --> CONFIRM[handleConfirmedMotion]
   PDELAY --> WAIT_P{User disarms\nin time?}
   WAIT_P -- yes --> X8[cancelEntryDelay\nNo alarm]
   WAIT_P -- no, timer expired --> NOTIFY_STAY[alarm_perimeter_triggered\nmode stays armed_perimeter\nUser flow reacts]
@@ -159,7 +178,7 @@ flowchart TD
   WAIT -- yes --> X6[cancelEntryDelay\nNo alarm]
   WAIT -- no, timer expired --> CONFIRM2{Mode now?}
   CONFIRM2 -- armed_perimeter --> NOTIFY_STAY
-  CONFIRM2 -- armed --> CONFIRM[handleConfirmedMotion\nvia false-alarm-filter]
+  CONFIRM2 -- armed --> CONFIRM[handleConfirmedMotion]
   CONFIRM --> ENTER_DET[enterDeterrence\nmode = deterrence\nalarm_triggered\nblink in reaction zone]
   ENTER_DET --> TIMER{escalation_minutes timer}
   TIMER -- expired --> ALARM[enterAlarm\nmode = alarm\nEscalationManager.triggerCrisis]
@@ -277,15 +296,29 @@ sequenceDiagram
 
 | Module | Responsibility |
 |---|---|
-| `app.ts` | Main class — orchestration, sensor listeners, alarm state, entry-delay routing for motion + ⏱ doors |
+| `app.ts` | Composition root only — creates the services, wires them together and starts them. No business logic |
+| `SensorMonitor` | Registers listeners on door/window/motion sensors (including sensors paired later), routes each event for the current mode, owns entry-delay behaviour for motion + ⏱ doors |
+| `AlarmController` | Alert lifecycle: deterrence → full alarm, the soft perimeter alert, stop/test, escalation timer, restart recovery (persisted return mode) |
+| `ModeController` | Mode-change guards (Off is GUI-only, disarm from Perimeter blocked for flows, night-window redirect), tear-down when leaving an alert, arming side effects |
+| `ArmingScheduler` | Automatic activation/deactivation of Perimeter on window transitions |
+| `PerimeterGuard` | Perimeter sensor policy, temporary bypass (never shortened by the entry-door auto-bypass), contacts already open at activation |
+| `ArmingChecks` | Open-door check when arming Away (respects the per-sensor ✔︎ exclusions) and the offline-sensor health check |
+| `FlowCards` | Registers all flow actions, conditions and trigger filters |
+| `SettingsStore` | Single access point for persisted settings (defaults + validation) |
+| `ZoneDirectory` | Zone-name cache, name lookups for log messages, flow-card autocomplete |
+| `SnapshotRelay` | Remembers the latest camera image (only while still valid) and fires `snapshot_taken` |
+| `Notifier` | Homey Timeline notifications and de-duplication |
+| `Tasks` | Safe timer callbacks and retry-with-backoff for startup |
+| `MediaTokens` | Global media flow tokens and bundled media URLs |
 | `StateMachine` | Mode + entry/exit delays (shared timer for both motion and ⏱ doors) |
 | `DeterrenceEngine` | Selects reaction zone from `zone_matrix` and starts light blinking in the reaction zone |
 | `MediaCaster` | Light blinking in the reaction zone with global ON/OFF cycle (`blink_on`/`blink_off` in Settings, default 15 s / 15 s) |
-| `EscalationManager` | Timer from deterrence to full crisis + strobe routine on all lights |
-| `FalseAlarmFilter` | Requires (contact + motion) or motion in two zones within 90 s before escalation |
+| `EscalationManager` | Full-crisis routine: speakers to full volume and strobe on lights (class `light` only). Remembers and restores the previous state of every device it touches |
 | `SimulationEngine` | Kevin mode: light patterns in Away mode on marked zones |
-| `CameraManager` | Snapshot burst from zone cameras at alarm (skips zones without cameras). Only cameras with a snapshot URL are supported. |
-| `EventLog` | Structured internal event log — rolling 14-day window (shown in Event Log tab with copy/download/clear) |
+| `CameraManager` | Snapshot burst from zone cameras (skips zones without cameras). Only cameras with a snapshot URL are supported. The Homey owner token is only sent to Homey itself — never to a manually configured camera URL. One burst per zone at a time; requests time out after 10 s |
+| `Schedule` | Pure helpers for `HH:MM` parsing and time windows (also across midnight), evaluated in the Homey time zone |
+| `settingsValidation` | Whitelists and clamps saved settings; validates camera snapshot URLs (http/https, no embedded credentials) |
+| `EventLog` | Structured internal event log — rolling 14-day window, max 1000 entries (shown in Event Log tab with copy/download/clear) |
 | `Capabilities` | Classifies devices (`isLight` requires `device.class === 'light'`) for UI display and blink selection |
 
 ## Flow cards
@@ -298,6 +331,7 @@ All trigger cards support **built-in filtering directly in the WHEN clause** —
 |---|---|---|---|
 | `alarm_triggered` | `zone_filter` (in zone / NOT in zone), `zone` (autocomplete), `sensor_type` (Any / Motion / Contact) | `zone`, `sensor`, `sensor_type`, `mode`, `timestamp`, `snapshot`* | Sensor trips alarm in **Away** (`armed`) mode — after entry delay |
 | `alarm_perimeter_triggered` | `zone` (autocomplete) | `zone`, `sensor`, `sensor_type`, `mode`, `timestamp`, `snapshot`* | Perimeter sensor triggered in **Perimeter** mode — mode becomes `perimeter_alarm`, no siren |
+| `alarm_escalated` | — | `zone`, `sensor`, `timestamp` | Deterrence ran for the escalation time unstopped → **full alarm** (sirens + strobe). `alarm_triggered` fires earlier, when deterrence starts |
 | `alarm_stopped` | — | `zone`, `sensor`, `reason` | Away alarm stopped (by user, disarm or auto) |
 | `alarm_perimeter_stopped` | — | `zone`, `sensor`, `reason` | Perimeter alarm stopped |
 | `mode_changed` | `mode_new` dropdown (Any / Off / Home / Away / Perimeter / Perimeter alarm / Deterrence / Alarm) | `mode_new`, `mode_previous` | System mode changes — including `deterrence` and `alarm` transitions |
@@ -325,6 +359,7 @@ All trigger cards support **built-in filtering directly in the WHEN clause** —
 | Card | State |
 |---|---|
 | `alarm_active` | System is in `alarm` mode (full alarm triggered) |
+| `alert_active` | System is in the **deterrence** phase or in full `alarm` (unlike `alarm_active`, which only covers full alarm) |
 | `alarm_perimeter_active` | System is in `armed_perimeter` **or** `perimeter_alarm` — Perimeter mode active (monitoring or alarm) |
 | `get_mode` | System is in selected mode — dropdown with all 6 modes (including `perimeter_alarm`) |
 | `alarm_triggered_in_zone` | Active alarm or perimeter alert was triggered by a sensor in the selected zone — autocomplete zone picker. Use this to run different deterrence reactions per zone. |
@@ -333,9 +368,10 @@ All trigger cards support **built-in filtering directly in the WHEN clause** —
 
 | Card | Effect |
 |---|---|
-| `set_mode` | Set mode to Home / Away / Perimeter. Optional **name** appears in Timeline when disarming from Away mode. Optional **comment** is always logged in the event log when set — appended to the "Disarmed by" line from Away, or as a separate line for other mode changes. |
+| `set_mode` | Set mode to Home / Away / Perimeter. **Off mode is not available in flows** — it can only be set or cleared from the App GUI (dashboard). Flows that run while the app is in Off mode are also silently ignored. Optional **name** appears in Timeline when disarming from Away mode. Optional **comment** is always logged in the event log when set — appended to the "Disarmed by" line from Away, or as a separate line for other mode changes. |
 | `trigger_deterrence` | Test deterrence directly in a selected zone |
 | `trigger_alarm` | Test full alarm (escalation, stops after 15 s) |
+| `cancel_entry_delay` | Cancel a running entry delay so no alarm fires when it expires (e.g. when a smart lock / presence flow recognises an authorised person). Works in Perimeter mode without disarming it; does nothing if no entry delay is running |
 | `bypass_perimeter` | Temporarily disable perimeter sensors (number of minutes) |
 | `set_camera_motion` | Enable / disable motion-triggered camera recording |
 | `get_media_url` | Returns a `Media URL` tag for a selected bundled media file. Alternative to global tokens when you need to choose the file dynamically at runtime in a flow. |
@@ -471,6 +507,7 @@ THEN  Set mode to Home by [[user]]              ← set_mode action (name = lock
 | `armed` (Away) — **in night window** | `set_mode=disarmed` is automatically redirected to `armed_perimeter` — the house goes to Perimeter mode instead of fully disarming. Prevents a smart lock flow from leaving the house unprotected at night. |
 | `armed_perimeter` (Perimeter) | `set_mode=disarmed` from the **dashboard** always works (force=true). `set_mode=disarmed` from a **flow card without force** is ignored — the front door has an entry delay that starts perimeter bypass automatically. |
 | `disarmed` | No effect |
+| `off` | **All flow-based mode changes are ignored.** Off mode is GUI-only — only the dashboard (Home / Away / Perimeter button) can wake the app from Off. |
 
 > **Night window redirect:** Redirection from `armed` to `armed_perimeter` only applies when the built-in Perimeter scheduler is enabled (Settings → Perimeter auto) and the clock is within the configured time window (e.g. 22:00–06:00). The automatic scheduler and `force=true` from internal flows bypass this logic.
 
@@ -584,7 +621,7 @@ McCallister Guard uses three separate log channels with different purposes:
 |---|---|---|---|
 | **Homey timeline** | Mode changes and critical alarm events | Short and concise — only what the user needs to see | Managed by Homey |
 | **Push notification** | All critical events (deterrence, alarm, open sensors, offline sensors) | Short message with sensor and zone | Immediate, best-effort |
-| **Internal event log** (Event Log tab) | Full technical detail for all events | Sensor ID, zone ID, reason, timestamp, mode | 14-day rolling window |
+| **Internal event log** (Event Log tab) | Full technical detail for all events | Sensor ID, zone ID, reason, timestamp, mode | 14-day rolling window (max 1000 entries) |
 
 ### Homey timeline — what is posted
 
@@ -623,7 +660,6 @@ The internal log (Event Log tab in settings) contains all technical detail that 
 - Which zone the event occurred in
 - Reason for alarm stop (user, auto-stop, timeout)
 - Entry delay countdowns (start, cancelled, expired)
-- FalseAlarmFilter assessments (confidence threshold, reset)
 - Light switching off after alarm ("N lights turned off")
 - Snapshot activity from CameraManager
 - All error messages and best-effort warnings
@@ -639,7 +675,7 @@ The internal log (Event Log tab in settings) contains all technical detail that 
 | → `disarmed` (from `armed`) | `Disarmed by [name] — [comment].` — StateMachine does **not** log `Mode: disarmed` separately, since the flow handler already covers this with more information |
 | → `disarmed` (from other modes) | No log — no-op or blocked by design |
 
-The log can be copied to the clipboard, downloaded as CSV or cleared from the Event Log tab. Rolling window — entries older than 14 days are automatically deleted.
+The log can be copied to the clipboard, downloaded as CSV or cleared from the Event Log tab. Rolling window — entries older than 14 days are automatically deleted, and at most 1000 entries are kept.
 
 ---
 
@@ -787,7 +823,9 @@ THEN  Sonos: Stop playback
 
 ## Set up flows based on mode changes
 
-The system has six modes: `disarmed` (Home), `armed` (Away), `armed_perimeter` (Perimeter), `perimeter_alarm` (Perimeter alarm triggered), `deterrence` (Deterrence), `alarm` (Alarm triggered). Transitions between these always fire the `mode_changed` trigger with `mode_new` and `mode_previous` as tokens.
+The system has seven modes: `off` (app fully disabled — GUI only), `disarmed` (Home), `armed` (Away), `armed_perimeter` (Perimeter), `perimeter_alarm` (Perimeter alarm triggered), `deterrence` (Deterrence), `alarm` (Alarm triggered). Transitions between the six operational modes always fire the `mode_changed` trigger with `mode_new` and `mode_previous` as tokens.
+
+> **Off mode and flows:** `off` is the only mode that cannot be entered or exited by a flow. Only the App GUI (dashboard) can set mode to `off` (Av button) or wake the app from `off` (Home / Away / Perimeter buttons). Any flow action or condition that runs while the app is in `off` mode is silently ignored.
 
 ### General pattern
 
@@ -919,9 +957,9 @@ The app icon is copied directly (same SVG as master). App Images are regenerated
 
 ```
 McCallisterGuard/
-├── app.ts                  # Main class
+├── app.ts                  # Composition root (wiring only)
 ├── api.ts                  # Internal HTTP API for settings UI
-├── lib/                    # Modules (StateMachine, DeterrenceEngine, …)
+├── lib/                    # Single-purpose services (ModeController, AlarmController, SensorMonitor, …)
 ├── settings/index.html     # Settings UI (vanilla JS)
 ├── assets/icon.svg         # App Icon (badge) — copy of design/appicon.svg
 ├── assets/images/          # App Images (App Store artwork) — generated from design/appartwork.png
@@ -938,7 +976,16 @@ McCallisterGuard/
 | Test | Covers |
 |---|---|
 | `StateMachine.test.ts` | Mode transitions, entry/exit delays |
-| `FalseAlarmFilter.test.ts` | Confidence threshold and reset logic |
+| `ModeController.test.ts` | Mode guards, night-window redirect, tear-down when leaving an alert |
+| `SensorMonitor.test.ts` | Entry-delay rules (Away + Perimeter), simultaneous sensors, escalation timer |
+| `AlarmController.test.ts` | Stop/return mode, restart recovery, test alarm always ends |
+| `PerimeterGuard.test.ts` | Bypass expiry, extend-only, invalid durations |
+| `ArmingChecks.test.ts` | Open-door check incl. per-sensor exclusions, health check |
+| `Schedule.test.ts` | Window maths incl. midnight crossing and time-zone conversion |
+| `settingsValidation.test.ts` | Whitelisting, clamping and URL rules for saved settings |
+| `DeterrenceEngine.test.ts` | Reaction-zone follow-up, cooldown cleanup on abort |
+| `EscalationManager.test.ts` | Lights-only strobe, state restore, no overlapping ticks |
+| `CameraManager.test.ts` | Owner token never sent to non-Homey URLs, no overlapping bursts |
 | `EventLog.test.ts` | Structured logging, 14-day rolling window, clear() |
 
 ## Casting to Chromecast / Samsung TV — what we learned
@@ -1108,7 +1155,7 @@ The Homey App Store page for a camera app will typically say "supports snapshot"
 
 `CameraManager` uses approach 3 (ownerUri matching) as the primary source and approach 1 (device.images fallback) as secondary. The download happens via approach 4 (direct HTTP). If no URL is found, a warning is logged and the camera is silently skipped.
 
-For cameras that do not support Homey's native snapshot API, a possible workaround is to enter a manual RTSP/HTTP snapshot URL directly in the settings (not implemented currently — let us know if this is desired).
+For cameras that do not support Homey's native snapshot API, enter a manual HTTP(S) snapshot URL per camera under *Zones* (`camera_snapshot_urls`). It takes precedence over automatic resolution. URLs with embedded credentials are rejected, and the Homey owner token is **not** sent to manual URLs — only to Homey's own image endpoints.
 
 ---
 

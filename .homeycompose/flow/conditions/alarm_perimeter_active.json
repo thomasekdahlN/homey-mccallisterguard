@@ -1,10 +1,12 @@
 {
   "title": {
     "en": "Perimeter !{{is|is not}} active",
+    "nl": "Perimeter !{{is|is niet}} actief",
     "no": "Skallsikring !{{er|er ikke}} aktiv"
   },
   "hint": {
     "en": "True when the system is in Perimeter (armed_perimeter) mode.",
+    "nl": "Waar wanneer het systeem in Perimeter-modus (armed_perimeter) staat.",
     "no": "Sann når systemet er i Skallsikringsmodus (armed_perimeter)."
   }
 }

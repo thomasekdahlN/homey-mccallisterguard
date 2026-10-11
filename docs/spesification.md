@@ -1,5 +1,7 @@
 Her er en komplett, strukturert og detaljert teknisk og funksjonell spesifikasjon for Homey-appen **"McCallister Guard"**. Dette dokumentet er klart til å overleveres til en utvikler eller brukes som veikart for koding.
 
+
+> **Merk:** Dette er den opprinnelige design-spesifikasjonen. Faktisk, gjeldende oppførsel er beskrevet i `README.md` og `docs/architecture.md`; enkelte detaljer her (f.eks. snapshot-intervall og `LightAuthGuard`) er ikke implementert slik de er beskrevet.
 ---
 
 # Teknisk og Funksjonell Spesifikasjon: McCallister Guard (Homey App)
@@ -193,7 +195,9 @@ Brukes når huseier sover.
 
 
 
-### Modul 5: Strikte Lysrestriksjoner (`LightAuthGuard`)
+### Modul 5: Strikte Lysrestriksjoner (`LightAuthGuard`) — FJERNET
+
+> **Status:** Denne modulen er ikke implementert og er fjernet fra planen. Den kolliderte med for mange legitime automatiseringer (se «Funksjoner vi har fjernet» i README). Beskrivelsen under er bevart kun som designhistorikk.
 
 * **Betingelse:** `Status = Borte` (eller `armed_perimeter`).
 * **Handling:** Hvis et lys i huset endrer tilstand til `PÅ`, gjør appen en sjekk: *Ble dette lyset slått på av McCallister Guard-appen (Modul 1 eller Modul 2)?*

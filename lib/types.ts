@@ -40,6 +40,12 @@ export interface GuardSettings {
    */
   perimeter_sensors_seen: string[];
   entry_delay_sensors: string[];
+  /**
+   * Contact sensors that are EXCLUDED from the "open door/window" check when arming Away.
+   * Stored as an exclusion list so existing installs keep checking every sensor and new
+   * sensors are checked by default. Typical use: interior doors that are often left open.
+   */
+  arming_check_excluded: string[];
   /** Global deterrence blink-on time in seconds (default 15). */
   blink_on: number;
   /** Global deterrence blink-off time in seconds (default 15). */
@@ -113,6 +119,7 @@ export const DEFAULT_SETTINGS: GuardSettings = {
   perimeter_sensors: [],
   perimeter_sensors_seen: [],
   entry_delay_sensors: [],
+  arming_check_excluded: [],
   blink_on: DEFAULT_BLINK_SECONDS,
   blink_off: DEFAULT_BLINK_SECONDS,
   alarm_blink_on: DEFAULT_ALARM_BLINK_ON,
@@ -157,9 +164,14 @@ export const SETTINGS_KEYS = {
   MODE: 'mode',
   MODE_CHANGED_AT: 'mode_changed_at',
   EVENT_LOG: 'event_log',
+  PREVIOUS_ARMED_MODE: 'previous_armed_mode',
   SETTINGS: 'guard_settings',
 } as const;
 
 export const EVENT_LOG_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days rolling window
+/** Hard cap on stored entries — the whole buffer is rewritten to flash on every add. */
+export const EVENT_LOG_MAX_ENTRIES = 1000;
 export const FALSE_ALARM_WINDOW_MS = 90_000;
+/** How long after an alarm ends to suppress Skallsikring auto-activation / auto-redirect. */
+export const ALARM_COOLDOWN_MS = 30 * 60 * 1000;
 export const MAX_PUSH_PER_EVENT = 3;

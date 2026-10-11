@@ -1,10 +1,12 @@
 {
   "title": {
     "en": "Alarm stopped",
+    "nl": "Alarm gestopt",
     "no": "Alarm avsluttet"
   },
   "hint": {
     "en": "Fires when the Away (armed) alarm is stopped — by the user, by disarming, or automatically. Use alarm_perimeter_stopped for perimeter (Skallsikring) alarms.",
+    "nl": "Wordt geactiveerd wanneer het Afwezig-alarm (armed) wordt gestopt — door de gebruiker, door uitschakelen, of automatisch. Gebruik alarm_perimeter_stopped voor perimeteralarmen.",
     "no": "Utløses når Borte-alarmen (armed) stoppes — av bruker, ved deaktivering eller automatisk. Bruk alarm_perimeter_stopped for skallsikringsalarmer."
   },
   "tokens": [
@@ -13,10 +15,12 @@
       "type": "string",
       "title": {
         "en": "Zone (that triggered)",
+        "nl": "Zone (die activeerde)",
         "no": "Sone (som utløste)"
       },
       "example": {
         "en": "Living room",
+        "nl": "Woonkamer",
         "no": "Stua"
       }
     },
@@ -25,10 +29,12 @@
       "type": "string",
       "title": {
         "en": "Sensor (that triggered)",
+        "nl": "Sensor (die activeerde)",
         "no": "Sensor (som utløste)"
       },
       "example": {
         "en": "Motion sensor (hallway)",
+        "nl": "Bewegingssensor (hal)",
         "no": "Bevegelsessensor (gang)"
       }
     },
@@ -37,10 +43,12 @@
       "type": "string",
       "title": {
         "en": "Reason",
+        "nl": "Reden",
         "no": "Årsak"
       },
       "example": {
         "en": "User stopped alarm",
+        "nl": "Gebruiker heeft alarm gestopt",
         "no": "Bruker stoppet alarm"
       }
     }

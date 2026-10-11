@@ -38,7 +38,7 @@ McAllisterAlarm/                       # workspace-rot
 ├── architecture.md
 └── com.ekdahl.mccallister-guard/     # Homey-appen
     ├── app.json                       # GENERERT — ikke editér direkte
-    ├── app.ts                         # Hovedinngang og livssyklus (Lifecycle)
+    ├── app.ts                         # Composition root: oppretter og kobler tjenestene
     ├── package.json
     ├── tsconfig.json
     ├── README.txt
@@ -51,13 +51,33 @@ McAllisterAlarm/                       # workspace-rot
     │   ├── signals/
     │   ├── discovery/
     │   └── screensavers/
-    ├── lib/                           # (opprettes ved implementasjon)
-    │   ├── StateMachine.ts            # Tilstander (Borte, Natt, Alarm, Krise)
-    │   ├── SimulationEngine.ts        # Kevin-modus
+    ├── lib/                           # Enkeltformåls-tjenester (se §4.1)
+    │   ├── StateMachine.ts            # Modus + inngangs-/utgangsforsinkelse
+    │   ├── ModeController.ts          # Modusguards, opprydding og armerings-sideeffekter
+    │   ├── AlarmController.ts         # Alarmforløp: deterrence → alarm, perimeter-varsel, stopp, test, restart-gjenoppretting
+    │   ├── SensorMonitor.ts           # Sensorlyttere og ruting pr. modus (inkl. inngangsforsinkelse)
+    │   ├── ArmingScheduler.ts         # Automatisk Skallsikring (nattvindu)
+    │   ├── PerimeterGuard.ts          # Perimeter-policy, bypass, sensorer åpne ved aktivering
+    │   ├── ArmingChecks.ts            # Åpen-dør-sjekk (med per-sensor unntak) og helsesjekk
     │   ├── DeterrenceEngine.ts        # Sone-mapping og reaktiv avskrekking
-    │   ├── CameraManager.ts           # Snapshot-loop (5s) og varsling
-    │   ├── EventLog.ts                # Persistent logg (150 hendelser)
-    │   └── LightAuthGuard.ts          # Modul 5: oppdager og korrigerer uautorisert lys-på (logger oppdagelse, ikke resultat)
+    │   ├── EscalationManager.ts       # Full krise: høyttalere + strobe på lys, gjenoppretter tilstand
+    │   ├── MediaCaster.ts             # Lysblink i reaksjonssone
+    │   ├── SimulationEngine.ts        # Kevin-modus
+    │   ├── CameraManager.ts           # Snapshot-bursts fra kameraer
+    │   ├── SnapshotRelay.ts           # Siste bilde + snapshot_taken-trigger
+    │   ├── FlowCards.ts               # Registrering av flow-kort
+    │   ├── SettingsStore.ts           # Innstillinger (defaults + validering)
+    │   ├── settingsValidation.ts      # Whitelist/klamping av innstillinger
+    │   ├── ZoneDirectory.ts           # Sonenavn-cache og autocomplete
+    │   ├── Notifier.ts                # Timeline-varsler og dedup
+    │   ├── Tasks.ts                   # Trygge timer-callbacks og retry
+    │   ├── MediaTokens.ts             # Globale mediatokens
+    │   ├── Schedule.ts                # Tidsvinduer i Homeys tidssone
+    │   ├── EventLog.ts                # Logg (14 dager, maks 1000 hendelser)
+    │   ├── Capabilities.ts            # Enhetsklassifisering
+    │   ├── services.ts                # Tjenestene eksponert til api.ts
+    │   ├── i18n.ts                    # Runtime-oversettelser (en/nl/no)
+    │   └── types.ts
     ├── api.ts                         # REST API-endepunkter for Dashboardet
     ├── settings/
     │   └── index.html                 # Dashboard UI (Soneoversikt, logg, config)
@@ -152,23 +172,28 @@ Mode = 'disarmed' | 'armed' | 'armed_perimeter' | 'deterrence' | 'alarm'
 **Tillatte overganger:**
 
 ```
-disarmed        → armed, armed_perimeter, deterrence*, alarm*
-armed           → disarmed (utenfor nattvindu), armed_perimeter (nattvindu-redirect), deterrence, alarm
-armed_perimeter → disarmed*, armed, deterrence, alarm
-deterrence      → alarm, armed_perimeter, armed, disarmed
-alarm           → armed_perimeter, armed, disarmed
+off             → disarmed, armed, armed_perimeter   (KUN via dashboard — force=true)
+disarmed        → off*, armed, armed_perimeter, deterrence**, alarm**
+armed           → off*, disarmed (utenfor nattvindu), armed_perimeter (nattvindu-redirect), deterrence, alarm
+armed_perimeter → off*, disarmed***, armed, deterrence, alarm
+deterrence      → off*, alarm, armed_perimeter, armed, disarmed
+alarm           → off*, armed_perimeter, armed, disarmed
 
-* armed → disarmed omdirigeres til armed_perimeter når Skallsikring-scheduleren er aktiv og
+* off-modus er KUN tilgjengelig fra dashboardets «Av»-knapp (api.ts sender force=true).
+  Flow-kort kan IKKE sette modus til off, og kan IKKE endre modus når appen er i off.
+  Flows som kjøres mens modus er off ignoreres helt og stille.
+  Kun dashboard-knappene Hjemme / Borte / Skallsikring kan vekke appen fra off.
+** armed → disarmed omdirigeres til armed_perimeter når Skallsikring-scheduleren er aktiv og
   klokken er innenfor det konfigurerte nattvinduet (f.eks. 22:00–06:00).
   Dette forhindrer at en smart-lås-flow deaktiverer systemet helt når noen kommer hjem sent.
   Scheduler og force=true (dashboard, stopAlarm) hopper over omdirigeringen.
-* armed_perimeter → disarmed fra dashboard virker alltid (api.ts sender force=true).
+*** armed_perimeter → disarmed fra dashboard virker alltid (api.ts sender force=true).
   armed_perimeter → disarmed fra Flow-kort uten force ignoreres (smart-lås-guard).
   Scheduleren deaktiverer automatisk via force=true ved tidsvinduets slutt.
 * Scheduleren gjør ingen automatisk aktivering/deaktivering ved appstart (restart-sikker).
   Modus er lagret i Homey settings og overlever restart uendret.
   Scheduleren aktiverer/deaktiverer kun ved faktiske tidsoverganger (edge-detektion pr. minutt).
-* deterrence/alarm fra disarmed er kun tilgjengelig fra test-knapp/flow.
+** deterrence/alarm fra disarmed er kun tilgjengelig fra test-knapp/flow.
 ```
 
 **Normalt sensorforløp:**
@@ -187,25 +212,36 @@ armed / armed_perimeter  (previousArmedMode gjenopprettes automatisk)
 ```
 
 **Stopp alarm:**
-`stopAlarm()` i `app.ts` lagrer `previousArmedMode` når systemet går inn i `deterrence`, og gjenoppretter denne ved stopp — uten å gå via `disarmed`.
+`AlarmController.stopAlarm()` bruker `previousArmedMode` (lagres når systemet går inn i `deterrence`) og gjenoppretter denne ved stopp — uten å gå via `disarmed`. Verdien er persistert, så en omstart under alarm gjenoppretter riktig armert modus.
 
 **Kildemodus-sporing:**
-`alarm_triggered_from`-condition leser `previousArmedMode` og lar flows reagere ulikt avhengig av om alarmen ble utløst fra `armed` (Borte) eller `armed_perimeter` (Skallsikring).
+Flows skiller mellom kildene via egne triggere: `alarm_triggered` (utløst fra `armed`/Borte) og `alarm_perimeter_triggered` (fra `armed_perimeter`/Skallsikring), og kan filtrere på sone med betingelsen `alarm_triggered_in_zone`.
 
-### 4.1. Hovedmotoren: `app.ts`
+### 4.1. Komposisjon og ansvar: `app.ts` + `lib/`
 
-Initialiserer appen, kobler seg til Homey API-en og lytter på globale bevegelsessensorer. Sentrale private metoder:
+`app.ts` er kun *composition root*: den oppretter tjenestene, injiserer avhengigheter via konstruktøren, kobler dem sammen og starter dem. All forretningslogikk ligger i enkeltformåls-klasser i `lib/`. Det gir små, testbare enheter uten sirkulære avhengigheter:
 
-| Metode | Ansvar |
+```
+SettingsStore ─┐
+ZoneDirectory ─┤
+Notifier ──────┤
+               ├─▶ AlarmController ─▶ (StateMachine, DeterrenceEngine, EscalationManager, MediaCaster)
+PerimeterGuard ┤        ▲
+ArmingChecks ──┤        │
+               ├─▶ ModeController ──┘   (modusguards, opprydding)
+               ├─▶ SensorMonitor ───▶ AlarmController (bekreftede hendelser)
+               ├─▶ ArmingScheduler ─▶ ModeController
+               └─▶ FlowCards ───────▶ ModeController / AlarmController / SensorMonitor / PerimeterGuard
+```
+
+| Klasse | Sentrale metoder / ansvar |
 |---|---|
-| `enterDeterrence()` | Setter modus=deterrence, starter blink i reaksjonssone og starter `deterrenceTimer` |
-| `enterAlarm()` | Kaller `EscalationManager.triggerCrisis()` og setter modus=alarm |
-| `clearDeterrenceTimer()` | Avbryter eskaleringstimeren (kalles fra `setMode('disarmed')`, `stopAlarm()`, test-metoder) |
-| `setMode()` | Brukerinitiiert modusbytte — rydder timere/media ved disarmed, håndterer nattvindu-redirect og sensorsnap. Logger **ikke** `"Deaktivert av"` selv — det gjøres av `registerFlowActions` sin `set_mode`-handler, som har tilgang til bruker-navn og kommentar. |
-| `stopAlarm()` | Stopper pågående alarm og returnerer til `previousArmedMode` |
-| `isInArmedPerimeterWindow()` | Returnerer `true` dersom Skallsikring-scheduleren er aktiv og klokken er innenfor nattvinduet |
-| `snapshotOpenPerimeterSensors()` | Tar øyeblikksbilde av åpne **konfigurerte** perimeter-sensorer ved aktivering av Skallsikring; disse ignoreres for resten av sesjonen (ventilasjonsmodus). Ingen snapshot hvis perimeter_sensors-listen er tom. |
-| `checkOpenContactSensors()` | Sjekker alle dør/vindu-sensorer ved arming i Borte-modus; sender push-notifikasjon og logger advarsel for åpne sensorer |
+| `AlarmController` | `enterDeterrence()` (race-sikker: flere samtidige sensorer starter alarmen én gang), `enterPerimeterAlarm()`, privat `enterAlarm()` (fyrer `alarm_escalated`), `stopAlarm()`, `stopEffects()`, `testDeterrence()/testAlarm()`, `recoverInterruptedState()`. Lagrer `previousArmedMode` i Homey settings så en omstart under alarm ikke låser systemet. |
+| `ModeController` | `setMode()` — guards (Off kun fra GUI, disarm fra Skallsikring blokkert for flows, redirect til Skallsikring i nattvinduet), rydder opp **uansett** hvilken modus deterrence/alarm forlates til, og fyrer `alarm_stopped`. Logger **ikke** «Deaktivert av» — det gjør `set_mode`-handleren i `FlowCards`, som kjenner navn og kommentar. |
+| `SensorMonitor` | Lyttere på sensorer (også de som parres senere), `onMotion()/onContact()`, inngangsforsinkelse. Bevegelse/innerdører forkorter ikke en forsinkelse startet av en inngangsdør. `cancelEntryDelay()`. |
+| `PerimeterGuard` | `bypass()` (aldri kortere enn en eksisterende bypass ved `extendOnly`), `snapshotOpenSensors()` — kun **konfigurerte** perimeter-sensorer; ingen snapshot hvis listen er tom. |
+| `ArmingChecks` | `checkOpenContactSensors()` — alle åpne dør/vindu-sensorer ved Borte, unntatt de som er valgt bort (✔︎), `runHealthCheck()`. |
+| `ArmingScheduler` | Aktiverer/deaktiverer Skallsikring kun ved faktiske tidsoverganger (edge-detektion pr. minutt); ingen handling ved appstart. |
 
 ### 4.2. Logikkmotoren for "Mind-games": `lib/DeterrenceEngine.ts`
 

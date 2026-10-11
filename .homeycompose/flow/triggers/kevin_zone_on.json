@@ -1,14 +1,17 @@
 {
   "title": {
     "en": "Kevin mode activated in zone",
+    "nl": "Kevin-modus geactiveerd in zone",
     "no": "Kevin-modus aktivert i sone"
   },
   "titleFormatted": {
     "en": "Kevin mode activated in zone [[zone]]",
+    "nl": "Kevin-modus geactiveerd in zone [[zone]]",
     "no": "Kevin-modus aktivert i sone [[zone]]"
   },
   "hint": {
     "en": "Fires when Kevin presence-simulation turns on lights in the selected zone. Use this to also turn on TV, radio, etc. in that room.",
+    "nl": "Wordt geactiveerd wanneer de Kevin-aanwezigheidssimulatie de lichten in de geselecteerde zone inschakelt. Gebruik dit om ook tv, radio enz. in die ruimte in te schakelen.",
     "no": "Utløses når Kevin-modus skrur på lys i den valgte sonen. Bruk dette til å slå på TV, radio osv. i samme rom."
   },
   "args": [
@@ -17,6 +20,7 @@
       "type": "autocomplete",
       "placeholder": {
         "en": "Select zone…",
+        "nl": "Selecteer zone…",
         "no": "Velg sone…"
       }
     }
@@ -27,10 +31,12 @@
       "type": "string",
       "title": {
         "en": "Zone",
+        "nl": "Zone",
         "no": "Sone"
       },
       "example": {
         "en": "Living room",
+        "nl": "Woonkamer",
         "no": "Stua"
       }
     },
@@ -39,10 +45,12 @@
       "type": "string",
       "title": {
         "en": "Light names",
+        "nl": "Lampnamen",
         "no": "Lysnavn"
       },
       "example": {
         "en": "Floor lamp, Ceiling light",
+        "nl": "Vloerlamp, Plafondlamp",
         "no": "Gulvlampe, Taklampe"
       }
     }

@@ -1,10 +1,12 @@
 {
   "title": {
     "en": "Bypass perimeter sensors",
+    "nl": "Perimetersensoren omzeilen",
     "no": "Forbigå perimetersensorer"
   },
   "titleFormatted": {
     "en": "Bypass perimeter sensors for [[duration]] seconds",
+    "nl": "Perimetersensoren omzeilen voor [[duration]] seconden",
     "no": "Forbigå perimetersensorer i [[duration]] sekunder"
   },
   "args": [
@@ -16,10 +18,12 @@
       "step": 5,
       "label": {
         "en": "Duration (seconds)",
+        "nl": "Duur (seconden)",
         "no": "Varighet (sekunder)"
       },
       "placeholder": {
         "en": "60",
+        "nl": "60",
         "no": "60"
       }
     }

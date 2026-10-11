@@ -1,13 +1,18 @@
 {
   "title": {
     "en": "Health check failed (offline devices)",
+    "nl": "Gezondheidscontrole mislukt (apparaten offline)",
     "no": "Helsesjekk feilet (offline enheter)"
   },
   "tokens": [
     {
       "name": "offline_count",
       "type": "number",
-      "title": { "en": "Offline count", "no": "Antall offline" },
+      "title": {
+        "en": "Offline count",
+        "nl": "Aantal offline",
+        "no": "Antall offline"
+      },
       "example": 1
     }
   ]

@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { URL } from 'url';
 import type Homey from 'homey/lib/Homey';
 import type EventLog from './EventLog';
 import {
@@ -12,6 +13,8 @@ import {
   SNAPSHOT_DIR_ALARM, SNAPSHOT_DIR_MOTION, SNAPSHOT_MAX_COUNT_DEFAULT,
 } from './types';
 import { isCamera } from './Capabilities';
+import { redactUrl } from './settingsValidation';
+import { t } from './i18n';
 
 /** Called when a camera successfully captures a snapshot. */
 export type SnapshotListener = (zoneId: string, cameraId: string, cameraName: string, image: any) => void;
@@ -30,6 +33,9 @@ interface ZoneCameraEntry {
   imageUrl: string | null;
 }
 
+/** Upper bound for a single snapshot HTTP request. */
+const SNAPSHOT_FETCH_TIMEOUT_MS = 10_000;
+
 export default class CameraManager {
 
   private listeners: SnapshotListener[] = [];
@@ -40,6 +46,8 @@ export default class CameraManager {
   private cachedBaseUrl: string | null = null;
   /** Cached owner API token. Resolved once on first use. */
   private cachedToken: string | null = null;
+  /** Bursts currently running, keyed by `${zoneId}:${alarm|motion}`. Prevents overlapping bursts from retriggering sensors. */
+  private readonly burstsInFlight = new Set<string>();
 
   constructor(
     private readonly homey: Homey,
@@ -126,7 +134,7 @@ export default class CameraManager {
       }
       this.zoneCameraCache = next;
     } catch (err) {
-      this.log.add('warning', `Kamera-sone-cache oppdatering feilet: ${(err as Error).message}`);
+      this.log.add('warning', t(this.homey, 'camera.zone_cache_refresh_failed', { error: (err as Error).message }));
     }
   }
 
@@ -167,15 +175,33 @@ export default class CameraManager {
 
     if (burstCount <= 0) return;
 
+    // Retriggering motion sensors must not stack bursts on top of each other.
+    const burstKey = `${zoneId}:${isAlarm ? 'alarm' : 'motion'}`;
+    if (this.burstsInFlight.has(burstKey)) return;
+    this.burstsInFlight.add(burstKey);
+    try {
+      await this.runBurst(zoneId, cameras, settings, burstCount, isAlarm);
+    } finally {
+      this.burstsInFlight.delete(burstKey);
+    }
+  }
+
+  private async runBurst(
+    zoneId: string,
+    cameras: ZoneCameraEntry[],
+    settings: GuardSettings,
+    burstCount: number,
+    isAlarm: boolean,
+  ): Promise<void> {
     // When alarm is active: illuminate the zone before capturing so the camera gets a lit scene.
     if (isAlarm && this.flashCallback) {
       try {
-        this.log.add('info', `Slår på lys i sone ${zoneId} for kamera-opptak.`, zoneId);
+        this.log.add('info', t(this.homey, 'camera.lights_on_for_capture', { zone: zoneId }), zoneId);
         await this.flashCallback(zoneId);
         // Brief pause so the camera feed has time to reflect the new light level.
         await new Promise<void>((resolve) => { this.homey.setTimeout(resolve, CAMERA_FLASH_DELAY_MS); });
       } catch (err) {
-        this.log.add('warning', `Lys-flash feilet i sone ${zoneId}: ${(err as Error).message}`, zoneId);
+        this.log.add('warning', t(this.homey, 'camera.light_flash_failed', { zone: zoneId, error: (err as Error).message }), zoneId);
       }
     }
 
@@ -209,20 +235,29 @@ export default class CameraManager {
       if (!imageUrl) return;
 
       const { baseUrl, token } = await this.getApiCredentials();
-      const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl}`;
+      const isAbsolute = /^https?:\/\//i.test(imageUrl);
+      const fullUrl = isAbsolute ? imageUrl : `${baseUrl}${imageUrl}`;
+
+      // The owner API token grants full control of Homey. It must only ever be sent to Homey itself —
+      // never to a camera or any other host from a manually configured snapshot URL.
+      const headers: Record<string, string> = {};
+      if (new URL(fullUrl).origin === new URL(baseUrl).origin) {
+        headers.Authorization = `Bearer ${token}`;
+      }
 
       const response = await fetch(fullUrl, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers,
+        signal: AbortSignal.timeout(SNAPSHOT_FETCH_TIMEOUT_MS),
       });
 
       if (!response.ok) {
-        this.log.add('warning', `Snapshot: HTTP ${response.status} fra kamera ${camera.name} (${fullUrl}).`, zoneId);
+        this.log.add('warning', t(this.homey, 'camera.snapshot_http_error', { status: response.status, camera: camera.name, url: redactUrl(fullUrl) }), zoneId);
         return;
       }
 
       const buffer = Buffer.from(await response.arrayBuffer());
       if (buffer.length === 0) {
-        this.log.add('warning', `Snapshot: tom buffer fra ${camera.name} — ingen data fra kamera.`, zoneId);
+        this.log.add('warning', t(this.homey, 'camera.snapshot_empty_buffer', { camera: camera.name }), zoneId);
         return;
       }
 
@@ -238,7 +273,10 @@ export default class CameraManager {
 
       // Write to disk (sync — file is small, keeps error handling simple).
       fs.writeFileSync(filepath, buffer);
-      this.log.add('info', `Snapshot lagret: ${camera.name} i sone ${zoneId} (${isAlarm ? 'alarm' : 'bevegelse'}, ${buffer.length} B).`, zoneId);
+      const kind = t(this.homey, isAlarm ? 'camera.kind_alarm' : 'camera.kind_motion');
+      this.log.add('info', t(this.homey, 'camera.snapshot_saved', {
+        camera: camera.name, zone: zoneId, kind, bytes: buffer.length,
+      }), zoneId);
 
       // FIFO cleanup: remove oldest files if we exceed the per-category limit.
       const maxCount = this.getSettings().snapshot_max_count ?? SNAPSHOT_MAX_COUNT_DEFAULT;
@@ -270,7 +308,7 @@ export default class CameraManager {
         (this.homey.images as any).unregisterImage(flowImage).catch(() => { /* best-effort */ });
       }, 60_000);
     } catch (err) {
-      this.log.add('warning', `Snapshot-kall feilet for ${camera.name || camera.id}: ${(err as Error).message}`, zoneId);
+      this.log.add('warning', t(this.homey, 'camera.snapshot_call_failed', { camera: camera.name || camera.id, error: (err as Error).message }), zoneId);
     }
   }
 
@@ -304,7 +342,7 @@ export default class CameraManager {
         try { fs.unlinkSync(path.join(dir, files[i])); } catch { /* best-effort */ }
       }
     } catch (err) {
-      this.log.add('warning', `Snapshot-opprydding feilet (${dir}): ${(err as Error).message}`);
+      this.log.add('warning', t(this.homey, 'camera.snapshot_cleanup_failed', { dir, error: (err as Error).message }));
     }
   }
 
@@ -316,7 +354,7 @@ export default class CameraManager {
           fs.mkdirSync(dir, { recursive: true });
         }
       } catch (err) {
-        this.log.add('warning', `Kunne ikke opprette snapshot-katalog ${dir}: ${(err as Error).message}`);
+        this.log.add('warning', t(this.homey, 'camera.snapshot_dir_create_failed', { dir, error: (err as Error).message }));
       }
     }
   }

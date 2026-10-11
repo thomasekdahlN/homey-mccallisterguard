@@ -1,0 +1,56 @@
+{
+  "title": {
+    "en": "Alarm escalated to full alarm",
+    "nl": "Alarm geëscaleerd naar volledig alarm",
+    "no": "Alarm eskalert til full alarm"
+  },
+  "hint": {
+    "en": "Fires when deterrence has run for the escalation time without being stopped and the system escalates to the full alarm (sirens and strobe). Use this to start sirens, call neighbours or send a high-priority notification. alarm_triggered fires earlier, when the deterrence phase begins.",
+    "nl": "Wordt geactiveerd wanneer afschrikking de escalatietijd heeft gedraaid zonder te zijn gestopt en het systeem escaleert naar het volledige alarm (sirenes en stroboscoop). Gebruik dit om sirenes te starten, buren te bellen of een prioriteitsmelding te sturen. alarm_triggered wordt eerder geactiveerd, bij het begin van de afschrikfase.",
+    "no": "Utløses når avskrekking har gått i eskaleringstiden uten å bli stoppet og systemet eskalerer til full alarm (sirener og strobe). Bruk denne til å starte sirener, ringe naboer eller sende varsel med høy prioritet. alarm_triggered utløses tidligere, når avskrekkingsfasen starter."
+  },
+  "tokens": [
+    {
+      "name": "zone",
+      "type": "string",
+      "title": {
+        "en": "Zone (that triggered)",
+        "nl": "Zone (die activeerde)",
+        "no": "Sone (som utløste)"
+      },
+      "example": {
+        "en": "Living room",
+        "nl": "Woonkamer",
+        "no": "Stua"
+      }
+    },
+    {
+      "name": "sensor",
+      "type": "string",
+      "title": {
+        "en": "Sensor (that triggered)",
+        "nl": "Sensor (die activeerde)",
+        "no": "Sensor (som utløste)"
+      },
+      "example": {
+        "en": "Motion sensor (hallway)",
+        "nl": "Bewegingssensor (hal)",
+        "no": "Bevegelsessensor (gang)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp (ISO 8601)",
+        "nl": "Tijdstempel (ISO 8601)",
+        "no": "Tidsstempel (ISO 8601)"
+      },
+      "example": {
+        "en": "2026-05-25T19:10:42.123Z",
+        "nl": "2026-05-25T19:10:42.123Z",
+        "no": "2026-05-25T19:10:42.123Z"
+      }
+    }
+  ]
+}

@@ -1,10 +1,12 @@
 {
   "title": {
     "en": "Set motion snapshot",
+    "nl": "Bewegingssnapshot instellen",
     "no": "Sett bevegelsesbilder"
   },
   "titleFormatted": {
     "en": "Set motion snapshots to [[enabled]]",
+    "nl": "Bewegingssnapshots instellen op [[enabled]]",
     "no": "Sett bevegelsesbilder til [[enabled]]"
   },
   "args": [
@@ -16,6 +18,7 @@
           "id": "enable",
           "label": {
             "en": "Enabled",
+            "nl": "Ingeschakeld",
             "no": "Aktivert"
           }
         },
@@ -23,6 +26,7 @@
           "id": "disable",
           "label": {
             "en": "Disabled",
+            "nl": "Uitgeschakeld",
             "no": "Deaktivert"
           }
         }

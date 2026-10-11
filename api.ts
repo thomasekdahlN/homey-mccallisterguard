@@ -3,9 +3,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { GuardSettings, Mode } from './lib/types';
+import type { GuardServices } from './lib/services';
 import { SNAPSHOT_DIR_ALARM, SNAPSHOT_DIR_MOTION } from './lib/types';
 import { classify, isCamera, sensorType } from './lib/Capabilities';
 import type { SensorType } from './lib/Capabilities';
+import { t } from './lib/i18n';
 
 /** Snapshot metadata returned by getSnapshotList. */
 interface SnapshotMeta {
@@ -31,78 +33,52 @@ function listSnapshotDir(dir: string): SnapshotMeta[] {
   }
 }
 
-interface AppRef {
-  getSettings(): GuardSettings;
-  saveSettings(settings: Partial<GuardSettings>): GuardSettings;
-  setMode(mode: Mode, options?: { force?: boolean }): Promise<void>;
-  testDeterrence(zoneId: string): Promise<void>;
-  testAlarm(): Promise<void>;
-  stopAlarm(): Promise<void>;
-  setCameraMotionEnabled(enabled: boolean): void;
-  bypassPerimeter(seconds: number): void;
-  isPerimeterBypassed(): boolean;
-  getPerimeterBypassEndsAt(): number | null;
-  isTestActive(): boolean;
-  isAlarmActive(): boolean;
-  getRecentMotionZones(): string[];
-  homeyApi: any;
-  stateMachine: {
-    getMode(): Mode;
-    getModeChangedAt(): number;
-    isExitDelayActive(): boolean;
-    isEntryDelayActive(): boolean;
-    getExitDelayEndsAt(): number | null;
-    getExitDelayTarget(): Mode | null;
-    getEntryDelayEndsAt(): number | null;
-  };
-  deterrence: { getActiveZone(): string | null; getActiveMotionZone(): string | null };
-  eventLog: { recent(limit?: number): unknown[]; clear(): void };
-  escalation: { isInCrisis(): boolean; isPending(): boolean };
-  simulation: { isRunning(): boolean };
-}
-
-interface Ctx { homey: { app: AppRef } }
+interface Ctx { homey: { app: { services: GuardServices }; i18n: { getLanguage(): string } } }
 interface BodyCtx<T> extends Ctx { body: T }
 
 module.exports = {
 
+  async getLanguage({ homey }: Ctx) {
+    return { language: homey.i18n.getLanguage() };
+  },
+
   async getStatus({ homey }: Ctx) {
-    const { app } = homey;
+    const sv = homey.app.services;
     return {
-      mode: app.stateMachine.getMode(),
-      modeChangedAt: app.stateMachine.getModeChangedAt(),
-      exitDelayActive: app.stateMachine.isExitDelayActive(),
-      exitDelayEndsAt: app.stateMachine.getExitDelayEndsAt(),
-      exitDelayTarget: app.stateMachine.getExitDelayTarget(),
-      entryDelayActive: app.stateMachine.isEntryDelayActive(),
-      entryDelayEndsAt: app.stateMachine.getEntryDelayEndsAt(),
-      activeDeterrenceZone: app.deterrence.getActiveZone(),
-      activeMotionZone: app.deterrence.getActiveMotionZone(),
-      simulationRunning: app.simulation.isRunning(),
-      escalationPending: app.stateMachine.getMode() === 'deterrence',
-      inCrisis: app.escalation.isInCrisis(),
-      testActive: app.isTestActive(),
-      alarmActive: app.isAlarmActive(),
-      recentMotionZones: app.getRecentMotionZones(),
-      cameraMotionEnabled: app.getSettings().camera_motion_enabled !== false,
-      perimeterBypassed: app.isPerimeterBypassed(),
-      perimeterBypassEndsAt: app.getPerimeterBypassEndsAt(),
+      mode: sv.stateMachine.getMode(),
+      modeChangedAt: sv.stateMachine.getModeChangedAt(),
+      exitDelayActive: sv.stateMachine.isExitDelayActive(),
+      exitDelayEndsAt: sv.stateMachine.getExitDelayEndsAt(),
+      exitDelayTarget: sv.stateMachine.getExitDelayTarget(),
+      entryDelayActive: sv.stateMachine.isEntryDelayActive(),
+      entryDelayEndsAt: sv.stateMachine.getEntryDelayEndsAt(),
+      activeDeterrenceZone: sv.deterrence.getActiveZone(),
+      activeMotionZone: sv.deterrence.getActiveMotionZone(),
+      simulationRunning: sv.simulation.isRunning(),
+      escalationPending: sv.stateMachine.getMode() === 'deterrence',
+      inCrisis: sv.escalation.isInCrisis(),
+      testActive: sv.alarm.isTestActive(),
+      alarmActive: sv.alarm.isAlarmActive(),
+      recentMotionZones: sv.sensors.getRecentMotionZones(),
+      cameraMotionEnabled: sv.settings.get().camera_motion_enabled !== false,
+      perimeterBypassed: sv.perimeter.isBypassed(),
+      perimeterBypassEndsAt: sv.perimeter.getBypassEndsAt(),
     };
   },
 
   async getEventLog({ homey }: Ctx) {
-    return homey.app.eventLog.recent();
+    return homey.app.services.eventLog.recent();
   },
 
   async clearEventLog({ homey }: Ctx) {
-    homey.app.eventLog.clear();
+    homey.app.services.eventLog.clear();
     return { success: true };
   },
 
   async getZones({ homey }: Ctx) {
     const [zones, devices] = await Promise.all([
-      homey.app.homeyApi.zones.getZones(),
-      homey.app.homeyApi.devices.getDevices(),
+      homey.app.services.homeyApi.zones.getZones(),
+      homey.app.services.homeyApi.devices.getDevices(),
     ]);
     type ZoneSensor = { id: string; name: string; type: SensorType };
     type ZoneLight = { id: string; name: string };
@@ -163,17 +139,17 @@ module.exports = {
   },
 
   async getSettings({ homey }: Ctx) {
-    return homey.app.getSettings();
+    return homey.app.services.settings.get();
   },
 
   async setSettings({ homey, body }: BodyCtx<Partial<GuardSettings>>) {
-    return homey.app.saveSettings(body);
+    return homey.app.services.settings.save(body);
   },
 
   async setMode({ homey, body }: BodyCtx<{ mode: Mode }>) {
     try {
       // Dashboard actions are explicit user intent — always bypass guards (force=true).
-      await homey.app.setMode(body.mode, { force: true });
+      await homey.app.services.modes.setMode(body.mode, { force: true });
       return { success: true };
     } catch (err) {
       return { success: false, error: (err as Error).message };
@@ -181,27 +157,27 @@ module.exports = {
   },
 
   async testDeterrence({ homey, body }: BodyCtx<{ zoneId: string }>) {
-    await homey.app.testDeterrence(body.zoneId);
+    await homey.app.services.alarm.testDeterrence(body.zoneId);
     return { success: true };
   },
 
   async testAlarm({ homey }: Ctx) {
-    await homey.app.testAlarm();
+    await homey.app.services.alarm.testAlarm();
     return { success: true };
   },
 
   async stopAlarm({ homey }: Ctx) {
-    await homey.app.stopAlarm();
+    await homey.app.services.alarm.stopAlarm();
     return { success: true };
   },
 
   async setCameraMotion({ homey, body }: BodyCtx<{ enabled: boolean }>) {
-    homey.app.setCameraMotionEnabled(body.enabled);
+    homey.app.services.settings.setCameraMotionEnabled(body.enabled);
     return { success: true };
   },
 
   async bypassPerimeter({ homey, body }: BodyCtx<{ duration: number }>) {
-    homey.app.bypassPerimeter(Math.max(5, Math.round(body.duration ?? 60)));
+    homey.app.services.perimeter.bypass(Math.max(5, Math.round(body.duration ?? 60)));
     return { success: true };
   },
 
@@ -220,11 +196,11 @@ module.exports = {
   async getSnapshotImage(_ctx: Ctx & { query: { type?: string; filename?: string } }) {
     const { type, filename } = (_ctx as any).query ?? {};
     if ((type !== 'alarm' && type !== 'motion') || !filename) {
-      throw new Error('Ugyldig type eller filnavn.');
+      throw new Error(t(_ctx.homey, 'api.invalid_type_or_filename'));
     }
     // Prevent path traversal: filename must be a plain basename.
     if (path.basename(filename) !== filename || !/^[0-9]+-[0-9a-f]+\.jpg$/i.test(filename)) {
-      throw new Error('Ugyldig filnavn.');
+      throw new Error(t(_ctx.homey, 'api.invalid_filename'));
     }
     const dir = type === 'alarm' ? SNAPSHOT_DIR_ALARM : SNAPSHOT_DIR_MOTION;
     const filepath = path.join(dir, filename);
@@ -241,7 +217,7 @@ module.exports = {
     const dirs: string[] = [];
     if (type === 'alarm' || type === 'all') dirs.push(SNAPSHOT_DIR_ALARM);
     if (type === 'motion' || type === 'all') dirs.push(SNAPSHOT_DIR_MOTION);
-    if (dirs.length === 0) throw new Error('Ugyldig type. Bruk alarm, motion eller all.');
+    if (dirs.length === 0) throw new Error(t(_ctx.homey, 'api.invalid_type'));
 
     let deleted = 0;
     for (const dir of dirs) {

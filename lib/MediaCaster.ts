@@ -4,6 +4,7 @@ import type Homey from 'homey/lib/Homey';
 import type EventLog from './EventLog';
 import { isLight } from './Capabilities';
 import { DEFAULT_BLINK_SECONDS, GuardSettings } from './types';
+import { t } from './i18n';
 
 const BLUE_HUE = 0.66;
 const RED_HUE = 0.0;
@@ -32,6 +33,16 @@ export default class MediaCaster {
     await this.startLightStrobe(zoneId, devices, [BLUE_HUE, RED_HUE]);
   }
 
+  /** Switches on every light in a zone (used to give cameras a lit scene before an alarm burst). */
+  async turnOnZoneLights(zoneId: string): Promise<void> {
+    const lights = (await this.zoneDevices(zoneId)).filter((d: any) => isLight(d));
+    for (const light of lights) {
+      try {
+        await light.setCapabilityValue({ capabilityId: 'onoff', value: true });
+      } catch { /* best-effort */ }
+    }
+  }
+
   /**
    * Stop all active blink tasks and turn off their lights.
    * Call this unconditionally when disarming or stopping an alarm — no guard needed.
@@ -48,7 +59,7 @@ export default class MediaCaster {
       }
     }
     if (entries.length > 0) {
-      this.log.add('info', `stopAll: ${entries.length} lys-oppgave(r) avsluttet og lys slukket.`);
+      this.log.add('info', t(this.homey, 'media.stopall_summary', { count: entries.length }));
     }
   }
 
@@ -63,7 +74,7 @@ export default class MediaCaster {
     try {
       await task.stop();
     } catch (err) {
-      this.log.add('warning', `Stop zone feilet: ${(err as Error).message}`, zoneId);
+      this.log.add('warning', t(this.homey, 'media.stop_zone_failed', { error: (err as Error).message }), zoneId);
     }
     for (const light of task.lights) {
       try {
@@ -85,7 +96,7 @@ export default class MediaCaster {
   private async startLightStrobeWithTiming(key: string, devices: any[], hues: number[], onSec: number, offSec: number): Promise<void> {
     const lights = devices.filter((d: any) => isLight(d));
     if (lights.length === 0) {
-      this.log.add('warning', `Ingen lys å blinke i sone ${key}.`, key);
+      this.log.add('warning', t(this.homey, 'media.no_lights_to_blink', { zone: key }), key);
       return;
     }
     const onMs = onSec * 1000;
@@ -99,15 +110,21 @@ export default class MediaCaster {
       const hue = hues[idx % hues.length] ?? BLUE_HUE;
       idx += 1;
       // Fire all lights in parallel to reduce latency and CPU time.
+      // `stopped` is re-checked between calls: a stop request must win over a slow, in-flight turn-on,
+      // otherwise lights could be left on after the zone has been darkened.
       await Promise.all(lights.map(async (light) => {
         try {
+          if (stopped) return;
           await light.setCapabilityValue({ capabilityId: 'onoff', value: true });
+          if (stopped) return;
           if (light.capabilities.includes('light_hue')) {
             await light.setCapabilityValue({ capabilityId: 'light_hue', value: hue });
           }
+          if (stopped) return;
           if (light.capabilities.includes('light_saturation')) {
             await light.setCapabilityValue({ capabilityId: 'light_saturation', value: 1 });
           }
+          if (stopped) return;
           if (light.capabilities.includes('dim')) {
             await light.setCapabilityValue({ capabilityId: 'dim', value: 1 });
           }
@@ -126,10 +143,12 @@ export default class MediaCaster {
     const cycle = async (): Promise<void> => {
       if (stopped) return;
       await turnOn();
+      if (stopped) return;
       timer = this.homey.setTimeout(async () => {
         if (stopped) return;
         await turnOff();
-        timer = this.homey.setTimeout(cycle, offMs);
+        if (stopped) return;
+        timer = this.homey.setTimeout(() => { cycle().catch(() => { /* best-effort */ }); }, offMs);
       }, onMs);
     };
 
@@ -144,7 +163,9 @@ export default class MediaCaster {
         if (timer) this.homey.clearTimeout(timer);
       },
     });
-    this.log.add('info', `Starter blinkende lys i sone ${key}: ${lights.length} lys, ${onSec}s på / ${offSec}s av.`, key);
+    this.log.add('info', t(this.homey, 'media.starting_blink', {
+      zone: key, count: lights.length, onSec, offSec,
+    }), key);
   }
 
   private async zoneDevices(zoneId: string): Promise<any[]> {

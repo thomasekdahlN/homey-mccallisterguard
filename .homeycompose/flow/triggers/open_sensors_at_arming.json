@@ -1,14 +1,17 @@
 {
   "title": {
     "en": "Open sensors at arming in mode",
+    "nl": "Open sensoren bij inschakelen in modus",
     "no": "Åpne sensorer ved aktivering i modus"
   },
   "titleFormatted": {
     "en": "Open sensors at arming in [[mode]] mode",
+    "nl": "Open sensoren bij inschakelen in modus [[mode]]",
     "no": "Åpne sensorer ved aktivering i [[mode]] modus"
   },
   "hint": {
     "en": "Fires when the system is armed and one or more door/window sensors are open. Filter by mode to react differently to Away vs. Perimeter arming.",
+    "nl": "Wordt geactiveerd wanneer het systeem wordt ingeschakeld terwijl één of meer deur-/raamsensoren open staan. Filter op modus om anders te reageren op inschakelen in Afwezig- versus Perimeter-modus.",
     "no": "Utløses når systemet aktiveres og én eller flere dør/vindu-sensorer er åpne. Filtrer på modus for ulik respons ved Borte vs. Skallsikring."
   },
   "args": [
@@ -16,9 +19,30 @@
       "name": "mode",
       "type": "dropdown",
       "values": [
-        { "id": "*",               "label": { "en": "Any mode",  "no": "Alle modi" } },
-        { "id": "armed",           "label": { "en": "Away",      "no": "Borte" } },
-        { "id": "armed_perimeter", "label": { "en": "Perimeter", "no": "Skallsikring" } }
+        {
+          "id": "*",
+          "label": {
+            "en": "Any mode",
+            "nl": "Elke modus",
+            "no": "Alle modi"
+          }
+        },
+        {
+          "id": "armed",
+          "label": {
+            "en": "Away",
+            "nl": "Afwezig",
+            "no": "Borte"
+          }
+        },
+        {
+          "id": "armed_perimeter",
+          "label": {
+            "en": "Perimeter",
+            "nl": "Perimeter",
+            "no": "Skallsikring"
+          }
+        }
       ]
     }
   ],
@@ -28,6 +52,7 @@
       "type": "number",
       "title": {
         "en": "Open sensor count",
+        "nl": "Aantal open sensoren",
         "no": "Antall åpne sensorer"
       },
       "example": 2
@@ -37,10 +62,12 @@
       "type": "string",
       "title": {
         "en": "Sensor names",
+        "nl": "Sensornamen",
         "no": "Sensornavn"
       },
       "example": {
         "en": "Front door, Garage door",
+        "nl": "Voordeur, Garagedeur",
         "no": "Inngangsdør, Garasjeport"
       }
     },
@@ -49,10 +76,12 @@
       "type": "string",
       "title": {
         "en": "Active mode",
+        "nl": "Actieve modus",
         "no": "Aktiv modus"
       },
       "example": {
         "en": "armed",
+        "nl": "armed",
         "no": "armed"
       }
     }

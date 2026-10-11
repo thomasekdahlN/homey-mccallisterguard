@@ -1,21 +1,28 @@
 {
   "title": {
     "en": "Snapshot taken in zone",
+    "nl": "Snapshot gemaakt in zone",
     "no": "Snapshot tatt i sone"
   },
   "titleFormatted": {
     "en": "Snapshot taken in zone [[zone]]",
+    "nl": "Snapshot gemaakt in zone [[zone]]",
     "no": "Snapshot tatt i sone [[zone]]"
   },
   "hint": {
     "en": "Fires when a camera captures a snapshot. Filter by zone to route images from specific cameras to different services (Telegram, Pushover, etc.).",
+    "nl": "Wordt geactiveerd wanneer een camera een snapshot maakt. Filter op zone om beelden van specifieke camera's naar verschillende diensten te sturen (Telegram, Pushover, enz.).",
     "no": "Utløses når et kamera tar et snapshot. Filtrer på sone for å rute bilder fra bestemte kameraer til ulike tjenester (Telegram, Pushover osv.)."
   },
   "args": [
     {
       "name": "zone",
       "type": "autocomplete",
-      "placeholder": { "en": "Select zone…", "no": "Velg sone…" }
+      "placeholder": {
+        "en": "Select zone…",
+        "nl": "Selecteer zone…",
+        "no": "Velg sone…"
+      }
     }
   ],
   "tokens": [
@@ -24,10 +31,12 @@
       "type": "string",
       "title": {
         "en": "Zone",
+        "nl": "Zone",
         "no": "Sone"
       },
       "example": {
         "en": "Living room",
+        "nl": "Woonkamer",
         "no": "Stua"
       }
     },
@@ -36,10 +45,12 @@
       "type": "string",
       "title": {
         "en": "Camera",
+        "nl": "Camera",
         "no": "Kamera"
       },
       "example": {
         "en": "Front door camera",
+        "nl": "Camera voordeur",
         "no": "Kamera hoveddør"
       }
     },
@@ -48,10 +59,12 @@
       "type": "string",
       "title": {
         "en": "Sensor type",
+        "nl": "Sensortype",
         "no": "Sensortype"
       },
       "example": {
         "en": "camera",
+        "nl": "camera",
         "no": "camera"
       }
     },
@@ -60,10 +73,12 @@
       "type": "string",
       "title": {
         "en": "Arm mode",
+        "nl": "Ingeschakelde modus",
         "no": "Armert modus"
       },
       "example": {
         "en": "armed",
+        "nl": "armed",
         "no": "armed"
       }
     },
@@ -72,10 +87,12 @@
       "type": "string",
       "title": {
         "en": "Timestamp (ISO 8601)",
+        "nl": "Tijdstempel (ISO 8601)",
         "no": "Tidsstempel (ISO 8601)"
       },
       "example": {
         "en": "2026-05-26T08:00:00.000Z",
+        "nl": "2026-05-26T08:00:00.000Z",
         "no": "2026-05-26T08:00:00.000Z"
       }
     },
@@ -84,6 +101,7 @@
       "type": "image",
       "title": {
         "en": "Snapshot image",
+        "nl": "Snapshot-afbeelding",
         "no": "Snapshot-bilde"
       }
     }

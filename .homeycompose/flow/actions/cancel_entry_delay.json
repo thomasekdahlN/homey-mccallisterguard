@@ -1,0 +1,12 @@
+{
+  "title": {
+    "en": "Cancel running entry delay",
+    "nl": "Lopende ingangsvertraging annuleren",
+    "no": "Avbryt pågående inngangsforsinkelse"
+  },
+  "hint": {
+    "en": "Stops a running entry delay so no alarm is raised when it expires — e.g. from a flow that recognises an authorised person (smart lock, presence, keypad). Does nothing if no entry delay is running. Unlike set_mode = Home, this also works in Perimeter mode without disarming it.",
+    "nl": "Stopt een lopende ingangsvertraging zodat er geen alarm afgaat wanneer deze verloopt — bijv. vanuit een flow die een bevoegd persoon herkent (slimme deurslot, aanwezigheid, toetsenbord). Doet niets als er geen ingangsvertraging loopt. In tegenstelling tot set_mode = Thuis werkt dit ook in Perimeter-modus zonder deze uit te schakelen.",
+    "no": "Stopper en pågående inngangsforsinkelse slik at ingen alarm utløses når den utløper — f.eks. fra en flow som gjenkjenner en autorisert person (smartlås, tilstedeværelse, tastatur). Gjør ingenting hvis ingen inngangsforsinkelse pågår. I motsetning til set_mode = Hjemme fungerer denne også i Skallsikring uten å deaktivere den."
+  }
+}

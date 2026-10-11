@@ -4,6 +4,8 @@ import type Homey from 'homey/lib/Homey';
 import type EventLog from './EventLog';
 import { GuardSettings } from './types';
 import { isLight } from './Capabilities';
+import { isInWindow, localMinutes, parseHHMM } from './Schedule';
+import { t } from './i18n';
 
 const TICK_INTERVAL_MS = 60_000;
 
@@ -38,7 +40,7 @@ export default class SimulationEngine {
       this.cycleTimer = null;
     }
     if (this.running) {
-      this.turnOffCurrent('Kevin-modus stoppet').catch(() => { /* best-effort */ });
+      this.turnOffCurrent(t(this.homey, 'sim.stopped')).catch(() => { /* best-effort */ });
     }
     this.running = false;
   }
@@ -51,7 +53,7 @@ export default class SimulationEngine {
     const within = this.isWithinWindow();
     if (within && !this.running) {
       this.running = true;
-      this.log.add('info', 'Kevin-modus startet (tilstedeværelsessimulering).');
+      this.log.add('info', t(this.homey, 'sim.started'));
       this.scheduleCycle();
     } else if (!within && this.running) {
       this.running = false;
@@ -59,14 +61,14 @@ export default class SimulationEngine {
         this.homey.clearTimeout(this.cycleTimer);
         this.cycleTimer = null;
       }
-      this.turnOffCurrent('Kevin-modus stoppet (utenfor tidsvindu)').catch(() => { /* best-effort */ });
+      this.turnOffCurrent(t(this.homey, 'sim.stopped_outside_window')).catch(() => { /* best-effort */ });
     }
   }
 
   private scheduleCycle(): void {
     const settings = this.getSettings();
     this.runCycle(settings).catch((err) => {
-      this.log.add('warning', `Kevin-cycle feilet: ${(err as Error).message}`);
+      this.log.add('warning', t(this.homey, 'sim.cycle_failed', { error: (err as Error).message }));
     });
     const min = Math.max(1, settings.random_min);
     const max = Math.max(min, settings.random_max);
@@ -123,7 +125,7 @@ export default class SimulationEngine {
     }
 
     if (allNames.length > 0) {
-      this.log.add('info', `Kevin-modus: lys på — ${allNames.join(', ')}.`);
+      this.log.add('info', t(this.homey, 'sim.lights_on', { names: allNames.join(', ') }));
       const onCard = this.homey.flow.getTriggerCard('kevin_zone_on');
       for (const [zoneId, names] of byZone) {
         const zoneName = zoneNameMap.get(zoneId) ?? zoneId;
@@ -176,7 +178,9 @@ export default class SimulationEngine {
     this.currentLightIds = [];
 
     const lightsMsg = allNames.length > 0 ? ` — ${allNames.join(', ')}` : '';
-    const prefix = logPrefix ? `${logPrefix}: lys av` : 'Kevin-modus: lys av';
+    const prefix = logPrefix
+      ? t(this.homey, 'sim.lights_off_with_prefix', { prefix: logPrefix })
+      : t(this.homey, 'sim.lights_off_default');
     this.log.add('info', `${prefix}${lightsMsg}.`);
 
     if (allNames.length > 0) {
@@ -189,14 +193,25 @@ export default class SimulationEngine {
     }
   }
 
+  /**
+   * True when the current local time lies between (sunset + offset) and the bedtime.
+   * All comparisons use minutes-of-day in the Homey time zone: Homey Pro runs Node in UTC, so
+   * Date#setHours() and friends would silently interpret the bedtime in the wrong zone.
+   */
   private isWithinWindow(): boolean {
     const settings = this.getSettings();
     const sunset = this.getSunset();
     if (!sunset) return false;
+    const tz = this.homey.clock.getTimezone();
     const start = new Date(sunset.getTime() + settings.sunset_offset * 60_000);
-    const end = this.parseBedtime(settings.bedtime);
-    const now = new Date();
-    return now >= start && now <= end;
+    const startMin = localMinutes(start, tz);
+    const nowMin = localMinutes(new Date(), tz);
+    const endMin = parseHHMM(settings.bedtime) ?? (23 * 60 + 30);
+
+    // A bedtime in the small hours (before 06:00) means the window runs past midnight.
+    // Any other end before the start (e.g. midsummer sunset later than bedtime) is an empty window.
+    if (endMin < 6 * 60) return isInWindow(nowMin, startMin, endMin);
+    return nowMin >= startMin && nowMin < endMin;
   }
 
   private getSunset(): Date | null {
@@ -211,26 +226,30 @@ export default class SimulationEngine {
     }
   }
 
-  private parseBedtime(bedtime: string): Date {
-    const [h, m] = bedtime.split(':').map((n) => parseInt(n, 10));
-    const d = new Date();
-    d.setHours(h ?? 23, m ?? 30, 0, 0);
-    return d;
-  }
-
-  private static computeSunset(date: Date, lat: number, lng: number): Date {
+  /**
+   * Sunset (UTC instant) for the given date and position, using the NOAA solar equations
+   * (includes the equation of time, accurate to about a minute at Nordic latitudes).
+   * Returns null during polar day (the sun never sets).
+   */
+  static computeSunset(date: Date, lat: number, lng: number): Date | null {
     const rad = Math.PI / 180;
-    const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86_400_000);
-    const declination = -23.44 * rad * Math.cos((2 * Math.PI / 365) * (dayOfYear + 10));
-    const cosH = (Math.sin(-0.83 * rad) - Math.sin(lat * rad) * Math.sin(declination))
-      / (Math.cos(lat * rad) * Math.cos(declination));
-    const clamped = Math.max(-1, Math.min(1, cosH));
-    const hourAngle = Math.acos(clamped) / rad;
-    const solarNoonUTC = 12 - lng / 15;
-    const sunsetUTC = solarNoonUTC + hourAngle / 15;
-    const result = new Date(date);
-    result.setUTCHours(Math.floor(sunsetUTC), Math.floor((sunsetUTC % 1) * 60), 0, 0);
-    return result;
+    const startOfYear = Date.UTC(date.getUTCFullYear(), 0, 1);
+    const startOfDay = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+    const dayOfYear = Math.round((startOfDay - startOfYear) / 86_400_000) + 1;
+    const gamma = (2 * Math.PI / 365) * (dayOfYear - 1);
+    const eqTime = 229.18 * (0.000075
+      + 0.001868 * Math.cos(gamma) - 0.032077 * Math.sin(gamma)
+      - 0.014615 * Math.cos(2 * gamma) - 0.040849 * Math.sin(2 * gamma));
+    const decl = 0.006918
+      - 0.399912 * Math.cos(gamma) + 0.070257 * Math.sin(gamma)
+      - 0.006758 * Math.cos(2 * gamma) + 0.000907 * Math.sin(2 * gamma)
+      - 0.002697 * Math.cos(3 * gamma) + 0.00148 * Math.sin(3 * gamma);
+    const cosH = Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(decl))
+      - Math.tan(lat * rad) * Math.tan(decl);
+    if (cosH < -1) return null; // polar day — no sunset
+    const hourAngleDeg = cosH > 1 ? 0 : Math.acos(cosH) / rad; // polar night: sun never rises, treat as sunset at solar noon
+    const sunsetMinutesUTC = 720 - 4 * (lng + hourAngleDeg) - eqTime;
+    return new Date(startOfDay + sunsetMinutesUTC * 60_000);
   }
 
 }

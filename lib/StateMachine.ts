@@ -3,6 +3,7 @@
 import type Homey from 'homey/lib/Homey';
 import type EventLog from './EventLog';
 import { isValidTransition, Mode, SETTINGS_KEYS } from './types';
+import { t } from './i18n';
 
 export type ModeChangeListener = (mode: Mode, previous: Mode) => void;
 
@@ -43,7 +44,7 @@ export default class StateMachine {
     if (this.mode === next && !this.isExitDelayActive()) return;
 
     if (!isValidTransition(this.mode, next)) {
-      const msg = `Ugyldig modusovergang: kan ikke gå fra ${this.mode} til ${next}. Deaktiver systemet først.`;
+      const msg = t(this.homey, 'state.invalid_transition', { from: this.mode, to: next });
       this.log.add('warning', msg);
       throw new Error(msg);
     }
@@ -52,7 +53,7 @@ export default class StateMachine {
     this.clearTimers();
 
     if (next === 'armed' && exitDelaySeconds && exitDelaySeconds > 0) {
-      this.log.add('info', `Aktiverer Borte-modus om ${exitDelaySeconds}s (Exit Delay).`);
+      this.log.add('info', t(this.homey, 'state.activating_away_exit_delay', { seconds: exitDelaySeconds }));
       this.exitDelayTarget = 'armed';
       this.exitDelayEndsAt = Date.now() + exitDelaySeconds * 1000;
       this.exitTimer = this.homey.setTimeout(() => {
@@ -65,7 +66,7 @@ export default class StateMachine {
     }
 
     if (wasExitDelay && this.mode === next) {
-      this.log.add('info', `Exit Delay avbrutt — modus forblir ${next}.`);
+      this.log.add('info', t(this.homey, 'state.exit_delay_cancelled', { mode: next }));
       return;
     }
 
@@ -74,7 +75,7 @@ export default class StateMachine {
 
   startEntryDelay(entryDelaySeconds: number, onTimeout: () => void): void {
     if (this.entryTimer) return;
-    this.log.add('warning', `Innpassering oppdaget. Nedtelling ${entryDelaySeconds}s.`);
+    this.log.add('warning', t(this.homey, 'state.entry_detected_countdown', { seconds: entryDelaySeconds }));
     this.entryDelayEndsAt = Date.now() + entryDelaySeconds * 1000;
     this.entryTimer = this.homey.setTimeout(() => {
       this.entryTimer = null;
@@ -121,13 +122,13 @@ export default class StateMachine {
     // Skip logging for armed_perimeter — app.ts composes a single "Skallsikring aktivert" entry
     // that optionally includes open-sensor detail, so we never emit the raw mode key here.
     if (next !== 'disarmed' && next !== 'armed_perimeter') {
-      this.log.add('info', `Modus: ${next}.`);
+      this.log.add('info', t(this.homey, 'state.mode_log', { mode: next }));
     }
     for (const listener of this.listeners) {
       try {
         listener(next, previous);
       } catch (err) {
-        this.log.add('warning', `Mode listener feilet: ${(err as Error).message}`);
+        this.log.add('warning', t(this.homey, 'state.mode_listener_failed', { error: (err as Error).message }));
       }
     }
   }

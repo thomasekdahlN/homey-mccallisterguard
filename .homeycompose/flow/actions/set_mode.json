@@ -1,10 +1,12 @@
 {
   "title": {
     "en": "Set mode",
+    "nl": "Modus instellen",
     "no": "Sett modus"
   },
   "titleFormatted": {
     "en": "Set mode to [[mode]] by [[name]] — [[comment]]",
+    "nl": "Modus instellen op [[mode]] door [[name]] — [[comment]]",
     "no": "Sett modus til [[mode]] av [[name]] — [[comment]]"
   },
   "args": [
@@ -13,16 +15,10 @@
       "type": "dropdown",
       "values": [
         {
-          "id": "off",
-          "label": {
-            "en": "Off (app disabled)",
-            "no": "Av (app deaktivert)"
-          }
-        },
-        {
           "id": "disarmed",
           "label": {
             "en": "Home",
+            "nl": "Thuis",
             "no": "Hjemme"
           }
         },
@@ -30,6 +26,7 @@
           "id": "armed",
           "label": {
             "en": "Away",
+            "nl": "Afwezig",
             "no": "Borte"
           }
         },
@@ -37,6 +34,7 @@
           "id": "armed_perimeter",
           "label": {
             "en": "Perimeter",
+            "nl": "Perimeter",
             "no": "Skallsikring"
           }
         }
@@ -47,6 +45,7 @@
       "type": "text",
       "placeholder": {
         "en": "Name (optional)",
+        "nl": "Naam (optioneel)",
         "no": "Navn (valgfritt)"
       }
     },
@@ -55,6 +54,7 @@
       "type": "text",
       "placeholder": {
         "en": "Comment (optional, logged)",
+        "nl": "Opmerking (optioneel, gelogd)",
         "no": "Kommentar (valgfritt, logges)"
       }
     }

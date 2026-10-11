@@ -1,10 +1,12 @@
 {
   "title": {
     "en": "Alarm disarmed",
+    "nl": "Alarm uitgeschakeld",
     "no": "Alarm deaktivert"
   },
   "hint": {
     "en": "Fires when the system is disarmed. Deduplicated: at most once per 15 minutes per source to avoid duplicate notifications from simultaneous presence and door events.",
+    "nl": "Wordt geactiveerd wanneer het systeem wordt uitgeschakeld. Gedupliceerd voorkomen: maximaal één keer per 15 minuten per bron, om dubbele meldingen door gelijktijdige aanwezigheids- en deurgebeurtenissen te voorkomen.",
     "no": "Utløses når systemet deaktiveres. Deduplisert: maks én gang per 15 min per kilde for å unngå duplikate varsler fra tilstedeværelse og dørsenso."
   },
   "tokens": [
@@ -13,10 +15,12 @@
       "type": "string",
       "title": {
         "en": "Source",
+        "nl": "Bron",
         "no": "Kilde"
       },
       "example": {
         "en": "user",
+        "nl": "user",
         "no": "user"
       }
     },
@@ -25,10 +29,12 @@
       "type": "string",
       "title": {
         "en": "Name",
+        "nl": "Naam",
         "no": "Navn"
       },
       "example": {
         "en": "Thomas",
+        "nl": "Thomas",
         "no": "Thomas"
       }
     },
@@ -37,10 +43,12 @@
       "type": "string",
       "title": {
         "en": "Previous mode",
+        "nl": "Vorige modus",
         "no": "Forrige modus"
       },
       "example": {
         "en": "armed",
+        "nl": "armed",
         "no": "armed"
       }
     }

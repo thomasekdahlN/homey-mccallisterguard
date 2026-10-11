@@ -1,14 +1,17 @@
 {
   "title": {
     "en": "Mode changed to",
+    "nl": "Modus gewijzigd naar",
     "no": "Modus endret til"
   },
   "titleFormatted": {
     "en": "Mode changed to [[mode_new]]",
+    "nl": "Modus gewijzigd naar [[mode_new]]",
     "no": "Modus endret til [[mode_new]]"
   },
   "hint": {
     "en": "Fires whenever the system mode changes. Select the new mode to filter — leave on 'Any' to fire on all mode changes.",
+    "nl": "Wordt geactiveerd telkens wanneer de systeemmodus verandert. Selecteer de nieuwe modus om te filteren — laat op 'Alle' staan om bij elke moduswijziging te activeren.",
     "no": "Utløses hver gang systemmodus endres. Velg ny modus for å filtrere — la stå på 'Alle' for å utløse ved alle modusendringer."
   },
   "args": [
@@ -16,14 +19,70 @@
       "name": "mode_new",
       "type": "dropdown",
       "values": [
-        { "id": "*",              "label": { "en": "Any mode",           "no": "Alle modi" } },
-        { "id": "off",            "label": { "en": "Off (app disabled)", "no": "Av (app deaktivert)" } },
-        { "id": "disarmed",       "label": { "en": "Home (disarmed)",    "no": "Hjemme (deaktivert)" } },
-        { "id": "armed",          "label": { "en": "Away (armed)",       "no": "Borte (armed)" } },
-        { "id": "armed_perimeter","label": { "en": "Perimeter",          "no": "Skallsikring" } },
-        { "id": "perimeter_alarm","label": { "en": "Perimeter alarm",    "no": "Skallsikring alarm" } },
-        { "id": "deterrence",     "label": { "en": "Deterrence",         "no": "Avskrekking" } },
-        { "id": "alarm",          "label": { "en": "Alarm",              "no": "Alarm" } }
+        {
+          "id": "*",
+          "label": {
+            "en": "Any mode",
+            "nl": "Elke modus",
+            "no": "Alle modi"
+          }
+        },
+        {
+          "id": "off",
+          "label": {
+            "en": "Off (app disabled)",
+            "nl": "Uit (app uitgeschakeld)",
+            "no": "Av (app deaktivert)"
+          }
+        },
+        {
+          "id": "disarmed",
+          "label": {
+            "en": "Home (disarmed)",
+            "nl": "Thuis (uitgeschakeld)",
+            "no": "Hjemme (deaktivert)"
+          }
+        },
+        {
+          "id": "armed",
+          "label": {
+            "en": "Away (armed)",
+            "nl": "Afwezig (ingeschakeld)",
+            "no": "Borte (armed)"
+          }
+        },
+        {
+          "id": "armed_perimeter",
+          "label": {
+            "en": "Perimeter",
+            "nl": "Perimeter",
+            "no": "Skallsikring"
+          }
+        },
+        {
+          "id": "perimeter_alarm",
+          "label": {
+            "en": "Perimeter alarm",
+            "nl": "Perimeteralarm",
+            "no": "Skallsikring alarm"
+          }
+        },
+        {
+          "id": "deterrence",
+          "label": {
+            "en": "Deterrence",
+            "nl": "Afschrikking",
+            "no": "Avskrekking"
+          }
+        },
+        {
+          "id": "alarm",
+          "label": {
+            "en": "Alarm",
+            "nl": "Alarm",
+            "no": "Alarm"
+          }
+        }
       ]
     }
   ],
@@ -33,10 +92,12 @@
       "type": "string",
       "title": {
         "en": "New mode",
+        "nl": "Nieuwe modus",
         "no": "Ny modus"
       },
       "example": {
         "en": "armed",
+        "nl": "armed",
         "no": "armed"
       }
     },
@@ -45,10 +106,12 @@
       "type": "string",
       "title": {
         "en": "Previous mode",
+        "nl": "Vorige modus",
         "no": "Forrige modus"
       },
       "example": {
         "en": "disarmed",
+        "nl": "disarmed",
         "no": "disarmed"
       }
     }

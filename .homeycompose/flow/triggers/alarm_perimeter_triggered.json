@@ -1,21 +1,28 @@
 {
   "title": {
     "en": "Perimeter breach detected in zone",
+    "nl": "Perimeterinbreuk gedetecteerd in zone",
     "no": "Skallsikringsbrudd oppdaget i sone"
   },
   "titleFormatted": {
     "en": "Perimeter breach detected in zone [[zone]]",
+    "nl": "Perimeterinbreuk gedetecteerd in zone [[zone]]",
     "no": "Skallsikringsbrudd oppdaget i sone [[zone]]"
   },
   "hint": {
     "en": "Fires when a sensor trips the alarm while in Perimeter (armed_perimeter) mode. Filter by zone. Use alarm_triggered for Away (armed) mode breaches.",
+    "nl": "Wordt geactiveerd wanneer een sensor het alarm activeert in Perimeter-modus (armed_perimeter). Filter op zone. Gebruik alarm_triggered voor inbreuken in Afwezig-modus (armed).",
     "no": "Utløses når en sensor aktiverer alarmen i Skallsikringsmodus. Filtrer på sone. Bruk alarm_triggered for Borte-modusbrudd."
   },
   "args": [
     {
       "name": "zone",
       "type": "autocomplete",
-      "placeholder": { "en": "Select zone…", "no": "Velg sone…" }
+      "placeholder": {
+        "en": "Select zone…",
+        "nl": "Selecteer zone…",
+        "no": "Velg sone…"
+      }
     }
   ],
   "tokens": [
@@ -24,10 +31,12 @@
       "type": "string",
       "title": {
         "en": "Zone",
+        "nl": "Zone",
         "no": "Sone"
       },
       "example": {
         "en": "Hallway",
+        "nl": "Hal",
         "no": "Gang"
       }
     },
@@ -36,10 +45,12 @@
       "type": "string",
       "title": {
         "en": "Sensor",
+        "nl": "Sensor",
         "no": "Sensor"
       },
       "example": {
         "en": "Front door",
+        "nl": "Voordeur",
         "no": "Hoveddør"
       }
     },
@@ -48,10 +59,12 @@
       "type": "string",
       "title": {
         "en": "Sensor type",
+        "nl": "Sensortype",
         "no": "Sensortype"
       },
       "example": {
         "en": "contact",
+        "nl": "contact",
         "no": "kontakt"
       }
     },
@@ -60,10 +73,12 @@
       "type": "string",
       "title": {
         "en": "Current mode",
+        "nl": "Huidige modus",
         "no": "Aktiv modus"
       },
       "example": {
         "en": "armed_perimeter",
+        "nl": "armed_perimeter",
         "no": "armed_perimeter"
       }
     },
@@ -72,10 +87,12 @@
       "type": "string",
       "title": {
         "en": "Timestamp (ISO 8601)",
+        "nl": "Tijdstempel (ISO 8601)",
         "no": "Tidsstempel (ISO 8601)"
       },
       "example": {
         "en": "2026-05-25T19:05:42.123Z",
+        "nl": "2026-05-25T19:05:42.123Z",
         "no": "2026-05-25T19:05:42.123Z"
       }
     }
