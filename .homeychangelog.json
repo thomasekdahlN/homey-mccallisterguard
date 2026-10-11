@@ -28,5 +28,8 @@
   },
   "0.10.0": {
     "en": "Support for Norwegian, English and Dutch language"
+  },
+  "0.11.0": {
+    "en": "New: choose per sensor which doors are checked when arming Away, plus new flow cards (Alarm escalated, Alert is active, Cancel entry delay). Safer and more reliable alarm handling, with lights and speakers restored after an alarm and recovery after restarts."
   }
 }
