@@ -8,9 +8,7 @@
     "zones_title": "Ruimtes",
     "settings": "Instellingen",
     "images": "Afbeeldingen",
-    "log": "Gebeurtenislogboek",
-    "images_short": "Foto's",
-    "log_short": "Log"
+    "log": "Gebeurtenislogboek"
   },
   "common": {
     "enabled": "ingeschakeld",
@@ -41,7 +39,6 @@
     "select_zone_placeholder": "Selecteer zone…",
     "test_deterrence_btn": "Test afschrikking",
     "test_alarm_btn": "Test alarm",
-    "info_banner": "Het alarm wordt alleen geactiveerd via de knoppen hierboven of een flow. Gebruik “Alarm stoppen” om escalatie en afschrikking te annuleren zonder de modus te wijzigen.",
     "mode_error_invalid": "Ongeldige modusovergang.",
     "select_zone_alert": "Selecteer een zone om afschrikking te testen.",
     "confirm_test_alarm": "Een volledige alarmtest uitvoeren (escalatie)? Het alarm stopt automatisch na 15 seconden."
@@ -69,7 +66,6 @@
     "alarm": "ALARM"
   },
   "zones": {
-    "info_banner": "Tik op een ruimte om te kiezen hoe die op een indringer reageert en welke sensoren, lampen en camera's de bewaking gebruikt. Druk op Opslaan als je klaar bent.",
     "save_btn": "Zone-instellingen opslaan",
     "none_found": "Geen zones gevonden.",
     "reaction_zone_label": "Reactiezone",
@@ -97,13 +93,9 @@
     "reaction_help": "Bij beweging in deze ruimte knipperen de lampen in een andere ruimte, zodat het huis bewoond lijkt.",
     "reaction_select": "Lampen laten knipperen in",
     "sensors_title": "Sensoren",
-    "sensors_help": "Kies waarvoor elke sensor wordt gebruikt. In Afwezig-modus worden alle sensoren altijd bewaakt; de opties hieronder bepalen wat de sensor verder doet.",
     "legend_perimeter_name": "Perimeter",
-    "legend_perimeter": "Bewaakt in Perimeter-modus (nacht).",
     "legend_arming_name": "Controle bij inschakelen",
-    "legend_arming": "Waarschuwt als open bij inschakelen van Afwezig.",
     "legend_entry_name": "Ingangsvertraging",
-    "legend_entry": "Tijd om uit te schakelen nadat de sensor opengaat.",
     "kevin_title": "Aanwezigheidssimulatie",
     "kevin_help": "Lampen die willekeurig aan- en uitgaan terwijl je weg bent, zodat het huis bewoond lijkt.",
     "cameras_help": "Kies wanneer de camera's in deze ruimte foto's maken.",
@@ -115,7 +107,6 @@
     "meta_lights": "Lampen in aanwezigheidssimulatie"
   },
   "settings": {
-    "info_banner": "Instellingen voor het hele systeem. Opties per ruimte vind je onder “Ruimtes”.",
     "save_btn": "Instellingen opslaan",
     "field_bedtime": "Bedtijd (UU:MM)",
     "field_sunset_offset": "Zonsondergang-offset (min)",
@@ -175,8 +166,6 @@
     "csv_filename_suffix": "mcallister-gebeurtenislogboek"
   },
   "images": {
-    "info_banner1": "Opgeslagen camerabeelden. Het aantal bewaarde afbeeldingen wordt ingesteld onder “Instellingen”.",
-    "info_banner2_html": "⚠️ <strong>Alleen camera's die een snapshot-URL ondersteunen werken.</strong> Configureer een handmatige snapshot-URL onder <strong>Ruimtes → camera → Geavanceerd: snapshot-URL</strong> als het maken van foto's niet werkt. Lees de <a href=\"https://github.com/thomasekdahlN/mcallisteralarm#kamera-snapshot--alt-vi-har-prøvd-og-hvorfor-det-ikke-fungerer\" target=\"_blank\" rel=\"noopener\">README</a> voor meer informatie over camera-ondersteuning.",
     "alarm_title": "Alarmafbeeldingen",
     "delete_all_alarm": "Alle alarmafbeeldingen verwijderen",
     "motion_title": "Bewegingsafbeeldingen",

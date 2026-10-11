@@ -8,9 +8,7 @@
     "zones_title": "Rom",
     "settings": "Innstillinger",
     "images": "Bilder",
-    "log": "Hendelseslogg",
-    "images_short": "Bilder",
-    "log_short": "Logg"
+    "log": "Hendelseslogg"
   },
   "common": {
     "enabled": "aktivert",
@@ -41,7 +39,6 @@
     "select_zone_placeholder": "Velg sone…",
     "test_deterrence_btn": "Test avskrekking",
     "test_alarm_btn": "Test alarm",
-    "info_banner": "Alarmen aktiveres kun via knappene over eller en flow. Bruk «Stopp alarm» for å avbryte eskalering og avskrekking uten å endre modus.",
     "mode_error_invalid": "Ugyldig modusovergang.",
     "select_zone_alert": "Velg en sone for å teste avskrekking.",
     "confirm_test_alarm": "Kjøre test av full alarm (eskalering)? Alarmen stopper automatisk etter 15 sekunder."
@@ -69,7 +66,6 @@
     "alarm": "ALARM"
   },
   "zones": {
-    "info_banner": "Trykk på et rom for å velge hvordan det reagerer på en innbruddstyv, og hvilke sensorer, lys og kameraer vakten bruker. Trykk Lagre når du er ferdig.",
     "save_btn": "Lagre sone-innstillinger",
     "none_found": "Ingen soner funnet.",
     "reaction_zone_label": "Reaksjonssone",
@@ -97,13 +93,9 @@
     "reaction_help": "Ved bevegelse i dette rommet blinker lysene i et annet rom, så det ser ut som noen er hjemme.",
     "reaction_select": "Blink lys i",
     "sensors_title": "Sensorer",
-    "sensors_help": "Velg hva hver sensor skal brukes til. I Borte-modus overvåkes alle sensorer alltid; valgene under bestemmer hva den ellers gjør.",
     "legend_perimeter_name": "Skallsikring",
-    "legend_perimeter": "Overvåkes i Skallsikring (natt).",
     "legend_arming_name": "Sjekk ved armering",
-    "legend_arming": "Varsler hvis åpen når du aktiverer Borte.",
     "legend_entry_name": "Inngangsforsinkelse",
-    "legend_entry": "Tid til å deaktivere etter at den åpnes.",
     "kevin_title": "Tilstedeværelsessimulering",
     "kevin_help": "Lys som slås av og på tilfeldig mens du er borte, slik at huset ser bebodd ut.",
     "cameras_help": "Velg når kameraene i dette rommet tar bilder.",
@@ -115,7 +107,6 @@
     "meta_lights": "Lys i tilstedeværelsessimulering"
   },
   "settings": {
-    "info_banner": "Innstillinger for hele systemet. Valg for hvert enkelt rom finner du under «Rom».",
     "save_btn": "Lagre innstillinger",
     "field_bedtime": "Leggetid (TT:MM)",
     "field_sunset_offset": "Solnedgang-forskyvning (min)",
@@ -175,8 +166,6 @@
     "csv_filename_suffix": "mcallister-hendelseslogg"
   },
   "images": {
-    "info_banner1": "Lagrede kamerabilder. Antall bilder som beholdes stilles inn under «Innstillinger».",
-    "info_banner2_html": "⚠️ <strong>Kun kameraer som støtter snapshot-bilde URL fungerer.</strong> Konfigurer manuell snapshot-URL under <strong>Rom → kamera → Avansert: snapshot-URL</strong> om bildetaking ikke fungerer. Les <a href=\"https://github.com/thomasekdahlN/mcallisteralarm#kamera-snapshot--alt-vi-har-prøvd-og-hvorfor-det-ikke-fungerer\" target=\"_blank\" rel=\"noopener\">README</a> for mer informasjon om kamerastøtte.",
     "alarm_title": "Alarmbilder",
     "delete_all_alarm": "Slett alle alarmbilder",
     "motion_title": "Bevegelsesbilder",

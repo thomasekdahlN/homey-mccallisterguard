@@ -104,12 +104,7 @@
 
     /* ── App header + tabs (sticky, always visible at the top) ─────── */
     .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 60;
-      background: color-mix(in srgb, var(--bg) 88%, transparent);
-      -webkit-backdrop-filter: saturate(180%) blur(14px);
-      backdrop-filter: saturate(180%) blur(14px);
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
     }
 
@@ -175,65 +170,49 @@
       background: var(--brand-soft);
     }
 
+    /* Plain text tabs. They wrap onto several lines when the screen is narrow. */
     .tabs {
       display: flex;
-      gap: 6px;
-      padding: 6px 16px 10px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .tabs::-webkit-scrollbar {
-      display: none;
+      flex-wrap: wrap;
+      gap: 2px 4px;
+      padding: 4px 16px 0;
     }
 
     .nav-btn {
-      flex: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 9px 14px;
-      border: 1px solid transparent;
-      border-radius: 999px;
+      position: relative;
+      padding: 10px 14px 9px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      border-radius: 8px 8px 0 0;
       background: transparent;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
-      white-space: nowrap;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-
-    .nav-btn .nav-icon {
-      font-size: 16px;
-      line-height: 1;
     }
 
     .nav-btn:hover {
       background: var(--surface);
     }
 
-    /* Amber dot on a tab that holds unsaved changes */
-    .nav-btn {
-      position: relative;
+    /* The selected tab: bold, tinted background and a thick underline */
+    .nav-btn.active {
+      background: var(--brand-soft);
+      border-bottom-color: var(--btn);
+      color: var(--brand-strong);
+      font-weight: 750;
     }
 
+    /* Amber dot on a tab that holds unsaved changes */
     .nav-btn.has-changes::after {
       content: '';
       position: absolute;
-      top: 6px;
-      right: 8px;
-      width: 9px;
-      height: 9px;
+      top: 7px;
+      right: 4px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--accent);
-      box-shadow: 0 0 0 2px var(--bg);
-    }
-
-    .nav-btn.active {
-      background: var(--btn);
-      color: var(--on-btn);
-      box-shadow: var(--shadow-sm);
     }
 
     .page {
@@ -301,45 +280,6 @@
       font-size: 13px;
       line-height: 1.45;
       color: var(--muted);
-    }
-
-    .note {
-      position: relative;
-      padding: 12px 14px 12px 46px;
-      margin-bottom: 14px;
-      border-radius: var(--radius-sm);
-      background: var(--info-soft);
-      color: var(--text);
-      font-size: 13.5px;
-      line-height: 1.5;
-    }
-
-    .note::before {
-      content: 'i';
-      position: absolute;
-      left: 14px;
-      top: 12px;
-      width: 20px;
-      height: 20px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: var(--info);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      font-style: italic;
-      font-family: Georgia, serif;
-    }
-
-    .note.subtle {
-      background: transparent;
-      border: 1px dashed var(--border-strong);
-      color: var(--muted);
-    }
-
-    .note.subtle::before {
-      background: var(--faint);
     }
 
     /* Buttons */
@@ -879,24 +819,6 @@
       color: var(--muted);
     }
 
-    .zs-legend {
-      list-style: none;
-      margin: 12px 0 0;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: var(--surface-2);
-      display: grid;
-      gap: 6px;
-      font-size: 12px;
-      line-height: 1.4;
-      color: var(--muted);
-    }
-
-    .zs-legend b {
-      color: var(--text);
-      font-weight: 650;
-    }
-
     .zs-field {
       display: block;
       margin-top: 12px;
@@ -1230,6 +1152,10 @@
       margin: 22px 2px 10px;
     }
 
+    #tab-images>.snap-header:first-child {
+      margin-top: 4px;
+    }
+
     .snap-header h3 {
       font-size: 16px;
       font-weight: 700;
@@ -1553,30 +1479,7 @@
       }
 
       .tabs {
-        padding: 6px 8px 8px;
-        gap: 2px;
-        overflow: visible;
-      }
-
-      .nav-btn {
-        flex: 1 1 0;
-        min-width: 0;
-        flex-direction: column;
-        gap: 3px;
-        padding: 7px 2px 6px;
-        border-radius: 14px;
-        font-size: 10.5px;
-        letter-spacing: -0.1px;
-      }
-
-      .nav-btn .nav-icon {
-        font-size: 19px;
-      }
-
-      .nav-btn .nav-label {
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        padding: 4px 12px 0;
       }
 
       .fields {
@@ -1611,19 +1514,19 @@
     </div>
     <nav class="tabs" role="tablist">
       <button class="nav-btn active" data-tab="dashboard" role="tab">
-        <span class="nav-icon" aria-hidden="true">🏠</span><span class="nav-label" data-i18n="nav.dashboard">Dashboard</span>
+        <span class="nav-label" data-i18n="nav.dashboard">Dashboard</span>
       </button>
       <button class="nav-btn" data-tab="zones" role="tab">
-        <span class="nav-icon" aria-hidden="true">🚪</span><span class="nav-label" data-i18n="nav.zones">Rooms</span>
+        <span class="nav-label" data-i18n="nav.zones">Rooms</span>
       </button>
       <button class="nav-btn" data-tab="settings" role="tab">
-        <span class="nav-icon" aria-hidden="true">⚙️</span><span class="nav-label" data-i18n="nav.settings">Settings</span>
+        <span class="nav-label" data-i18n="nav.settings">Settings</span>
       </button>
       <button class="nav-btn" data-tab="images" role="tab">
-        <span class="nav-icon" aria-hidden="true">📷</span><span class="nav-label" data-i18n="nav.images_short">Images</span>
+        <span class="nav-label" data-i18n="nav.images">Images</span>
       </button>
       <button class="nav-btn" data-tab="log" role="tab">
-        <span class="nav-icon" aria-hidden="true">📋</span><span class="nav-label" data-i18n="nav.log_short">Log</span>
+        <span class="nav-label" data-i18n="nav.log">Event log</span>
       </button>
     </nav>
   </header>
@@ -1686,12 +1589,9 @@
       </div>
     </div>
 
-    <div class="note subtle" data-i18n="dashboard.info_banner">The alarm is only activated via the buttons above or a flow. Use
-      “Stop alarm” to cancel escalation and deterrence without changing mode.</div>
   </section>
 
   <section class="tab-panel" id="tab-zones">
-    <div class="note" data-i18n="zones.info_banner">Tap a room to choose how it reacts to an intruder, and which of its sensors, lights and cameras the guard uses. Press Save when you are done.</div>
     <div id="zones"></div>
     <div class="save-bar" id="savebar-zones" data-state="clean">
       <span class="save-state" id="state-zones" role="status" aria-live="polite"></span>
@@ -1700,7 +1600,6 @@
   </section>
 
   <section class="tab-panel" id="tab-settings">
-    <div class="note" data-i18n="settings.info_banner">System-wide settings. Room-specific options are under “Rooms”.</div>
     <div id="settings-grid"></div>
     <div class="save-bar" id="savebar-settings" data-state="clean">
       <span class="save-state" id="state-settings" role="status" aria-live="polite"></span>
@@ -1721,9 +1620,6 @@
   </section>
 
   <section class="tab-panel" id="tab-images">
-    <div class="note" data-i18n="images.info_banner1">Stored camera images. The number of images kept is configured
-      under “Settings”.</div>
-    <div class="note subtle" id="images-info-banner2"></div>
 
     <div class="snap-header">
       <h3 data-i18n="images.alarm_title">Alarm images</h3>
@@ -1882,7 +1778,6 @@
       }
       applyStaticI18n();
 
-      $('images-info-banner2').innerHTML = T('images.info_banner2_html');
 
       // ── Locale-aware date formatting ────────────────────────────
       // Resolved once from the backend (homey.i18n.getLanguage()) since the
@@ -2162,10 +2057,6 @@
           const sensors = z.sensors || [];
           let sensorsHtml;
           if (sensors.length > 0) {
-            const legend = `<ul class="zs-legend">`
-              + `<li><b>${esc(T('zones.legend_perimeter_name'))}</b> — ${esc(T('zones.legend_perimeter'))}</li>`
-              + `<li><b>${esc(T('zones.legend_arming_name'))}</b> — ${esc(T('zones.legend_arming'))}</li>`
-              + `<li><b>${esc(T('zones.legend_entry_name'))}</b> — ${esc(T('zones.legend_entry'))}</li></ul>`;
             const items = sensors.map((sn) => {
               const isContact = sn.type === 'contact';
               // New sensors default to: door/window → in Perimeter, motion → not in Perimeter.
@@ -2177,7 +2068,7 @@
               }
               return zoneItem(isContact ? '🚪' : '👁️', sn.name, T(isContact ? 'zones.sensor_type_contact' : 'zones.sensor_type_motion'), chips);
             }).join('');
-            sensorsHtml = zoneSection('🛡️', T('zones.sensors_title'), T('zones.sensors_help'), legend + items);
+            sensorsHtml = zoneSection('🛡️', T('zones.sensors_title'), '', items);
           } else {
             sensorsHtml = '';
           }

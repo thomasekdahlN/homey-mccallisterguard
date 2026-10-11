@@ -8,9 +8,7 @@
     "zones_title": "Rooms",
     "settings": "Settings",
     "images": "Images",
-    "log": "Event log",
-    "images_short": "Images",
-    "log_short": "Log"
+    "log": "Event log"
   },
   "common": {
     "enabled": "enabled",
@@ -41,7 +39,6 @@
     "select_zone_placeholder": "Select zone…",
     "test_deterrence_btn": "Test deterrence",
     "test_alarm_btn": "Test alarm",
-    "info_banner": "The alarm is only activated via the buttons above or a flow. Use “Stop alarm” to cancel escalation and deterrence without changing mode.",
     "mode_error_invalid": "Invalid mode transition.",
     "select_zone_alert": "Select a zone to test deterrence.",
     "confirm_test_alarm": "Run a full alarm test (escalation)? The alarm stops automatically after 15 seconds."
@@ -69,7 +66,6 @@
     "alarm": "ALARM"
   },
   "zones": {
-    "info_banner": "Tap a room to choose how it reacts to an intruder, and which of its sensors, lights and cameras the guard uses. Press Save when you are done.",
     "save_btn": "Save zone settings",
     "none_found": "No zones found.",
     "reaction_zone_label": "Reaction zone",
@@ -97,13 +93,9 @@
     "reaction_help": "On motion in this room, lights in another room flash so the house looks occupied.",
     "reaction_select": "Flash lights in",
     "sensors_title": "Sensors",
-    "sensors_help": "Choose what each sensor is used for. In Away mode every sensor is always watched; the options below decide what else it does.",
     "legend_perimeter_name": "Perimeter",
-    "legend_perimeter": "Watched in Perimeter (night) mode.",
     "legend_arming_name": "Check on arming",
-    "legend_arming": "Warns if open when you arm Away.",
     "legend_entry_name": "Entry delay",
-    "legend_entry": "Time to disarm after it opens.",
     "kevin_title": "Presence simulation",
     "kevin_help": "Lights that switch on and off at random while you are away, so the house looks lived in.",
     "cameras_help": "Choose when this room's cameras take pictures.",
@@ -115,7 +107,6 @@
     "meta_lights": "Lights in presence simulation"
   },
   "settings": {
-    "info_banner": "System-wide settings. Room-specific options are under “Rooms”.",
     "save_btn": "Save settings",
     "field_bedtime": "Bedtime (HH:MM)",
     "field_sunset_offset": "Sunset offset (min)",
@@ -175,8 +166,6 @@
     "csv_filename_suffix": "mcallister-event-log"
   },
   "images": {
-    "info_banner1": "Stored camera images. The number of images kept is configured under “Settings”.",
-    "info_banner2_html": "⚠️ <strong>Only cameras that support a snapshot image URL will work.</strong> Configure a manual snapshot URL under <strong>Rooms → camera → Advanced: snapshot URL</strong> if image capture does not work. Read <a href=\"https://github.com/thomasekdahlN/mcallisteralarm#kamera-snapshot--alt-vi-har-prøvd-og-hvorfor-det-ikke-fungerer\" target=\"_blank\" rel=\"noopener\">README</a> for more information about camera support.",
     "alarm_title": "Alarm images",
     "delete_all_alarm": "Delete all alarm images",
     "motion_title": "Motion images",
