@@ -7,303 +7,237 @@
   <title>McCallister Guard</title>
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
   <style>
-    body {
-      font-family: -apple-system, system-ui, sans-serif;
-      margin: 0;
-      padding: 16px 16px 80px;
-      color: #222;
+    /* ════════════════════════════════════════════════════════════════
+       McCallister Guard — settings UI
+       Design tokens → layout → components → tabs. Light + dark mode.
+       ════════════════════════════════════════════════════════════════ */
+    :root {
+      color-scheme: light dark;
+      --bg: #f3f5f3;
+      --surface: #ffffff;
+      --surface-2: #f6f8f6;
+      --border: #e2e7e2;
+      --border-strong: #cfd6cf;
+      --text: #14201a;
+      --muted: #5f6d65;
+      --faint: #8a968f;
+      --brand: #1A531A;
+      --brand-strong: #14401a;
+      --brand-soft: #e6f0e6;
+      --btn: #1A531A;
+      --on-btn: #ffffff;
+      --accent: #F2A900;
+      --accent-soft: #fff4d6;
+      --accent-text: #7a5200;
+      --danger: #D32F2F;
+      --danger-soft: #fdecea;
+      --danger-text: #8c1d18;
+      --info: #1565c0;
+      --info-soft: #e5f0fc;
+      --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+      --shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
+      --radius: 18px;
+      --radius-sm: 12px;
     }
 
-    /* ── Page header (title + help icon) ─────────────────────────── */
-    .page-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 4px 0 16px;
-      border-bottom: 3px solid #F2A900;
-      padding-bottom: 8px;
-    }
-
-    .page-header h2 {
-      margin: 0;
-      color: #1A531A;
-      font-size: 22px;
-      flex: 1;
-    }
-
-    .help-btn {
-      background: none;
-      border: none;
-      font-size: 22px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 6px;
-      color: #1A531A;
-      line-height: 1;
-      transition: background 0.15s;
-    }
-
-    .help-btn:hover {
-      background: #f0f7f0;
-    }
-
-    h3 {
-      margin: 20px 0 8px;
-      font-size: 16px;
-      color: #1A531A;
-    }
-
-    .row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: stretch;
-    }
-
-    .mode-btn {
-      width: 100%;
-      padding: 14px;
-      border: 0;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      color: #fff;
-    }
-
-    .mode-btn.disarmed {
-      background: #1A531A;
-    }
-
-    .mode-btn.armed {
-      background: #F2A900;
-      color: #102A43;
-    }
-
-    .mode-btn.armed_perimeter {
-      background: #102A43;
-    }
-
-    .mode-btn.off {
-      background: #555;
-    }
-
-    .mode-btn.deterrence {
-      background: #c07000;
-    }
-
-    .mode-btn.alarm-mode {
-      background: #D32F2F;
-    }
-
-    .mode-btn.toggle-on {
-      background: #1A531A;
-    }
-
-    .mode-btn.toggle-off {
-      background: #555;
-    }
-
-    .mode-btn.inactive {
-      opacity: 0.45;
-    }
-
-    .mode-btn.pending {
-      outline: 3px dashed #F2A900;
-      outline-offset: 2px;
-      animation: pulse-pending 1s ease-in-out infinite alternate;
-    }
-
-    @keyframes pulse-pending {
-      from {
-        box-shadow: 0 0 0 0 rgba(242, 169, 0, 0.6);
-      }
-
-      to {
-        box-shadow: 0 0 0 6px rgba(242, 169, 0, 0);
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e1411;
+        --surface: #172019;
+        --surface-2: #1d2820;
+        --border: #263229;
+        --border-strong: #35443a;
+        --text: #e8f0ea;
+        --muted: #a2b0a7;
+        --faint: #7c8a81;
+        --brand: #86cf8a;
+        --brand-strong: #a9e3ac;
+        --brand-soft: #1e3523;
+        --btn: #2e7d32;
+        --on-btn: #ffffff;
+        --accent: #f2b320;
+        --accent-soft: #3a2f10;
+        --accent-text: #f5cf70;
+        --danger: #ef5350;
+        --danger-soft: #3b1c1b;
+        --danger-text: #ff9c97;
+        --info: #64a8ff;
+        --info-soft: #14283f;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
       }
     }
 
-    .status-line {
-      padding: 12px;
-      background: #f4f4f6;
-      border-radius: 8px;
-      margin-bottom: 8px;
-    }
-
-    .status-line .mode-label {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .status-line .meta {
-      font-size: 12px;
-      color: #555;
-      margin-top: 4px;
-    }
-
-    .crisis {
-      background: #D32F2F !important;
-      color: #fff;
-      animation: blink 0.6s linear infinite;
-    }
-
-    @keyframes blink {
-      50% {
-        opacity: 0.55;
-      }
-    }
-
-    .zone-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      border-radius: 6px;
-      margin-bottom: 6px;
-      background: #ecf0f1;
-    }
-
-    .zone-card.motion {
-      background: #D32F2F;
-      color: #fff;
-    }
-
-    .zone-card.deter {
-      background: #F2A900;
-      color: #102A43;
-    }
-
-    .log-entry {
-      font-size: 12px;
-      padding: 6px 10px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .log-entry .lvl {
-      display: inline-block;
-      min-width: 70px;
-      font-weight: 600;
-    }
-
-    .lvl.info {
-      color: #102A43;
-    }
-
-    .lvl.warning {
-      color: #F2A900;
-    }
-
-    .lvl.alarm {
-      color: #D32F2F;
-    }
-
-    .lvl.critical {
-      color: #8e44ad;
-    }
-
-    .settings-grid {
-      display: grid;
-      grid-template-columns: 1fr 120px;
-      gap: 8px 12px;
-      align-items: center;
-    }
-
-    .settings-grid input[type=number],
-    .settings-grid input[type=time],
-    .settings-grid input[type=url] {
-      width: 100%;
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    * {
       box-sizing: border-box;
     }
 
-    .zone-list-cfg label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 0;
+    html {
+      -webkit-text-size-adjust: 100%;
     }
 
-    .matrix-row {
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    h2,
+    h3 {
+      margin: 0;
+    }
+
+    /* ── App header + tabs (sticky, always visible at the top) ─────── */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      backdrop-filter: saturate(180%) blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .app-bar,
+    .tabs,
+    .page {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .app-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 6px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      flex: none;
+      width: 34px;
+      height: 34px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 4px 0;
-      align-items: center;
-    }
-
-    .matrix-row select {
-      padding: 4px;
-    }
-
-    .save-btn {
-      padding: 10px 16px;
-      background: #1A531A;
+      place-items: center;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #1A531A, #2e7d32);
       color: #fff;
-      border: 0;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
+      font-size: 18px;
+      box-shadow: var(--shadow-sm);
     }
 
-    .save-btn:disabled {
-      opacity: 0.5;
-      cursor: default;
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .saved-toast {
-      display: inline-block;
-      margin-left: 12px;
-      color: #1A531A;
-      font-size: 12px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .saved-toast.visible {
-      opacity: 1;
-    }
-
-    /* ── Bottom navigation bar ────────────────────────────────────── */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      background: #fff;
-      border-top: 1px solid #ddd;
-      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
-      z-index: 100;
-    }
-
-    .nav-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 0 14px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #888;
-      transition: color 0.15s;
-    }
-
-    .nav-btn .nav-icon {
-      font-size: 26px;
+    .help-btn {
+      flex: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--brand);
+      font-size: 16px;
+      font-weight: 700;
       line-height: 1;
+      box-shadow: var(--shadow-sm);
     }
 
-    /* Hide text labels — icon-only bar fits all 5 items */
-    .nav-btn .nav-label {
+    .help-btn:hover {
+      background: var(--brand-soft);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 6px 16px 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tabs::-webkit-scrollbar {
       display: none;
     }
 
+    .nav-btn {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 14px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .nav-btn .nav-icon {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .nav-btn:hover {
+      background: var(--surface);
+    }
+
+    /* Amber dot on a tab that holds unsaved changes */
+    .nav-btn {
+      position: relative;
+    }
+
+    .nav-btn.has-changes::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 2px var(--bg);
+    }
+
     .nav-btn.active {
-      color: #1A531A;
+      background: var(--btn);
+      color: var(--on-btn);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .page {
+      padding: 16px 16px 40px;
     }
 
     .tab-panel {
@@ -312,297 +246,1050 @@
 
     .tab-panel.active {
       display: block;
+      animation: fade-in 0.2s ease;
     }
 
-    /* ── Docs overlay (full-screen when open) ─────────────────────── */
-    .docs-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #fff;
-      z-index: 200;
-      overflow-y: auto;
-      padding: 16px 16px 32px;
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
     }
 
-    .docs-overlay.open {
-      display: block;
+    /* ── Shared components ────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
     }
 
-    .docs-back-btn {
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-icon {
+      flex: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: var(--brand-soft);
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 34px;
+      margin: 0;
+    }
+
+    .card-help {
+      margin: -6px 0 0;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .note {
+      position: relative;
+      padding: 12px 14px 12px 46px;
+      margin-bottom: 14px;
+      border-radius: var(--radius-sm);
+      background: var(--info-soft);
+      color: var(--text);
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .note::before {
+      content: 'i';
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--info);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      font-style: italic;
+      font-family: Georgia, serif;
+    }
+
+    .note.subtle {
+      background: transparent;
+      border: 1px dashed var(--border-strong);
+      color: var(--muted);
+    }
+
+    .note.subtle::before {
+      background: var(--faint);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      font-weight: 650;
+      font-size: 15px;
+      transition: filter 0.15s, background 0.15s, opacity 0.15s;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .btn-primary,
+    .save-btn {
+      background: var(--btn);
+      color: var(--on-btn);
+    }
+
+    .btn-primary:hover:not(:disabled),
+    .save-btn:hover:not(:disabled) {
+      filter: brightness(1.08);
+    }
+
+    .btn-secondary {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-2);
+    }
+
+    .snap-delete-btn {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: var(--danger-soft);
+      color: var(--danger-text);
+      font-size: 13.5px;
+      font-weight: 650;
+    }
+
+    .snap-delete-btn:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* Form fields */
+    input[type=text],
+    input[type=url],
+    input[type=number],
+    input[type=time],
+    select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1.5px solid var(--border-strong);
+      border-radius: 12px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    select {
+      padding-right: 36px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238a968f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
+    }
+
+    /* ── Dashboard ────────────────────────────────────────────────── */
+    .status-card {
+      --tone-a: #e9f1ea;
+      --tone-b: #f7faf7;
+      --tone-fg: var(--text);
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: none;
-      border: none;
-      font-size: 15px;
-      font-weight: 600;
-      color: #1A531A;
-      cursor: pointer;
-      padding: 8px 0 16px;
-      border-bottom: 2px solid #F2A900;
-      margin-bottom: 12px;
+      gap: 16px;
+      padding: 20px;
+      margin-bottom: 14px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--tone-a), var(--tone-b));
+      color: var(--tone-fg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .status-card {
+        --tone-a: #1c2b20;
+        --tone-b: #172019;
+      }
+    }
+
+    .status-icon {
+      flex: none;
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.65);
+      font-size: 30px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .status-text {
+      min-width: 0;
+    }
+
+    .status-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    .status-card .mode-label {
+      font-size: 26px;
+      font-weight: 750;
+      letter-spacing: -0.4px;
+      line-height: 1.15;
+    }
+
+    .status-card .meta {
+      margin-top: 4px;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    .status-card[data-mode="armed"] {
+      --tone-a: #1A531A;
+      --tone-b: #2e7d32;
+      --tone-fg: #fff;
+    }
+
+    .status-card[data-mode="armed_perimeter"] {
+      --tone-a: #1b4b7a;
+      --tone-b: #2a69a8;
+      --tone-fg: #fff;
+    }
+
+    .status-card[data-mode="deterrence"] {
+      --tone-a: #f2a900;
+      --tone-b: #ffc94d;
+      --tone-fg: #2b2100;
+    }
+
+    .status-card[data-mode="alarm"] {
+      --tone-a: #b71c1c;
+      --tone-b: #e53935;
+      --tone-fg: #fff;
+      animation: alarm-pulse 0.9s ease-in-out infinite alternate;
+    }
+
+    .status-card[data-mode="off"] {
+      --tone-a: #e3e6e4;
+      --tone-b: #eef0ee;
+      --tone-fg: #4a554e;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .status-card[data-mode="off"] {
+        --tone-a: #232b26;
+        --tone-b: #1a211c;
+        --tone-fg: #9aa89f;
+      }
+    }
+
+    .status-card[data-mode="armed"] .status-icon,
+    .status-card[data-mode="armed_perimeter"] .status-icon,
+    .status-card[data-mode="alarm"] .status-icon {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    @keyframes alarm-pulse {
+      from {
+        box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.5);
+      }
+
+      to {
+        box-shadow: 0 0 0 10px rgba(229, 57, 53, 0);
+      }
+    }
+
+    #btn-stop {
       width: 100%;
-    }
-
-    .info-banner {
-      padding: 10px 12px;
-      background: #FDF5DC;
-      border-left: 4px solid #F2A900;
-      font-size: 12px;
-      border-radius: 4px;
-      margin-bottom: 12px;
-      color: #555;
-    }
-
-    .mode-btn.stop {
+      min-height: 56px;
+      margin-bottom: 14px;
+      border: 0;
+      border-radius: 16px;
       background: #102A43;
-      margin-bottom: 8px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 750;
+      box-shadow: var(--shadow-sm);
     }
 
-    .mode-btn.stop.alarm-active {
-      background: #D32F2F;
-      animation: blink 0.8s linear infinite;
+    #btn-stop.alarm-active {
+      background: var(--danger);
+      animation: blink 1s ease-in-out infinite;
     }
 
+    @keyframes blink {
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .section-label {
+      margin: 18px 4px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .mode-seg {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .mode-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 4px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 650;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.1s, background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .mode-btn .mi {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .mode-btn:active {
+      transform: scale(0.97);
+    }
+
+    .mode-btn:not(.inactive).off {
+      background: #5f6d65;
+      border-color: #5f6d65;
+      color: #fff;
+    }
+
+    .mode-btn:not(.inactive).disarmed {
+      background: #2e7d32;
+      border-color: #2e7d32;
+      color: #fff;
+    }
+
+    .mode-btn:not(.inactive).armed {
+      background: #1A531A;
+      border-color: #1A531A;
+      color: #fff;
+    }
+
+    .mode-btn:not(.inactive).armed_perimeter {
+      background: #2a69a8;
+      border-color: #2a69a8;
+      color: #fff;
+    }
+
+    .mode-btn.pending {
+      border-color: var(--accent);
+      animation: pulse-pending 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse-pending {
+      from {
+        box-shadow: 0 0 0 0 rgba(242, 169, 0, 0.5);
+      }
+
+      to {
+        box-shadow: 0 0 0 6px rgba(242, 169, 0, 0);
+      }
+    }
+
+    .opt-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .opt-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+
+    .opt-row select {
+      width: auto;
+      flex: 0 0 104px;
+    }
+
+    .util-btn {
+      flex: 1 1 150px;
+      min-height: 46px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .util-btn:disabled {
+      opacity: 0.55;
+    }
+
+    .util-btn.cam-on::before,
+    .util-btn.cam-off::before,
+    .util-btn.bypass-on::before {
+      content: '';
+      flex: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--faint);
+    }
+
+    .util-btn.cam-on {
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      color: var(--brand-strong);
+    }
+
+    .util-btn.cam-on::before {
+      background: var(--brand);
+    }
+
+    .util-btn.bypass-on {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+
+    .util-btn.bypass-on::before {
+      background: var(--accent);
+    }
+
+    .util-btn.test-deter {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+
+    .util-btn.test-alarm {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+      color: var(--danger-text);
+    }
+
+    #mode-error {
+      margin-bottom: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--danger);
+      color: #fff;
+      font-size: 13.5px;
+    }
+
+    /* ── Rooms (zones) ─────────────────────────────────────────────── */
     .zone-block {
-      border: 1px solid #e1e4e8;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      background: var(--surface);
       overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s;
+    }
+
+    .zone-block[open] {
+      box-shadow: var(--shadow);
     }
 
     .zone-block summary {
       list-style: none;
       cursor: pointer;
-      padding: 12px;
+      padding: 14px 16px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: #f4f4f6;
-      font-weight: 600;
+      gap: 10px;
     }
 
     .zone-block summary::-webkit-details-marker {
       display: none;
     }
 
-    .zone-block summary .status-pill {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      background: #ddd;
-      color: #444;
+    .zone-block summary::after {
+      content: '';
+      flex: none;
+      width: 8px;
+      height: 8px;
+      margin: -3px 4px 0 2px;
+      border-right: 2px solid var(--faint);
+      border-bottom: 2px solid var(--faint);
+      transform: rotate(45deg);
+      transition: transform 0.2s;
+    }
+
+    .zone-block[open] summary::after {
+      transform: rotate(-135deg);
+      margin-top: 3px;
+    }
+
+    .zone-name {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .zone-title {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .zone-meta {
+      display: flex;
+      gap: 12px;
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
       font-weight: 500;
     }
 
+    .zone-block summary .status-pill {
+      font-size: 10.5px;
+      letter-spacing: 0.4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .zone-block summary .status-pill:empty {
+      display: none;
+    }
+
     .zone-block summary .status-pill.motion {
-      background: #D32F2F;
+      background: var(--danger);
       color: #fff;
     }
 
     .zone-block summary .status-pill.deter {
-      background: #F2A900;
-      color: #102A43;
+      background: var(--accent);
+      color: #2b2100;
     }
 
-    .zone-block summary .cap-badges {
-      display: inline-flex;
-      gap: 4px;
-      margin-left: 8px;
-      font-size: 13px;
-      opacity: 0.75;
+    .zone-panel {
+      padding: 2px 16px 18px;
+      border-top: 1px solid var(--border);
     }
 
-    .zone-body .info-banner.warn {
-      grid-column: 1 / -1;
-      background: #fdecea;
-      color: #7a1f1f;
+    .zs {
+      padding-top: 18px;
     }
 
-    .zone-body .info-banner.hint {
-      grid-column: 1 / -1;
-      background: #E8F0E8;
-      color: #1A531A;
+    .zs+.zs {
+      margin-top: 4px;
+      border-top: 1px solid var(--border);
     }
 
-    .zone-body {
-      padding: 12px;
+    .zs-head {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .zs-icon {
+      flex: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--brand-soft);
       display: grid;
-      grid-template-columns: 140px 1fr;
-      gap: 10px 12px;
-      align-items: center;
+      place-items: center;
+      font-size: 16px;
     }
 
-    .zone-body input[type=text],
-    .zone-body input[type=url],
-    .zone-body select {
-      width: 100%;
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
+    .zs-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 32px;
     }
 
-    .zone-body .sensor-list {
+    .zs-help {
+      margin-top: -4px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .zs-legend {
+      list-style: none;
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+
+    .zs-legend b {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .zs-field {
+      display: block;
+      margin-top: 12px;
+    }
+
+    .zs-field>span {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 650;
+      color: var(--muted);
+    }
+
+    .zs-item {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+    }
+
+    .zs-item-head {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      gap: 10px;
     }
 
-    .zone-body .sensor-row {
+    .zs-item-icon {
+      flex: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+    }
+
+    .zs-item-name {
+      min-width: 0;
+      font-size: 14.5px;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+
+    .zs-item-name small {
+      display: block;
+      margin-top: 1px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--faint);
+    }
+
+    .chips {
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
-      font-size: 13px;
-      padding: 4px 6px;
-      border-radius: 4px;
+      margin-top: 10px;
     }
 
-    .zone-body .sensor-row:hover {
-      background: #f5f7fa;
-    }
-
-    .zone-body .sensor-row .sensor-name {
-      flex: 1;
-    }
-
-    .zone-body .sensor-row .sensor-type {
-      color: #888;
-      font-style: normal;
-      font-size: 11px;
-    }
-
-    .zone-body .sensor-flag {
+    .chip {
+      position: relative;
       display: inline-flex;
-      align-items: center;
-      gap: 4px;
       cursor: pointer;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .zone-body .sensor-empty {
-      font-size: 12px;
-      color: #888;
-      font-style: italic;
-    }
-
-    .zone-body .test-btn {
-      grid-column: 1 / -1;
-      padding: 8px 14px;
-      background: #1A531A;
-      color: #fff;
-      border: 0;
-      border-radius: 4px;
+    .chip input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      margin: 0;
+      opacity: 0;
       cursor: pointer;
+    }
+
+    .chip span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 13px 8px 10px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 13px;
       font-weight: 600;
-      justify-self: start;
+      line-height: 1.2;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
 
-    .docs {
-      font-size: 14px;
-      line-height: 1.55;
-      color: #333;
+    .chip span::before {
+      content: '';
+      flex: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-strong);
+      transition: background 0.15s, border-color 0.15s;
     }
 
-    .docs h3 {
-      margin-top: 20px;
-      color: #1A531A;
+    .chip input:checked+span {
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      color: var(--brand-strong);
     }
 
-    .docs code {
-      background: #f4f4f6;
-      padding: 1px 5px;
-      border-radius: 3px;
+    .chip input:checked+span::before {
+      border-color: var(--brand);
+      background: var(--btn) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.4 4.6-5' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 11px no-repeat;
+    }
+
+    .chip input:focus-visible+span {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .adv {
+      margin-top: 10px;
+    }
+
+    .adv summary {
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 650;
+      color: var(--brand);
+      list-style: none;
+    }
+
+    .adv summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .adv summary::before {
+      content: '＋ ';
+    }
+
+    .adv[open] summary::before {
+      content: '－ ';
+    }
+
+    .adv p {
+      margin: 6px 0;
       font-size: 12px;
+      line-height: 1.4;
+      color: var(--muted);
     }
 
-    .docs ul {
-      padding-left: 22px;
+    /* ── Global settings ───────────────────────────────────────────── */
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 12px;
     }
 
-    /* ── Snapshot gallery ─────────────────────────────────────────── */
+    .field label,
+    .field .field-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .field-help {
+      margin-top: 5px;
+      font-size: 11.5px;
+      line-height: 1.35;
+      color: var(--faint);
+    }
+
+    .field.wide {
+      grid-column: 1 / -1;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      cursor: pointer;
+    }
+
+    .switch-row strong {
+      font-size: 14.5px;
+    }
+
+    .switch {
+      position: relative;
+      flex: none;
+      width: 50px;
+      height: 30px;
+    }
+
+    .switch input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .switch i {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: var(--border-strong);
+      transition: background 0.2s;
+    }
+
+    .switch i::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s;
+    }
+
+    .switch input:checked+i {
+      background: var(--btn);
+    }
+
+    .switch input:checked+i::after {
+      transform: translateX(20px);
+    }
+
+    .switch input:focus-visible+i {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* ── Floating save bar (sticks to the bottom of the viewport) ──── */
+    .save-bar {
+      position: sticky;
+      bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+      z-index: 50;
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 10px 10px 16px;
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .save-state {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .save-state::before {
+      content: '';
+      flex: none;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--border-strong);
+    }
+
+    .save-bar[data-state="dirty"] .save-state {
+      color: var(--accent-text);
+    }
+
+    .save-bar[data-state="dirty"] .save-state::before {
+      background: var(--accent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 28%, transparent);
+    }
+
+    .save-bar[data-state="error"] .save-state {
+      color: var(--danger-text);
+    }
+
+    .save-bar[data-state="error"] .save-state::before {
+      background: var(--danger);
+    }
+
+    .save-bar[data-state="saved"] .save-state {
+      color: var(--brand);
+    }
+
+    .save-bar[data-state="saved"] .save-state::before {
+      background: var(--brand);
+    }
+
+    .save-btn {
+      flex: none;
+      min-height: 46px;
+      padding: 0 24px;
+      border: 0;
+      border-radius: 13px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .save-btn:disabled {
+      background: var(--border-strong);
+      color: var(--surface);
+      cursor: default;
+    }
+
+    /* ── Images ────────────────────────────────────────────────────── */
     .snap-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin: 20px 0 8px;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 22px 2px 10px;
     }
 
     .snap-header h3 {
-      margin: 0;
-    }
-
-    .btn-secondary {
-      padding: 6px 14px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #f5f5f5;
-      color: #333;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .btn-secondary:hover {
-      background: #e8e8e8;
-    }
-
-    .snap-delete-btn {
-      background: #D32F2F;
-      color: #fff;
-      border: 0;
-      border-radius: 6px;
-      padding: 5px 12px;
-      font-size: 12px;
-      cursor: pointer;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
     }
 
     .snapshot-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
       gap: 8px;
     }
 
     .snapshot-thumb {
       width: 100%;
-      aspect-ratio: 4/3;
+      aspect-ratio: 4 / 3;
       object-fit: cover;
-      border-radius: 6px;
-      border: 2px solid #e1e4e8;
-      cursor: pointer;
-      background: #f4f4f6;
-      transition: border-color 0.15s;
+      border-radius: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      cursor: zoom-in;
+      transition: transform 0.12s, box-shadow 0.12s;
     }
 
     .snapshot-thumb:hover {
-      border-color: #F2A900;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
     }
 
     .snap-empty {
-      color: #888;
+      grid-column: 1 / -1;
+      margin: 0;
+      padding: 18px;
+      text-align: center;
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-sm);
+      color: var(--faint);
       font-size: 13px;
-      padding: 12px 0;
+    }
+
+    .snap-summary {
+      grid-column: 1 / -1;
+      margin: 0 2px 2px;
+      font-size: 12.5px;
+      color: var(--muted);
     }
 
     .snap-load-more {
-      margin: 12px 0;
-      padding: 8px 20px;
-      background: #1A531A;
-      color: #fff;
-      border: 0;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
+      width: 100%;
+      margin-top: 10px;
+      min-height: 44px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 650;
     }
 
-    /* ── Lightbox ─────────────────────────────────────────────────── */
     #lightbox {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.88);
+      background: rgba(0, 0, 0, 0.9);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -613,290 +1300,190 @@
 
     #lightbox img {
       max-width: 96vw;
-      max-height: 86vh;
-      border-radius: 8px;
+      max-height: 84vh;
+      border-radius: 12px;
       object-fit: contain;
     }
 
     #lightbox-meta {
       color: #ccc;
-      font-size: 12px;
+      font-size: 12.5px;
     }
 
     #lightbox-close {
       position: absolute;
       top: 16px;
-      right: 20px;
-      background: transparent;
-      border: 2px solid #fff;
-      color: #fff;
-      border-radius: 6px;
-      padding: 4px 14px;
-      font-size: 18px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    /* ── Responsive / mobile ───────────────────────────────────────── */
-    @media (max-width: 560px) {
-      body {
-        padding: 8px 8px 80px;
-      }
-
-      /* Zone body: switch to single-column stacked layout */
-      .zone-body {
-        grid-template-columns: 1fr;
-        gap: 4px 0;
-      }
-
-      /* Field labels become small uppercase section headers */
-      .zone-body>label:not([style]) {
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #666;
-        margin-top: 12px;
-      }
-
-      /* First field label needs no top margin */
-      .zone-body>label:not([style]):first-of-type {
-        margin-top: 0;
-      }
-
-      /* All inputs and selects fill the full width */
-      .zone-body select,
-      .zone-body input[type=number],
-      .zone-body input[type=text],
-      .zone-body input[type=url] {
-        width: 100% !important;
-        box-sizing: border-box;
-      }
-
-      /* Camera rows: let name wrap to its own line so checkboxes sit below */
-      .zone-body .camera-row {
-        flex-wrap: wrap;
-        gap: 6px 12px;
-      }
-
-      .zone-body .camera-row .sensor-name {
-        flex-basis: 100%;
-        font-weight: 600;
-      }
-
-      /* Sensor rows: allow wrapping for long names + entry-delay badge */
-      .zone-body .sensor-row {
-        flex-wrap: wrap;
-        gap: 4px 8px;
-      }
-
-      /* Test button: full width, easier tap target */
-      .zone-body .test-btn {
-        padding: 14px;
-        font-size: 15px;
-      }
-
-      /* Global settings grid: single column, labels as headers */
-      .settings-grid {
-        grid-template-columns: 1fr;
-        gap: 4px 0;
-      }
-
-      .settings-grid label {
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #666;
-        margin-top: 10px;
-      }
-
-      .settings-grid input,
-      .settings-grid select {
-        width: 100%;
-        box-sizing: border-box;
-      }
-    }
-
-    /* ══ Dashboard redesign ══════════════════════════════════════════ */
-
-    /* Status card — colored left border tracks current mode */
-    .status-card {
-      border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      border-left: 5px solid #1A531A;
-      background: #f0f7f0;
-      transition: border-left-color 0.3s, background 0.3s;
-    }
-
-    .status-card[data-mode="armed"] {
-      border-left-color: #F2A900;
-      background: #fdf8ed;
-    }
-
-    .status-card[data-mode="armed_perimeter"] {
-      border-left-color: #102A43;
-      background: #eef2f7;
-    }
-
-    .status-card[data-mode="deterrence"] {
-      border-left-color: #c07000;
-      background: #fdf5dc;
-    }
-
-    .status-card[data-mode="alarm"] {
-      border-left-color: #D32F2F;
-      background: #fdecea;
-      animation: alarm-pulse 0.9s ease-in-out infinite alternate;
-    }
-
-    @keyframes alarm-pulse {
-      from {
-        background: #fdecea;
-      }
-
-      to {
-        background: #f5bbbb;
-      }
-    }
-
-    .status-card .mode-label {
-      font-size: 17px;
-      font-weight: 700;
-      color: #111;
-    }
-
-    .status-card .meta {
-      font-size: 12px;
-      color: #666;
-      margin-top: 3px;
-    }
-
-    /* Segmented mode selector */
-    .mode-seg {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1.5px solid #ddd;
-    }
-
-    .mode-seg .mode-btn {
-      width: 100%;
-      padding: 12px 6px;
+      right: 16px;
+      width: 42px;
+      height: 42px;
       border: 0;
-      border-right: 1px solid #ddd;
-      border-radius: 0;
-      background: #f4f4f6;
-      color: #bbb;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: background 0.2s, color 0.2s;
-      opacity: 1;
-    }
-
-    .mode-seg .mode-btn:last-child {
-      border-right: 0;
-    }
-
-    .mode-seg .mode-btn.inactive {
-      background: #f4f4f6;
-      color: #bbb;
-    }
-
-    .mode-seg .mode-btn.disarmed:not(.inactive) {
-      background: #1A531A;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.16);
       color: #fff;
-    }
-
-    .mode-seg .mode-btn.armed:not(.inactive) {
-      background: #F2A900;
-      color: #102A43;
-    }
-
-    .mode-seg .mode-btn.armed_perimeter:not(.inactive) {
-      background: #102A43;
-      color: #fff;
-    }
-
-    .mode-seg .mode-btn.pending {
-      outline: 3px dashed #F2A900;
-      outline-offset: -3px;
-      animation: pulse-pending 1s ease-in-out infinite alternate;
-    }
-
-    /* Utility buttons (toggle/bypass/test) */
-    .util-btn {
-      padding: 9px 14px;
-      border: 1.5px solid #ddd;
-      border-radius: 7px;
-      background: #fff;
-      color: #444;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      white-space: nowrap;
-    }
-
-    .util-btn.cam-on {
-      border-color: #1A531A;
-      background: #f0f7f0;
-      color: #1A531A;
-    }
-
-    .util-btn.bypass-on {
-      border-color: #c07000;
-      background: #fdf5dc;
-      color: #7a4a00;
-    }
-
-    .util-btn.test-deter {
-      border-color: #1A531A;
-      color: #1A531A;
-    }
-
-    .util-btn.test-alarm {
-      border-color: #D32F2F;
-      color: #D32F2F;
-    }
-
-    /* Dashboard section cards */
-    .dash-section {
-      border: 1px solid #e5e5ea;
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 10px;
-      background: #fff;
-    }
-
-    .dash-section-label {
-      font-size: 10px;
+      font-size: 18px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      color: #bbb;
-      margin-bottom: 8px;
     }
 
-    .dash-row {
+    /* ── Event log ─────────────────────────────────────────────────── */
+    .toolbar {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .toolbar h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .toolbar .actions {
+      display: flex;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
-    .dash-row select {
-      height: 36px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      padding: 0 8px;
+    .log-box {
+      max-height: 62vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
     }
 
-    /* ── Media URL table (docs overlay) ───────────────────────────── */
+    .log-box>em {
+      display: block;
+      padding: 18px;
+      text-align: center;
+      color: var(--faint);
+    }
+
+    .log-entry {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .log-entry:last-child {
+      border-bottom: 0;
+    }
+
+    .log-entry .ts {
+      color: var(--faint);
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+    }
+
+    .log-entry .msg {
+      flex-basis: 100%;
+    }
+
+    .lvl {
+      display: inline-block;
+      min-width: 62px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 750;
+      letter-spacing: 0.4px;
+    }
+
+    .lvl.info {
+      background: var(--info-soft);
+      color: var(--info);
+    }
+
+    .lvl.warning {
+      background: var(--accent-soft);
+      color: var(--accent-text);
+    }
+
+    .lvl.alarm {
+      background: var(--danger-soft);
+      color: var(--danger-text);
+    }
+
+    .lvl.critical {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* ── Help / documentation overlay ──────────────────────────────── */
+    .docs-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    .docs-overlay.open {
+      display: block;
+    }
+
+    .docs-inner {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 12px 16px 48px;
+    }
+
+    .docs-back-btn {
+      position: sticky;
+      top: 8px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 40px;
+      padding: 0 16px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--brand);
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .docs {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .docs h3 {
+      margin: 26px 0 8px;
+      font-size: 17px;
+      color: var(--brand);
+    }
+
+    .docs p {
+      margin: 8px 0;
+    }
+
+    .docs code {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+
+    .docs ul {
+      padding-left: 22px;
+    }
+
     .media-table {
       width: 100%;
       border-collapse: collapse;
@@ -906,18 +1493,18 @@
 
     .media-table th {
       text-align: left;
-      padding: 6px 8px;
-      background: #f4f4f6;
+      padding: 8px;
+      background: var(--surface-2);
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #666;
-      border-bottom: 1px solid #ddd;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
     }
 
     .media-table td {
-      padding: 8px;
-      border-bottom: 1px solid #eee;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
       vertical-align: middle;
     }
 
@@ -928,158 +1515,215 @@
     }
 
     .media-url {
-      font-family: monospace;
-      font-size: 11px;
-      background: #f4f4f6;
-      padding: 3px 6px;
-      border-radius: 4px;
-      word-break: break-all;
       flex: 1;
-      color: #333;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 11px;
+      background: var(--surface-2);
+      padding: 4px 8px;
+      border-radius: 6px;
+      word-break: break-all;
     }
 
     .copy-url-btn {
-      flex-shrink: 0;
-      background: none;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 4px 10px;
-      font-size: 11px;
-      cursor: pointer;
-      color: #555;
+      flex: none;
+      min-height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      background: var(--surface);
+      font-size: 11.5px;
+      font-weight: 600;
       white-space: nowrap;
-      transition: background 0.15s, color 0.15s;
     }
 
     .copy-url-btn:hover {
-      background: #f0f7f0;
-      border-color: #1A531A;
-      color: #1A531A;
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
+    /* ── Small screens ─────────────────────────────────────────────── */
+    @media (max-width: 560px) {
+      .page {
+        padding: 12px 12px 32px;
+      }
+
+      .app-bar {
+        padding: 10px 12px 4px;
+      }
+
+      .tabs {
+        padding: 6px 8px 8px;
+        gap: 2px;
+        overflow: visible;
+      }
+
+      .nav-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        flex-direction: column;
+        gap: 3px;
+        padding: 7px 2px 6px;
+        border-radius: 14px;
+        font-size: 10.5px;
+        letter-spacing: -0.1px;
+      }
+
+      .nav-btn .nav-icon {
+        font-size: 19px;
+      }
+
+      .nav-btn .nav-label {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .fields {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-btn {
+        padding: 12px 2px 10px;
+        font-size: 12px;
+      }
+
+      .status-card {
+        padding: 16px;
+      }
+
+      .status-card .mode-label {
+        font-size: 23px;
+      }
+
     }
   </style>
 </head>
 
 <body>
-  <div class="page-header">
-    <h2>McCallister Guard</h2>
-    <button class="help-btn" id="btn-help" data-i18n-title="header.help_title">❓</button>
-  </div>
+  <header class="app-header">
+    <div class="app-bar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">🛡️</span>
+        <h1>McCallister Guard</h1>
+      </div>
+      <button class="help-btn" id="btn-help" data-i18n-title="header.help_title" aria-label="Help">?</button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="nav-btn active" data-tab="dashboard" role="tab">
+        <span class="nav-icon" aria-hidden="true">🏠</span><span class="nav-label" data-i18n="nav.dashboard">Dashboard</span>
+      </button>
+      <button class="nav-btn" data-tab="zones" role="tab">
+        <span class="nav-icon" aria-hidden="true">🚪</span><span class="nav-label" data-i18n="nav.zones">Rooms</span>
+      </button>
+      <button class="nav-btn" data-tab="settings" role="tab">
+        <span class="nav-icon" aria-hidden="true">⚙️</span><span class="nav-label" data-i18n="nav.settings">Settings</span>
+      </button>
+      <button class="nav-btn" data-tab="images" role="tab">
+        <span class="nav-icon" aria-hidden="true">📷</span><span class="nav-label" data-i18n="nav.images_short">Images</span>
+      </button>
+      <button class="nav-btn" data-tab="log" role="tab">
+        <span class="nav-icon" aria-hidden="true">📋</span><span class="nav-label" data-i18n="nav.log_short">Log</span>
+      </button>
+    </nav>
+  </header>
 
-  <!-- Fixed bottom navigation bar (5 items — icon-only) -->
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-tab="dashboard" data-i18n-title="nav.dashboard">
-      <span class="nav-icon" aria-hidden="true">🏠</span>
-      <span class="nav-label" data-i18n="nav.dashboard">Dashboard</span>
-    </button>
-    <button class="nav-btn" data-tab="zones" data-i18n-title="nav.zones_title">
-      <span class="nav-icon" aria-hidden="true">🗺️</span>
-      <span class="nav-label" data-i18n="nav.zones">Zones</span>
-    </button>
-    <button class="nav-btn" data-tab="settings" data-i18n-title="nav.settings">
-      <span class="nav-icon" aria-hidden="true">⚙️</span>
-      <span class="nav-label" data-i18n="nav.settings">Settings</span>
-    </button>
-    <button class="nav-btn" data-tab="images" data-i18n-title="nav.images">
-      <span class="nav-icon" aria-hidden="true">📷</span>
-      <span class="nav-label" data-i18n="nav.images">Images</span>
-    </button>
-    <button class="nav-btn" data-tab="log" data-i18n-title="nav.log">
-      <span class="nav-icon" aria-hidden="true">📋</span>
-      <span class="nav-label" data-i18n="nav.log">Event log</span>
-    </button>
-  </nav>
-
+  <main class="page">
   <section class="tab-panel active" id="tab-dashboard">
 
-    <!-- Current mode status -->
-    <div id="status" class="status-card" data-mode="disarmed" data-i18n="dashboard.loading_status">Loading status…</div>
+    <!-- Current mode -->
+    <div id="status" class="status-card" data-mode="disarmed">
+      <div class="status-icon" aria-hidden="true">🏠</div>
+      <div class="status-text"><div class="mode-label" data-i18n="dashboard.loading_status">Loading status…</div></div>
+    </div>
 
     <!-- Stop alarm — only visible during alert states -->
-    <button class="mode-btn stop" id="btn-stop" style="display:none;" data-i18n="dashboard.stop_alarm">Stop alarm</button>
+    <button id="btn-stop" style="display:none;" data-i18n="dashboard.stop_alarm">Stop alarm</button>
 
     <!-- Mode selector -->
-    <div class="dash-section">
-      <div class="dash-section-label" data-i18n="dashboard.mode_section_label">Mode</div>
-      <div class="mode-seg">
-        <button class="mode-btn off" data-mode="off" data-i18n="dashboard.mode_off">Off</button>
-        <button class="mode-btn disarmed" data-mode="disarmed" data-i18n="dashboard.mode_home">Home</button>
-        <button class="mode-btn armed" data-mode="armed" data-i18n="dashboard.mode_away">Away</button>
-        <button class="mode-btn armed_perimeter" data-mode="armed_perimeter" data-i18n="dashboard.mode_perimeter">Perimeter</button>
+    <div class="section-label" data-i18n="dashboard.mode_section_label">Mode</div>
+    <div class="mode-seg">
+      <button class="mode-btn off" data-mode="off"><span class="mi" aria-hidden="true">⏻</span><span data-i18n="dashboard.mode_off">Off</span></button>
+      <button class="mode-btn disarmed" data-mode="disarmed"><span class="mi" aria-hidden="true">🏠</span><span data-i18n="dashboard.mode_home">Home</span></button>
+      <button class="mode-btn armed" data-mode="armed"><span class="mi" aria-hidden="true">🔒</span><span data-i18n="dashboard.mode_away">Away</span></button>
+      <button class="mode-btn armed_perimeter" data-mode="armed_perimeter"><span class="mi" aria-hidden="true">🌙</span><span data-i18n="dashboard.mode_perimeter">Perimeter</span></button>
+    </div>
+
+    <div id="mode-error" style="display:none;"></div>
+
+    <!-- Quick options -->
+    <div class="section-label" data-i18n="dashboard.options_label">Options</div>
+    <div class="card">
+      <div class="opt-list">
+        <div class="opt-row"><button class="util-btn cam-off" id="btn-camera-motion">…</button></div>
+        <div class="opt-row">
+          <button class="util-btn" id="btn-bypass">…</button>
+          <select id="bypass-duration" aria-label="Bypass duration">
+            <option value="30">30 s</option>
+            <option value="60" selected>60 s</option>
+            <option value="90">90 s</option>
+            <option value="120">2 min</option>
+            <option value="180">3 min</option>
+            <option value="300">5 min</option>
+          </select>
+        </div>
       </div>
     </div>
 
-    <!-- Utility toggles -->
-    <div class="dash-section">
-      <div class="dash-section-label" data-i18n="dashboard.options_label">Options</div>
-      <div class="dash-row">
-        <button class="util-btn cam-off" id="btn-camera-motion">…</button>
-        <button class="util-btn" id="btn-bypass">…</button>
-        <select id="bypass-duration">
-          <option value="30">30 s</option>
-          <option value="60" selected>60 s</option>
-          <option value="90">90 s</option>
-          <option value="120">2 min</option>
-          <option value="180">3 min</option>
-          <option value="300">5 min</option>
-        </select>
+    <!-- Test -->
+    <div class="section-label" data-i18n="dashboard.test_label">Test</div>
+    <div class="card">
+      <div class="opt-list">
+        <div class="opt-row">
+          <select id="test-zone-select" style="flex:1 1 100%; width:100%;">
+            <option value="" data-i18n="dashboard.select_zone_placeholder">Select zone…</option>
+          </select>
+        </div>
+        <div class="opt-row">
+          <button class="util-btn test-deter" id="btn-test-deterrence" data-i18n="dashboard.test_deterrence_btn">Test deterrence</button>
+          <button class="util-btn test-alarm" id="btn-test-alarm" data-i18n="dashboard.test_alarm_btn">Test alarm</button>
+        </div>
       </div>
     </div>
 
-    <!-- Test controls -->
-    <div class="dash-section">
-      <div class="dash-section-label" data-i18n="dashboard.test_label">Test</div>
-      <div class="dash-row">
-        <select id="test-zone-select" style="flex:1; min-width:140px;">
-          <option value="" data-i18n="dashboard.select_zone_placeholder">Select zone…</option>
-        </select>
-        <button class="util-btn test-deter" id="btn-test-deterrence" data-i18n="dashboard.test_deterrence_btn">Test deterrence</button>
-        <button class="util-btn test-alarm" id="btn-test-alarm" data-i18n="dashboard.test_alarm_btn">Test alarm</button>
-      </div>
-    </div>
-
-    <div id="mode-error"
-      style="display:none; background:#D32F2F; color:#fff; border-radius:8px; padding:10px 14px; margin-bottom:8px; font-size:13px;">
-    </div>
-    <div class="info-banner" data-i18n="dashboard.info_banner">The alarm is only activated via the buttons above or a flow. Use
+    <div class="note subtle" data-i18n="dashboard.info_banner">The alarm is only activated via the buttons above or a flow. Use
       “Stop alarm” to cancel escalation and deterrence without changing mode.</div>
   </section>
 
   <section class="tab-panel" id="tab-zones">
-    <div class="info-banner" data-i18n="zones.info_banner">Click a zone to set its reaction zone (zone matrix), Kevin mode,
-      blink timing, and to test the setup.</div>
+    <div class="note" data-i18n="zones.info_banner">Tap a room to choose how it reacts to an intruder, and which of its sensors, lights and cameras the guard uses. Press Save when you are done.</div>
     <div id="zones"></div>
-    <div style="margin-top:16px;">
-      <button class="save-btn" id="btn-save-zones" data-i18n="zones.save_btn">Save zone settings</button>
-      <span class="saved-toast" id="saved-toast-zones" data-i18n="common.saved">✓ Saved</span>
+    <div class="save-bar" id="savebar-zones" data-state="clean">
+      <span class="save-state" id="state-zones" role="status" aria-live="polite"></span>
+      <button class="save-btn" id="btn-save-zones" data-i18n="common.save">Save</button>
     </div>
   </section>
 
   <section class="tab-panel" id="tab-settings">
-    <div class="info-banner" data-i18n="settings.info_banner">Global settings for the whole system. Zone-specific settings are
-      under “Zone overview”.</div>
-    <div class="settings-grid" id="settings-grid"></div>
-    <div style="margin-top:16px;">
-      <button class="save-btn" id="btn-save" data-i18n="settings.save_btn">Save settings</button>
-      <span class="saved-toast" id="saved-toast" data-i18n="common.saved">✓ Saved</span>
+    <div class="note" data-i18n="settings.info_banner">System-wide settings. Room-specific options are under “Rooms”.</div>
+    <div id="settings-grid"></div>
+    <div class="save-bar" id="savebar-settings" data-state="clean">
+      <span class="save-state" id="state-settings" role="status" aria-live="polite"></span>
+      <button class="save-btn" id="btn-save" data-i18n="common.save">Save</button>
     </div>
   </section>
 
   <section class="tab-panel" id="tab-log">
-    <div class="snap-header" style="margin: 0 0 8px;">
-      <h3 style="margin:0;" data-i18n="nav.log">Event log</h3>
-      <div style="display:flex;gap:8px;">
+    <div class="toolbar">
+      <h3 data-i18n="nav.log">Event log</h3>
+      <div class="actions">
         <button class="btn-secondary" id="btn-copy-log" data-i18n="log.copy_btn">Copy log</button>
         <button class="btn-secondary" id="btn-download-log" data-i18n="log.download_btn">Download</button>
         <button class="snap-delete-btn" id="btn-clear-log" data-i18n="log.clear_btn">Clear log</button>
       </div>
     </div>
-    <div id="log" style="max-height: 460px; overflow-y: auto; border:1px solid #eee; border-radius:6px;"></div>
+    <div id="log" class="log-box"></div>
   </section>
 
   <section class="tab-panel" id="tab-images">
-    <div class="info-banner" data-i18n="images.info_banner1">Stored camera images. The number of images kept is configured
+    <div class="note" data-i18n="images.info_banner1">Stored camera images. The number of images kept is configured
       under “Settings”.</div>
-    <div class="info-banner" id="images-info-banner2"></div>
+    <div class="note subtle" id="images-info-banner2"></div>
 
     <div class="snap-header">
       <h3 data-i18n="images.alarm_title">Alarm images</h3>
@@ -1096,6 +1740,8 @@
     <div id="more-motion-wrap"></div>
   </section>
 
+  </main>
+
   <!-- Lightbox overlay -->
   <div id="lightbox" style="display:none;">
     <button id="lightbox-close">✕</button>
@@ -1103,8 +1749,9 @@
     <div id="lightbox-meta"></div>
   </div>
 
-  <!-- Documentation overlay — shown via ❓ button in header, not a bottom-nav tab -->
+  <!-- Documentation overlay — shown via the ? button in the header -->
   <div class="docs-overlay" id="tab-docs">
+   <div class="docs-inner">
     <button class="docs-back-btn" id="btn-docs-back" data-i18n="docs.back_btn">← Back</button>
     <div class="docs">
       <h3 data-i18n="docs.title_what_is">What is McCallister Guard?</h3>
@@ -1198,6 +1845,7 @@
         <li data-i18n-html="docs.example_step2"></li>
       </ol>
     </div>
+   </div>
   </div>
 
   <script>
@@ -1272,6 +1920,7 @@
         if (btn) btn.classList.add('active');
         const panel = $('tab-' + tabId);
         if (panel) panel.classList.add('active');
+        window.scrollTo({ top: 0 });
         if (tabId === 'images') loadImages();
       }
 
@@ -1387,6 +2036,10 @@
         return T('mode.disarmed');
       }
 
+      const MODE_ICON = {
+        off: '⏻', disarmed: '🏠', armed: '🔒', armed_perimeter: '🌙', deterrence: '💡', alarm: '🚨',
+      };
+
       function renderStatus(s) {
         const el = $('status');
         el.dataset.mode = s.mode || 'disarmed';
@@ -1405,9 +2058,11 @@
           const rem = Math.max(0, Math.ceil((s.exitDelayEndsAt - Date.now()) / 1000));
           modeText = T('status.mode_arrow', { from: modeLabel(s.mode), to: modeLabel(s.exitDelayTarget || 'armed'), secs: rem });
         }
-        el.innerHTML = `<div class="mode-label">${esc(T('status.mode_prefix', { mode: modeText }))}</div>`
+        el.innerHTML = `<div class="status-icon" aria-hidden="true">${MODE_ICON[s.mode] || '🏠'}</div>`
+          + `<div class="status-text"><div class="status-eyebrow">${esc(T('dashboard.mode_section_label'))}</div>`
+          + `<div class="mode-label">${esc(modeText)}</div>`
           + `<div class="meta">${esc(T('status.last_changed', { time: fmtTs(s.modeChangedAt) }))}</div>`
-          + (extras.length ? `<div class="meta">${esc(extras.join(' · '))}</div>` : '');
+          + (extras.length ? `<div class="meta">${esc(extras.join(' · '))}</div>` : '') + `</div>`;
         const pendingMode = s.exitDelayActive ? (s.exitDelayTarget || 'armed') : null;
         document.querySelectorAll('.mode-btn[data-mode]').forEach((b) => {
           const isActive = b.dataset.mode === s.mode;
@@ -1446,117 +2101,112 @@
       updateBypassBtn(false, null);
 
       function zoneStatusPill(zoneId) {
-        if (zoneId === lastStatus.activeDeterrenceZone) return `<span class="status-pill deter">${esc(T('zones.pill_deterrence'))}</span>`;
-        if ((lastStatus.recentMotionZones || []).includes(zoneId)) return `<span class="status-pill motion">${esc(T('zones.pill_motion'))}</span>`;
-        return '<span class="status-pill">–</span>';
+        // Only shown while something is happening in the room; empty pills are hidden by CSS.
+        let cls = '';
+        let text = '';
+        if (zoneId === lastStatus.activeDeterrenceZone) { cls = ' deter'; text = T('zones.pill_deterrence'); }
+        else if ((lastStatus.recentMotionZones || []).includes(zoneId)) { cls = ' motion'; text = T('zones.pill_motion'); }
+        return `<span class="status-pill${cls}">${esc(text)}</span>`;
       }
 
-      function capBadges(z) {
-        const badges = [];
+      /** Small summary under the room name: how many sensors, cameras and simulated lights it has. */
+      function zoneMeta(z) {
         const kevinLights = settings.kevin_lights || [];
-        const zoneKevinLights = (z.lights || []).filter((l) => kevinLights.includes(l.id));
-        if (zoneKevinLights.length > 0) {
-          const lightList = zoneKevinLights.map((l) => l.name).join(', ') || '–';
-          badges.push(`<span title="${esc(T('zones.kevin_light_title'))} – ${esc(lightList)}">💡</span>`);
-        }
-        if (z.hasCameras) {
-          const camList = (z.cameras || []).map((c) => c.name).join(', ') || '–';
-          badges.push(`<span title="${esc(T('zones.cameras_label'))}: ${esc(camList)}">📷</span>`);
-        }
-        return badges.length ? `<span class="cap-badges">${badges.join('')}</span>` : '';
+        const simulated = (z.lights || []).filter((l) => kevinLights.includes(l.id)).length;
+        const parts = [];
+        if ((z.sensors || []).length) parts.push(`<span title="${esc(T('zones.meta_sensors'))}">🚪 ${z.sensors.length}</span>`);
+        if ((z.cameras || []).length) parts.push(`<span title="${esc(T('zones.meta_cameras'))}">📷 ${z.cameras.length}</span>`);
+        if (simulated) parts.push(`<span title="${esc(T('zones.meta_lights'))}">💡 ${simulated}</span>`);
+        return parts.length ? `<span class="zone-meta">${parts.join('')}</span>` : '';
+      }
+
+      /** A labelled on/off option: a real checkbox with a text label, styled as a pill. */
+      function chip(attr, id, checked, label, title) {
+        return `<label class="chip" title="${esc(title)}"><input type="checkbox" ${attr}="${esc(id)}" ${checked ? 'checked' : ''}><span>${esc(label)}</span></label>`;
+      }
+
+      function zoneSection(icon, title, help, body) {
+        return `<section class="zs"><div class="zs-head"><span class="zs-icon" aria-hidden="true">${icon}</span>`
+          + `<div><div class="zs-title">${esc(title)}</div>${help ? `<div class="zs-help">${esc(help)}</div>` : ''}</div></div>${body}</section>`;
+      }
+
+      function zoneItem(icon, name, sub, chipsHtml, extraHtml) {
+        return `<div class="zs-item"><div class="zs-item-head"><span class="zs-item-icon" aria-hidden="true">${icon}</span>`
+          + `<div class="zs-item-name">${esc(name)}${sub ? `<small>${esc(sub)}</small>` : ''}</div></div>`
+          + (chipsHtml ? `<div class="chips">${chipsHtml}</div>` : '') + (extraHtml || '') + `</div>`;
       }
 
       function renderZoneBlocks() {
         if (!zones.length) { $('zones').innerHTML = `<em>${esc(T('zones.none_found'))}</em>`; return; }
+        const perimeterSet = new Set(settings.perimeter_sensors || []);
+        const perimeterSeenSet = new Set(settings.perimeter_sensors_seen || []);
+        const entryDelaySet = new Set(settings.entry_delay_sensors || []);
+        const armingExcludedSet = new Set(settings.arming_check_excluded || []);
+        const kevinLights = settings.kevin_lights || [];
+        const cameraAlarmCams = settings.camera_alarm_cams || {};
+        const cameraMotionCams = settings.camera_motion_cams || {};
+        const cameraSnapshotUrls = settings.camera_snapshot_urls || {};
+
         $('zones').innerHTML = zones.map((z) => {
-          const opts = zones.map((r) => `<option value="${esc(r.id)}" ${settings.zone_matrix[z.id] === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('');
+          // ── Deterrence: which room flashes its lights. Only rooms with lights can react
+          //    (a room that is already selected stays listed so a saved choice is never hidden).
+          const selected = settings.zone_matrix[z.id];
+          const opts = zones
+            .filter((r) => r.hasLights || r.id === selected)
+            .map((r) => `<option value="${esc(r.id)}" ${selected === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('');
+          const reaction = zoneSection('✨', T('zones.reaction_title'), T('zones.reaction_help'),
+            `<label class="zs-field"><span>${esc(T('zones.reaction_select'))}</span>`
+            + `<select data-matrix="${esc(z.id)}"><option value="">${esc(T('zones.none_option'))}</option>${opts}</select></label>`);
 
-          const perimeterSet = new Set(settings.perimeter_sensors || []);
-          const perimeterSeenSet = new Set(settings.perimeter_sensors_seen || []);
-          const entryDelaySet = new Set(settings.entry_delay_sensors || []);
-          const armingExcludedSet = new Set(settings.arming_check_excluded || []);
+          // ── Sensors: every option is a labelled chip.
           const sensors = z.sensors || [];
-          let sensorBlock = '';
+          let sensorsHtml;
           if (sensors.length > 0) {
-            const sensorRows = sensors.map((s) => {
-              const icon = s.type === 'contact' ? '🚪' : '👁️';
-              const typeLabel = s.type === 'contact' ? T('zones.sensor_type_contact') : T('zones.sensor_type_motion');
-              // New sensors (never seen before) default based on type:
-              //   door/window (contact) → perimeter ON by default
-              //   motion → perimeter OFF by default
-              const isNewSensor = !perimeterSeenSet.has(s.id);
-              const perimDefault = isNewSensor && s.type === 'contact';
-              const perim = (perimeterSet.has(s.id) || perimDefault) ? 'checked' : '';
-              const entry = entryDelaySet.has(s.id) ? 'checked' : '';
-              const entryBox = s.type === 'contact'
-                ? `<label class="sensor-flag" title="${esc(T('zones.entry_delay_title'))}"><input type="checkbox" data-entry-delay="${esc(s.id)}" ${entry}> ⏱</label>`
-                : '';
-              // Open-door check when arming Away: on by default, unchecked = excluded (e.g. interior doors).
-              const armingChecked = armingExcludedSet.has(s.id) ? '' : 'checked';
-              const armingBox = s.type === 'contact'
-                ? `<label class="sensor-flag" title="${esc(T('zones.arming_check_title'))}"><input type="checkbox" data-arming-check="${esc(s.id)}" ${armingChecked}> ✔︎</label>`
-                : '';
-              return `<div class="sensor-row">`
-                + `<label class="sensor-flag" title="${esc(T('zones.perimeter_flag_title'))}"><input type="checkbox" data-perimeter="${esc(s.id)}" ${perim}></label>`
-                + `<span class="sensor-name">${icon} ${esc(s.name)} <em class="sensor-type">(${esc(typeLabel)})</em></span>`
-                + armingBox
-                + entryBox
-                + `</div>`;
+            const legend = `<ul class="zs-legend">`
+              + `<li><b>${esc(T('zones.legend_perimeter_name'))}</b> — ${esc(T('zones.legend_perimeter'))}</li>`
+              + `<li><b>${esc(T('zones.legend_arming_name'))}</b> — ${esc(T('zones.legend_arming'))}</li>`
+              + `<li><b>${esc(T('zones.legend_entry_name'))}</b> — ${esc(T('zones.legend_entry'))}</li></ul>`;
+            const items = sensors.map((sn) => {
+              const isContact = sn.type === 'contact';
+              // New sensors default to: door/window → in Perimeter, motion → not in Perimeter.
+              const inPerimeter = perimeterSet.has(sn.id) || (!perimeterSeenSet.has(sn.id) && isContact);
+              let chips = chip('data-perimeter', sn.id, inPerimeter, T('zones.legend_perimeter_name'), T('zones.perimeter_flag_title'));
+              if (isContact) {
+                chips += chip('data-arming-check', sn.id, !armingExcludedSet.has(sn.id), T('zones.legend_arming_name'), T('zones.arming_check_title'));
+                chips += chip('data-entry-delay', sn.id, entryDelaySet.has(sn.id), T('zones.legend_entry_name'), T('zones.entry_delay_title'));
+              }
+              return zoneItem(isContact ? '🚪' : '👁️', sn.name, T(isContact ? 'zones.sensor_type_contact' : 'zones.sensor_type_motion'), chips);
             }).join('');
-            sensorBlock = `<label>${esc(T('zones.perimeter_label'))}</label><div class="sensor-list">${sensorRows}</div>`;
+            sensorsHtml = zoneSection('🛡️', T('zones.sensors_title'), T('zones.sensors_help'), legend + items);
           } else {
-            sensorBlock = `<label>${esc(T('zones.perimeter_label'))}</label><div class="sensor-empty">${esc(T('zones.perimeter_empty'))}</div>`;
+            sensorsHtml = '';
           }
 
-          // blink_on/blink_off are now global — configured under Settings.
+          // ── Presence simulation (Kevin mode)
+          const lights = z.lights || [];
+          const kevinHtml = lights.length > 0
+            ? zoneSection('💡', T('zones.kevin_title'), T('zones.kevin_help'),
+              lights.map((l) => zoneItem('💡', l.name, '', chip('data-kevin-light', l.id, kevinLights.includes(l.id), T('zones.simulate_label'), T('zones.kevin_light_title')))).join(''))
+            : '';
 
-          const cameraAlarmCams = settings.camera_alarm_cams || {};
-          const cameraMotionCams = settings.camera_motion_cams || {};
-          const cameraSnapshotUrls = settings.camera_snapshot_urls || {};
+          // ── Cameras
           const cameras = z.cameras || [];
-          let cameraBlock = '';
-          if (cameras.length > 0) {
-            const cameraRows = cameras.map((cam) => {
-              const alarmOn = cameraAlarmCams[cam.id] !== false ? 'checked' : '';
-              const motionOn = cameraMotionCams[cam.id] !== false ? 'checked' : '';
-              const manualUrl = esc(cameraSnapshotUrls[cam.id] || '');
-              return `<div class="sensor-row camera-row">`
-                + `<span class="sensor-name">📷 ${esc(cam.name)}</span>`
-                + `<label class="sensor-flag" title="${esc(T('zones.camera_alarm_title'))}"><input type="checkbox" data-camera-alarm-cam="${esc(cam.id)}" ${alarmOn}> ${T('zones.camera_alarm_label')}</label>`
-                + `<label class="sensor-flag" title="${esc(T('zones.camera_motion_title'))}"><input type="checkbox" data-camera-motion-cam="${esc(cam.id)}" ${motionOn}> ${T('zones.camera_motion_label')}</label>`
-                + `<div style="flex-basis:100%; display:flex; flex-direction:column; gap:2px; margin-top:4px;">`
-                + `<label style="font-size:0.8em; color:#666; font-weight:normal;" title="${esc(T('zones.manual_snapshot_title'))}">`
-                + `${esc(T('zones.manual_snapshot_label'))}</label>`
-                + `<input type="url" data-camera-snapshot-url="${esc(cam.id)}" value="${manualUrl}" placeholder="http://192.168.1.x/snapshot.jpg" style="width:100%; box-sizing:border-box; padding:4px 8px; border:1px solid #ccc; border-radius:4px; font-size:0.9em;">`
-                + `</div>`
-                + `</div>`;
-            }).join('');
-            cameraBlock = `<label>${esc(T('zones.cameras_label'))}</label><div class="sensor-list">${cameraRows}</div>`;
-          }
-
-          const kevinLights = settings.kevin_lights || [];
-          const kevinBlock = (z.lights && z.lights.length > 0)
-            ? `<label>${esc(T('zones.kevin_label'))}</label>`
-            + `<div class="sensor-list">`
-            + z.lights.map((l) => {
-              const checked = kevinLights.includes(l.id) ? 'checked' : '';
-              return `<div class="sensor-row">`
-                + `<span class="sensor-name">💡 ${esc(l.name)}</span>`
-                + `<label class="sensor-flag" title="${esc(T('zones.kevin_light_title'))}"><input type="checkbox" data-kevin-light="${esc(l.id)}" ${checked}> ${esc(T('zones.simulate_label'))}</label>`
-                + `</div>`;
-            }).join('')
-            + `</div>`
+          const camerasHtml = cameras.length > 0
+            ? zoneSection('📷', T('zones.cameras_label'), T('zones.cameras_help'),
+              cameras.map((cam) => {
+                const url = cameraSnapshotUrls[cam.id] || '';
+                const chips = chip('data-camera-alarm-cam', cam.id, cameraAlarmCams[cam.id] !== false, T('zones.camera_chip_alarm'), T('zones.camera_alarm_title'))
+                  + chip('data-camera-motion-cam', cam.id, cameraMotionCams[cam.id] !== false, T('zones.camera_chip_motion'), T('zones.camera_motion_title'));
+                const advanced = `<details class="adv"${url ? ' open' : ''}><summary>${esc(T('zones.advanced_url'))}</summary>`
+                  + `<p>${esc(T('zones.manual_snapshot_title'))}</p>`
+                  + `<input type="url" data-camera-snapshot-url="${esc(cam.id)}" value="${esc(url)}" placeholder="http://192.168.1.x/snapshot.jpg" aria-label="${esc(T('zones.manual_snapshot_label'))}"></details>`;
+                return zoneItem('📷', cam.name, '', chips, advanced);
+              }).join(''))
             : '';
 
           return `<details class="zone-block" data-zone="${esc(z.id)}">`
-            + `<summary><span>${esc(z.name)}${capBadges(z)}</span>${zoneStatusPill(z.id)}</summary>`
-            + `<div class="zone-body">`
-            + `<label>${esc(T('zones.reaction_zone_label'))}</label>`
-            + `<select data-matrix="${esc(z.id)}"><option value="">${esc(T('zones.none_option'))}</option>${opts}</select>`
-            + kevinBlock
-            + sensorBlock
-            + cameraBlock
-            + `</div></details>`;
+            + `<summary><span class="zone-name"><span class="zone-title">${esc(z.name)}</span>${zoneMeta(z)}</span>${zoneStatusPill(z.id)}</summary>`
+            + `<div class="zone-panel">${reaction}${sensorsHtml}${kevinHtml}${camerasHtml}</div></details>`;
         }).join('');
       }
 
@@ -1567,7 +2217,7 @@
           const pill = el.querySelector('summary .status-pill');
           if (!pill) return;
           pill.className = 'status-pill';
-          pill.textContent = '–';
+          pill.textContent = '';
           if (id === s.activeDeterrenceZone) { pill.classList.add('deter'); pill.textContent = T('zones.pill_deterrence'); }
           else if (recent.includes(id)) { pill.classList.add('motion'); pill.textContent = T('zones.pill_motion'); }
         });
@@ -1579,65 +2229,76 @@
           return String(msg ?? '').split(/\*\*([^*]+)\*\*/).map((p, i) => (i % 2 === 0 ? esc(p) : `<strong>${esc(p)}</strong>`)).join('');
         }
         $('log').innerHTML = entries.map((e) => `<div class="log-entry">`
-          + `<span class="lvl ${e.level}">${e.level.toUpperCase()}</span> `
-          + `<span>${fmtTs(e.ts)}</span> — ${fmtMsg(e.message)}</div>`).join('') || `<em>${esc(T('log.empty'))}</em>`;
+          + `<span class="lvl ${esc(e.level)}">${esc(String(e.level).toUpperCase())}</span>`
+          + `<span class="ts">${fmtTs(e.ts)}</span>`
+          + `<span class="msg">${fmtMsg(e.message)}</span></div>`).join('') || `<em>${esc(T('log.empty'))}</em>`;
       }
 
       function renderGlobalSettings() {
-        const fields = [
-          ['bedtime', T('settings.field_bedtime'), 'time'],
-          ['sunset_offset', T('settings.field_sunset_offset'), 'number'],
-          ['random_min', T('settings.field_random_min'), 'number'],
-          ['random_max', T('settings.field_random_max'), 'number'],
-          ['deterrence_delay', T('settings.field_deterrence_delay'), 'number'],
-          ['exit_delay', T('settings.field_exit_delay'), 'number'],
-          ['entry_delay', T('settings.field_entry_delay'), 'number'],
-          ['escalation_minutes', T('settings.field_escalation_minutes'), 'number'],
-          ['blink_on', T('settings.field_blink_on'), 'number'],
-          ['blink_off', T('settings.field_blink_off'), 'number'],
-          ['alarm_blink_on', T('settings.field_alarm_blink_on'), 'number'],
-          ['alarm_blink_off', T('settings.field_alarm_blink_off'), 'number'],
-          ['snapshot_max_count', T('settings.field_snapshot_max_count'), 'number'],
-          ['camera_alarm_burst', T('settings.field_camera_alarm_burst'), 'number'],
-          ['camera_motion_burst', T('settings.field_camera_motion_burst'), 'number'],
-        ];
-        let html = fields.map(([k, label, t]) => `<label for="set_${k}">${esc(label)}</label>`
-          + `<input id="set_${k}" type="${t}" value="${esc(settings[k] ?? '')}">`).join('');
+        const field = (k, type = 'number') => {
+          const help = T('settings.help_' + k);
+          const hasHelp = help && help !== 'settings.help_' + k;
+          return `<div class="field"><label for="set_${k}">${esc(T('settings.field_' + k))}</label>`
+            + `<input id="set_${k}" type="${type}"${type === 'number' ? ' inputmode="numeric"' : ''} value="${esc(settings[k] ?? '')}">`
+            + (hasHelp ? `<div class="field-help">${esc(help)}</div>` : '') + `</div>`;
+        };
+        const group = (icon, key, body) => `<section class="card"><div class="card-head"><span class="card-icon" aria-hidden="true">${icon}</span>`
+          + `<div><h3 class="card-title">${esc(T('settings.group_' + key))}</h3><p class="card-help">${esc(T('settings.group_' + key + '_help'))}</p></div></div>`
+          + `<div class="fields">${body}</div></section>`;
 
-        // Perimeter auto-scheduler (checkbox + two time pickers on one row)
-        const autoChecked = settings.armed_perimeter_auto ? 'checked' : '';
-        const onVal = esc(settings.armed_perimeter_on ?? '22:00');
-        const offVal = esc(settings.armed_perimeter_off ?? '06:00');
-        html += `<label>${esc(T('settings.auto_perimeter_label'))}</label>`
-          + `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">`
-          + `<label style="display:flex;align-items:center;gap:6px;font-weight:normal;">`
-          + `<input type="checkbox" id="set_armed_perimeter_auto" ${autoChecked}> ${esc(T('settings.enable_schedule'))}</label>`
-          + `<label for="set_armed_perimeter_on" style="font-weight:normal;">${esc(T('settings.from'))}</label>`
-          + `<input id="set_armed_perimeter_on" type="time" value="${onVal}" style="width:110px;">`
-          + `<label for="set_armed_perimeter_off" style="font-weight:normal;">${esc(T('settings.to'))}</label>`
-          + `<input id="set_armed_perimeter_off" type="time" value="${offVal}" style="width:110px;">`
-          + `</div>`;
+        const schedule = `<label class="switch-row field wide"><strong>${esc(T('settings.enable_schedule'))}</strong>`
+          + `<span class="switch"><input type="checkbox" id="set_armed_perimeter_auto" ${settings.armed_perimeter_auto ? 'checked' : ''}><i></i></span></label>`
+          + `<div class="field"><label for="set_armed_perimeter_on">${esc(T('settings.from'))}</label>`
+          + `<input id="set_armed_perimeter_on" type="time" value="${esc(settings.armed_perimeter_on ?? '22:00')}"></div>`
+          + `<div class="field"><label for="set_armed_perimeter_off">${esc(T('settings.to'))}</label>`
+          + `<input id="set_armed_perimeter_off" type="time" value="${esc(settings.armed_perimeter_off ?? '06:00')}"></div>`
+          + `<div class="field-help field wide" style="margin-top:-4px;">${esc(T('settings.schedule_help'))}</div>`;
 
-        $('settings-grid').innerHTML = html;
+        $('settings-grid').innerHTML = group('⏱️', 'delays', field('exit_delay') + field('entry_delay') + field('escalation_minutes') + field('deterrence_delay'))
+          + group('✨', 'deterrence', field('blink_on') + field('blink_off') + field('alarm_blink_on') + field('alarm_blink_off'))
+          + group('💡', 'kevin', field('sunset_offset') + field('bedtime', 'time') + field('random_min') + field('random_max'))
+          + group('📷', 'cameras', field('camera_alarm_burst') + field('camera_motion_burst') + field('snapshot_max_count'))
+          + group('🌙', 'schedule', schedule);
       }
 
-      function flashToast(toastId) {
-        const toast = $(toastId);
-        if (!toast) return;
-        toast.classList.add('visible');
-        setTimeout(() => toast.classList.remove('visible'), 1800);
+      /** Save bar states: clean (nothing to save) · dirty (unsaved edits) · saved (just saved) · error. */
+      function setBarState(name, state) {
+        const bar = $('savebar-' + name);
+        if (!bar) return;
+        bar.dataset.state = state;
+        const keys = {
+          clean: 'common.all_saved', dirty: 'common.unsaved', saved: 'common.saved', error: 'common.save_failed',
+        };
+        $('state-' + name).textContent = T(keys[state]);
+        const tab = document.querySelector(`.nav-btn[data-tab="${name}"]`);
+        if (tab) tab.classList.toggle('has-changes', state === 'dirty' || state === 'error');
+        bar.querySelector('.save-btn').disabled = state === 'clean' || state === 'saved';
       }
 
-      async function saveSettings(payload, btn, toastId) {
-        btn.disabled = true;
+      /** Any edit inside `rootId` marks the matching save bar as having unsaved changes. */
+      function trackChanges(rootId, name) {
+        const mark = () => { if ($('savebar-' + name).dataset.state !== 'dirty') setBarState(name, 'dirty'); };
+        $(rootId).addEventListener('input', mark);
+        $(rootId).addEventListener('change', mark);
+        setBarState(name, 'clean');
+      }
+
+      async function saveSettings(payload, name) {
+        const bar = $('savebar-' + name);
+        bar.querySelector('.save-btn').disabled = true;
         try {
-          const updated = await Homey.api('PUT', '/settings', payload);
-          settings = updated;
-          flashToast(toastId);
-        } finally {
-          btn.disabled = false;
+          settings = await Homey.api('PUT', '/settings', payload);
+          setBarState(name, 'saved');
+          clearTimeout(bar._timer);
+          bar._timer = setTimeout(() => { if (bar.dataset.state === 'saved') setBarState(name, 'clean'); }, 2500);
+        } catch (err) {
+          setBarState(name, 'error');
+          bar.querySelector('.save-btn').disabled = false;
         }
       }
+
+      trackChanges('zones', 'zones');
+      trackChanges('settings-grid', 'settings');
 
       function showModeError(msg) {
         const el = $('mode-error');
@@ -1723,7 +2384,7 @@
             payload[k] = timeKeys.has(k) ? v : Number(v);
           });
         payload.armed_perimeter_auto = $('set_armed_perimeter_auto').checked;
-        await saveSettings(payload, $('btn-save'), 'saved-toast');
+        await saveSettings(payload, 'settings');
       });
       $('btn-save-zones').addEventListener('click', async () => {
         const payload = {
@@ -1762,7 +2423,7 @@
           const url = i.value.trim();
           if (url) payload.camera_snapshot_urls[i.dataset.cameraSnapshotUrl] = url;
         });
-        await saveSettings(payload, $('btn-save-zones'), 'saved-toast-zones');
+        await saveSettings(payload, 'zones');
         renderZoneBlocks();
       });
 
@@ -1803,8 +2464,7 @@
 
         const totalBytes = items.reduce((sum, i) => sum + (i.size || 0), 0);
         const summary = document.createElement('p');
-        summary.className = 'snap-empty';
-        summary.style.marginBottom = '8px';
+        summary.className = 'snap-summary';
         summary.textContent = T(items.length === 1 ? 'images.count_summary_one' : 'images.count_summary_other', { count: items.length, size: fmtBytes(totalBytes) });
         grid.appendChild(summary);
 

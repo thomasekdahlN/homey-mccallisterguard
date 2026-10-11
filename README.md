@@ -12,8 +12,8 @@ McCallister Guard is not yet another passive alarm system. Instead of just beepi
 
 - **Seven modes** — `Off` / `off` (**GUI only** — app fully disabled; cannot be set or cleared by flows), `Home` / `disarmed`, `Away` / `armed` (full monitoring + Kevin simulation), `Perimeter` / `armed_perimeter` (only selected perimeter sensors active — typically when sleeping), `Perimeter alarm` / `perimeter_alarm` (perimeter sensor triggered while home — push + flow card, no siren), `Deterrence` / `deterrence` (light blinking in reaction zone — warning phase), `Alarm` / `alarm` (full crisis — siren and strobe)
 - **Perimeter mode with sensor selection** — specify exactly which sensors (exterior doors, windows, outdoor areas) should trigger an alarm in Perimeter mode; indoor motion is ignored
-- **Entry delay (⏱) per sensor** — mark the front door / back door with ⏱ to give an `entry_delay` countdown (default 30 s) when opened, so an authorised user with a key pad / smart lock has time to disarm before the alarm fires. All other perimeter sensors (motion and non-⏱ contact) also go through the entry delay window before firing the perimeter alarm, giving you time to disarm
-- **Open-door check at arming (✔︎) per sensor** — when you arm *Away*, every open door/window contact sensor is reported (log, notification and the `open_sensors_at_arming` trigger). Uncheck ✔︎ on a contact sensor in the zone overview to exclude it, e.g. interior doors that are often left open. New sensors are checked by default
+- **Entry delay per sensor** — turn on *Entry delay* for the front door / back door to give an `entry_delay` countdown (default 60 s) when opened, so an authorised user with a key pad / smart lock has time to disarm before the alarm fires. All other perimeter sensors (motion and contact sensors without entry delay) also go through the entry delay window before firing the perimeter alarm, giving you time to disarm
+- **Open-door check at arming per sensor** — when you arm *Away*, every open door/window contact sensor is reported (log, notification and the `open_sensors_at_arming` trigger). Turn off *Check on arming* on a contact sensor under Rooms to exclude it, e.g. interior doors that are often left open. New sensors are checked by default
 - **Zone-based deterrence** — motion in one zone triggers deterrence in another "reaction zone" (configurable matrix per zone), so the intruder never encounters the response where they are
 - **Configurable light deterrence** — the app blinks lights in the reaction zone with a slow cycle (global ON/OFF time configurable in Settings, default 15 s each way). Mode changes can be used in the `mode_changed` trigger to build custom Homey flows
 - **Kevin mode** — automatic presence simulation in Away mode (lights on/off in a plausible sequence). The `kevin_zone_on` / `kevin_zone_off` triggers fire per zone with zone filtering in WHEN — use them to also control TV, radio, etc. in the same room
@@ -42,7 +42,7 @@ McCallister Guard is not yet another passive alarm system. Instead of just beepi
 flowchart TB
   subgraph UI[Settings UI]
     DASH[Dashboard]
-    ZONES[Zone overview - sensor selection, ⏱ entry-delay, Kevin]
+    ZONES[Rooms - sensor options, entry delay, presence simulation]
     DOCS[Documentation]
     LOG[Event log - 14 days / max 1000, copy/download/clear]
   end
@@ -161,7 +161,7 @@ flowchart TD
   M -- alarm --> X3[Ignore]
   M -- exit_delay active --> X4[Ignore\nuser leaving home]
   M -- armed_perimeter --> SS{Perimeter sensor\nin perimeter_sensors list?}
-  M -- armed --> ED1{⏱ entry-delay marked?}
+  M -- armed --> ED1{Entry delay enabled?}
   SS -- no --> X5[Ignore\nindoor motion]
   SS -- yes --> SNAP{In sensor snapshot?\nopen at activation}
   SNAP -- yes --> X7[Ignore silently\nventilation mode]
@@ -186,14 +186,14 @@ flowchart TD
   ALARM --> STOP2[stopAlarm\nreturn to previousArmedMode]
 ```
 
-### Entry delay (⏱) — authorised entry with smart lock
+### Entry delay — authorised entry with smart lock
 
 ```mermaid
 sequenceDiagram
   autonumber
   participant U as User
   participant L as Smart lock
-  participant D as Door sensor (⏱)
+  participant D as Door sensor (entry delay)
   participant P as Any perimeter sensor
   participant App as Guard App
   participant SM as StateMachine
@@ -211,7 +211,7 @@ sequenceDiagram
   U->>D: Open door
   Note over App: mode = disarmed → no sensor reaction
 
-  Note over U,App: Perimeter mode — ⏱ entry-delay door (auto bypass)
+  Note over U,App: Perimeter mode — entry-delay door (auto bypass)
   U->>L: Enter code / scan fingerprint
   L-->>F: Lock opened
   F->>App: set_mode(disarmed) — IGNORED by guard\n(flow card without force=true, no log)
@@ -297,7 +297,7 @@ sequenceDiagram
 | Module | Responsibility |
 |---|---|
 | `app.ts` | Composition root only — creates the services, wires them together and starts them. No business logic |
-| `SensorMonitor` | Registers listeners on door/window/motion sensors (including sensors paired later), routes each event for the current mode, owns entry-delay behaviour for motion + ⏱ doors |
+| `SensorMonitor` | Registers listeners on door/window/motion sensors (including sensors paired later), routes each event for the current mode, owns entry-delay behaviour for motion + entry-delay doors |
 | `AlarmController` | Alert lifecycle: deterrence → full alarm, the soft perimeter alert, stop/test, escalation timer, restart recovery (persisted return mode) |
 | `ModeController` | Mode-change guards (Off is GUI-only, disarm from Perimeter blocked for flows, night-window redirect), tear-down when leaving an alert, arming side effects |
 | `ArmingScheduler` | Automatic activation/deactivation of Perimeter on window transitions |
@@ -310,7 +310,7 @@ sequenceDiagram
 | `Notifier` | Homey Timeline notifications and de-duplication |
 | `Tasks` | Safe timer callbacks and retry-with-backoff for startup |
 | `MediaTokens` | Global media flow tokens and bundled media URLs |
-| `StateMachine` | Mode + entry/exit delays (shared timer for both motion and ⏱ doors) |
+| `StateMachine` | Mode + entry/exit delays (shared timer for both motion and entry-delay doors) |
 | `DeterrenceEngine` | Selects reaction zone from `zone_matrix` and starts light blinking in the reaction zone |
 | `MediaCaster` | Light blinking in the reaction zone with global ON/OFF cycle (`blink_on`/`blink_off` in Settings, default 15 s / 15 s) |
 | `EscalationManager` | Full-crisis routine: speakers to full volume and strobe on lights (class `light` only). Remembers and restores the previous state of every device it touches |
@@ -563,7 +563,7 @@ Alternatively: use the built-in scheduler in the app (Settings → Perimeter aut
 
 When Perimeter mode is activated the app takes a snapshot of which **configured perimeter sensors** are already open. These sensors are silently ignored for the rest of the session — you can sleep with a window ajar without triggering an alarm. New openings (windows/doors opened *after* activation) react normally.
 
-> **Note:** The snapshot only uses sensors explicitly configured as perimeter sensors in the Zone overview. If no sensors are configured, no snapshot is taken.
+> **Note:** The snapshot only uses sensors explicitly configured as perimeter sensors under Rooms. If no sensors are configured, no snapshot is taken.
 
 ```
 Example:
@@ -862,8 +862,8 @@ THEN  Google Sheet → Add row: [mode_new], [mode_previous]
 
 ### Testing and troubleshooting
 
-- The **"Test deterrence"** button in the Zone overview sets the system to `deterrence` mode directly — use it to verify that flows listening on `Mode changed to [Deterrence]` work.
-- The **"Test alarm"** button in the Zone overview sets the system to `alarm` mode and stops after 15 seconds.
+- The **"Test deterrence"** button on the Dashboard sets the system to `deterrence` mode directly — use it to verify that flows listening on `Mode changed to [Deterrence]` work.
+- The **"Test alarm"** button on the Dashboard sets the system to `alarm` mode and stops after 15 seconds.
 - In the **Event Log** you always see the current mode line at each mode change.
 - Use the `get_mode` condition to check the active mode in flows without listening to `mode_changed`.
 
@@ -888,27 +888,24 @@ homey app install
 ### Configuration
 
 1. Open **Settings → Apps → McCallister Guard → Configure app**.
-2. Under **Zone overview**, expand each zone and see which capabilities (🔊 audio, 📺 screen, 💡 lights) and sensors
-   (🚪 door/window, 👁️ motion) have been detected.
-3. Define the **reaction zone matrix** per zone — e.g. "motion in attic → play deterrence in living room".
-4. **Perimeter mode:** in each zone all door/window and motion sensors are listed. The first checkbox
-   marks the sensor as active in Perimeter mode (typically exterior doors, windows, outdoor areas). Other sensors
-   are ignored when Perimeter mode is active.
-5. **Entry delay (⏱):** for door/window sensors you can check **⏱** to give the sensor an
-   entry delay. When such a door is opened (in Away or Perimeter mode), a countdown of
-   `entry_delay` seconds (default 30) starts before the alarm fires — so an authorised user entering with
-   a key pad/smart lock has time to disarm without triggering the siren. Recommended for the front door and
-   back door with a key pad. Combine with a flow that automatically sends `set_mode = Home` when the smart lock
-   reports authorised unlocking — then no alarm fires at all, and the entry delay is the fallback if the flow fails.
-
+2. Under **Rooms**, tap a room. Only rooms that contain at least one sensor, light, camera or media device are listed (containers such as "1st floor" are hidden). Each room shows its sensors, lights and cameras.
+3. **Deterrence:** choose which room flashes its lights when motion is detected in this room — e.g. "motion in the attic → lights flash in the living room". Only rooms with lights can be chosen.
+4. **Sensors:** every option is a labelled toggle.
+   - **Perimeter** — the sensor is watched in Perimeter mode (typically exterior doors, windows and outdoor areas). Other sensors are ignored while Perimeter is active. (In Away mode every sensor is always watched — there is currently no per-sensor switch for Away.)
+   - **Check on arming** (door/window sensors) — warn if it is open when you arm Away. Turn off for interior doors that are often left open.
+   - **Entry delay** (door/window sensors) — when the door opens in Away or Perimeter mode, a countdown of `entry_delay` seconds (default 60) starts before the alarm fires, so an authorised user entering with a key pad/smart lock has time to disarm. Recommended for the front and back door. Combine with a flow that sends `set_mode = Home` when the smart lock reports authorised unlocking — then no alarm fires at all, and the entry delay is the fallback if the flow fails.
    > **Note:** `set_mode = Home` is ignored if the system is in **Perimeter** mode. Someone coming home late
    > does not automatically deactivate night mode — change mode manually on the dashboard if needed.
    > Sending `set_mode = Home` while the system is in **Alarm** stops the alarm and fully disarms the system.
-6. **Global light deterrence:** the app blinks lights in the reaction zone with a slow ON/OFF cycle (default
+5. **Presence simulation:** pick the lights that should switch on and off at random while you are away.
+6. **Cameras:** choose per camera whether it takes pictures on alarm and/or on motion. A manual snapshot URL can be entered under *Advanced*.
+7. Press **Save** — the floating bar at the bottom shows *Unsaved changes* until you do, and the tab gets a yellow dot.
+
+8. **Global light deterrence:** the app blinks lights in the reaction zone with a slow ON/OFF cycle (default
    15 s each way, adjustable globally under **Settings → Deterrence light on/off (sec)**). Your own flows can safely
    control lights in the zone in parallel with built-in blinking. Use the `mode_changed` trigger (mode_new = deterrence)
    for flows that react to deterrence.
-7. Set **Away mode** when you leave the house, or use the `set_mode` action from a flow (geofence, button,
+9. Set **Away mode** when you leave the house, or use the `set_mode` action from a flow (geofence, button,
    voice). Use the `mode_changed` trigger for logging or automation around mode changes.
 
 ## Permissions
