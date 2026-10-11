@@ -1,25 +1,27 @@
 {
   "name": "com.ekdahl.mccallister-guard",
-  "version": "0.5.0",
+  "version": "0.10.0",
   "scripts": {
     "build": "tsc",
     "build:images": "bash scripts/build-app-images.sh",
-    "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
+    "lint": "eslint --resolve-plugins-relative-to node_modules/eslint-config-athom --ext .js,.ts --ignore-path .gitignore .",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "husky"
   },
   "devDependencies": {
-    "@tsconfig/node16": "^16.1.8",
     "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.12",
-    "@types/node": "^25.9.1",
-    "eslint": "^7.32.0",
-    "eslint-config-athom": "^3.1.5",
+    "@types/node": "^22.20.5",
+    "eslint": "^8.57.1",
+    "eslint-config-athom": "^4.0.2",
     "husky": "^9.1.7",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "vitest": "^5.0.3"
   },
   "dependencies": {
-    "homey-api": "^3.19.0"
+    "homey-api": "^3.20.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

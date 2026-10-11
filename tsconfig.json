@@ -20,6 +20,7 @@
     "node_modules",
     ".homeybuild",
     "test",
-    "vitest.config.ts"
+    "vitest.config.mts",
+    "homey-dev-kit"
   ]
 }

@@ -1,0 +1,14 @@
+homey-dev-kit/
+design/
+docs/
+scripts/
+test/
+.agents/
+.claude/
+.github/
+.husky/
+.vscode/
+skills-lock.json
+DESIGN.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md

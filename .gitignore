@@ -1,5 +1,22 @@
+# Secrets / local environment
 /env.json
-.DS_Store
+.env
+.env.*
+
+# Dependencies and build output
 /node_modules/
 /.homeybuild/
+/coverage/
+*.tsbuildinfo
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+.idea/
+
+# Local tooling (not part of the app)
 .git-commit-msg.tmp
+.claude/settings.local.json
+.agents/
