@@ -8,6 +8,7 @@ import { SNAPSHOT_DIR_ALARM, SNAPSHOT_DIR_MOTION } from './lib/types';
 import { classify, isCamera, sensorType } from './lib/Capabilities';
 import type { SensorType } from './lib/Capabilities';
 import { t } from './lib/i18n';
+import { sortByZoneName } from './lib/ZoneDirectory';
 
 /** Snapshot metadata returned by getSnapshotList. */
 interface SnapshotMeta {
@@ -118,7 +119,7 @@ module.exports = {
       const st = sensorType(d);
       if (st) c.sensors.push({ id: String(d.id), name, type: st });
     }
-    return Object.values(zones).map((z: any) => {
+    const result = Object.values(zones).map((z: any) => {
       const c = caps[z.id];
       return {
         id: z.id,
@@ -136,6 +137,9 @@ module.exports = {
         sensors: c?.sensors ?? [],
       };
     });
+    // Alphabetical by zone name — the settings page renders this list as-is (zone overview and the
+    // reaction-zone dropdown), so the order here is the order the user sees.
+    return sortByZoneName(result, homey.i18n.getLanguage());
   },
 
   async getSettings({ homey }: Ctx) {

@@ -4,6 +4,23 @@ import type Homey from 'homey/lib/Homey';
 
 const REFRESH_MS = 60_000;
 
+/**
+ * Case-insensitive, language-aware, natural ("Room 2" before "Room 10") comparison of zone names.
+ * Use it everywhere zones are listed so the order is the same in the dashboard and in flow cards.
+ */
+export function compareZoneNames(a: string, b: string, language = 'en'): number {
+  try {
+    return String(a ?? '').localeCompare(String(b ?? ''), language, { sensitivity: 'base', numeric: true });
+  } catch {
+    return String(a ?? '').localeCompare(String(b ?? ''));
+  }
+}
+
+/** Returns a copy of `items` sorted alphabetically by their zone name. */
+export function sortByZoneName<T extends { name?: string }>(items: T[], language = 'en'): T[] {
+  return [...items].sort((x, y) => compareZoneNames(x.name ?? '', y.name ?? '', language));
+}
+
 /** Cached zone names plus lookups used for log messages and flow-card autocomplete. */
 export default class ZoneDirectory {
 
@@ -66,14 +83,14 @@ export default class ZoneDirectory {
     return { zoneName, deviceName };
   }
 
-  /** Autocomplete results for flow-card zone arguments. */
+  /** Autocomplete results for flow-card zone arguments, in alphabetical order. */
   autocomplete(query: string): { id: string; name: string }[] {
     const q = (query ?? '').toLowerCase();
     const results: { id: string; name: string }[] = [];
     for (const [id, name] of this.names) {
       if (!q || name.toLowerCase().includes(q)) results.push({ id, name });
     }
-    return results;
+    return sortByZoneName(results, this.homey.i18n.getLanguage());
   }
 
 }
