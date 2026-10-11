@@ -1,14 +1,12 @@
 {
-  "header": {
-    "help_title": "Help and documentation"
-  },
   "nav": {
     "dashboard": "Dashboard",
     "zones": "Rooms",
     "zones_title": "Rooms",
     "settings": "Settings",
     "images": "Images",
-    "log": "Event log"
+    "log": "Event log",
+    "help": "Help"
   },
   "common": {
     "enabled": "enabled",
@@ -179,13 +177,12 @@
     "load_failed": "Could not load the image."
   },
   "docs": {
-    "back_btn": "← Back",
     "title_what_is": "What is McCallister Guard?",
     "what_is_body": "A security system inspired by <em>Home Alone</em>: instead of simply sounding an alarm, the app tries to <strong>deter</strong> intruders with psychological tricks — blue lights in the next room, sirens, barking dogs, or video clips of a large person in the window. The goal is for the intruder to turn back before anything happens.",
     "title_modes": "Modes",
     "modes_home": "<strong>Home</strong> — Default. No monitoring, no deterrence. Lights are controlled normally.",
     "modes_away": "<strong>Away</strong> — Full monitoring. Kevin simulation (lights on/off) starts automatically to make it look like someone is home. Motion in a zone triggers deterrence in the reaction zone.",
-    "modes_perimeter": "<strong>Perimeter</strong> — You are asleep. Only sensors you have selected as <em>perimeter</em> (typically exterior doors, windows and outdoor areas) can trigger the alarm. Indoor motion is ignored so you can go to the bathroom without setting off the siren. Select sensors under “Zone overview”.",
+    "modes_perimeter": "<strong>Perimeter</strong> — You are asleep. Only sensors you have selected as <em>perimeter</em> (typically exterior doors, windows and outdoor areas) can trigger the alarm. Indoor motion is ignored so you can go to the bathroom without setting off the siren. Select sensors under “Rooms”.",
     "title_perimeter_sensors": "Perimeter — choose sensors per room",
     "perimeter_sensors_body": "Under <strong>Rooms</strong>, open a room to see its door, window and motion sensors. Turn on <strong>Perimeter</strong> for the sensors that should be watched in Perimeter mode — typically exterior doors, windows and outdoor areas. When Perimeter is active, all other sensors are ignored. If no sensors are selected at all, all door and window sensors are used.",
     "title_entry_delay": "Entry delay — authorised entry",

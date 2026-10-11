@@ -72,8 +72,14 @@
       box-sizing: border-box;
     }
 
+    /* Never scroll sideways. overflow-x on <html> clips the viewport without turning <body> into a
+       scroll container (that would break the sticky save bar); touch-action stops horizontal panning
+       and the rubber-band effect on iOS. */
     html {
       -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
+      overscroll-behavior-x: none;
+      touch-action: pan-y pinch-zoom;
     }
 
     body {
@@ -83,6 +89,30 @@
       line-height: 1.4;
       color: var(--text);
       background: var(--bg);
+      width: 100%;
+      max-width: 100%;
+      overflow-x: clip;
+      overscroll-behavior-x: none;
+      touch-action: pan-y pinch-zoom;
+    }
+
+    /* Flex/grid children may shrink below their content width, and nothing may exceed the screen. */
+    .page,
+    .tab-panel,
+    .card,
+    .zone-block,
+    .zs,
+    .zs-item,
+    .field,
+    .opt-row>* {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    img,
+    table,
+    pre {
+      max-width: 100%;
     }
 
     button,
@@ -108,66 +138,10 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .app-bar,
     .tabs,
     .page {
       max-width: 780px;
       margin: 0 auto;
-    }
-
-    .app-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px 6px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .brand-mark {
-      flex: none;
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 11px;
-      background: linear-gradient(135deg, #1A531A, #2e7d32);
-      color: #fff;
-      font-size: 18px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .help-btn {
-      flex: none;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--brand);
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 1;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .help-btn:hover {
-      background: var(--brand-soft);
     }
 
     /* Plain text tabs. They wrap onto several lines when the screen is narrow. */
@@ -216,7 +190,7 @@
     }
 
     .page {
-      padding: 16px 16px 40px;
+      padding: 12px 16px 40px;
     }
 
     .tab-panel {
@@ -350,7 +324,10 @@
     input[type=number],
     input[type=time],
     select {
+      display: block;
       width: 100%;
+      min-width: 0;
+      max-width: 100%;
       min-height: 44px;
       padding: 10px 12px;
       font-size: 15px;
@@ -1343,46 +1320,9 @@
       color: #fff;
     }
 
-    /* ── Help / documentation overlay ──────────────────────────────── */
-    .docs-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      overflow-y: auto;
-      background: var(--bg);
-    }
-
-    .docs-overlay.open {
-      display: block;
-    }
-
-    .docs-inner {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 12px 16px 48px;
-    }
-
-    .docs-back-btn {
-      position: sticky;
-      top: 8px;
-      z-index: 2;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      min-height: 40px;
-      padding: 0 16px;
-      margin-bottom: 8px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--surface);
-      color: var(--brand);
-      font-size: 14px;
-      font-weight: 700;
-      box-shadow: var(--shadow-sm);
-    }
-
+    /* ── Help tab ───────────────────────────────────────────────────── */
     .docs {
+      overflow-wrap: anywhere;
       font-size: 14.5px;
       line-height: 1.6;
       color: var(--text);
@@ -1412,6 +1352,7 @@
 
     .media-table {
       width: 100%;
+      table-layout: fixed;
       border-collapse: collapse;
       font-size: 13px;
       margin-top: 4px;
@@ -1474,10 +1415,6 @@
         padding: 12px 12px 32px;
       }
 
-      .app-bar {
-        padding: 10px 12px 4px;
-      }
-
       .tabs {
         padding: 4px 12px 0;
       }
@@ -1505,13 +1442,6 @@
 
 <body>
   <header class="app-header">
-    <div class="app-bar">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true">🛡️</span>
-        <h1>McCallister Guard</h1>
-      </div>
-      <button class="help-btn" id="btn-help" data-i18n-title="header.help_title" aria-label="Help">?</button>
-    </div>
     <nav class="tabs" role="tablist">
       <button class="nav-btn active" data-tab="dashboard" role="tab">
         <span class="nav-label" data-i18n="nav.dashboard">Dashboard</span>
@@ -1527,6 +1457,9 @@
       </button>
       <button class="nav-btn" data-tab="log" role="tab">
         <span class="nav-label" data-i18n="nav.log">Event log</span>
+      </button>
+      <button class="nav-btn" data-tab="help" role="tab">
+        <span class="nav-label" data-i18n="nav.help">Help</span>
       </button>
     </nav>
   </header>
@@ -1636,19 +1569,8 @@
     <div id="more-motion-wrap"></div>
   </section>
 
-  </main>
 
-  <!-- Lightbox overlay -->
-  <div id="lightbox" style="display:none;">
-    <button id="lightbox-close">✕</button>
-    <img id="lightbox-img" src="" alt="Snapshot">
-    <div id="lightbox-meta"></div>
-  </div>
-
-  <!-- Documentation overlay — shown via the ? button in the header -->
-  <div class="docs-overlay" id="tab-docs">
-   <div class="docs-inner">
-    <button class="docs-back-btn" id="btn-docs-back" data-i18n="docs.back_btn">← Back</button>
+  <section class="tab-panel" id="tab-help">
     <div class="docs">
       <h3 data-i18n="docs.title_what_is">What is McCallister Guard?</h3>
       <p data-i18n-html="docs.what_is_body"></p>
@@ -1741,7 +1663,15 @@
         <li data-i18n-html="docs.example_step2"></li>
       </ol>
     </div>
-   </div>
+  </section>
+
+  </main>
+
+  <!-- Lightbox overlay -->
+  <div id="lightbox" style="display:none;">
+    <button id="lightbox-close">✕</button>
+    <img id="lightbox-img" src="" alt="Snapshot">
+    <div id="lightbox-meta"></div>
   </div>
 
   <script>
@@ -1817,20 +1747,11 @@
         if (panel) panel.classList.add('active');
         window.scrollTo({ top: 0 });
         if (tabId === 'images') loadImages();
+        if (tabId === 'help') populateMediaUrls();
       }
 
       document.querySelectorAll('.nav-btn').forEach((btn) => {
         btn.addEventListener('click', () => openTab(btn.dataset.tab));
-      });
-
-      // ── Help / docs overlay ─────────────────────────────────────────
-      $('btn-help').addEventListener('click', () => {
-        $('tab-docs').classList.add('open');
-        populateMediaUrls();
-      });
-
-      $('btn-docs-back').addEventListener('click', () => {
-        $('tab-docs').classList.remove('open');
       });
 
       // ── Included media files — build the URL table dynamically ─────

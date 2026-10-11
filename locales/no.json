@@ -1,14 +1,12 @@
 {
-  "header": {
-    "help_title": "Hjelp og dokumentasjon"
-  },
   "nav": {
     "dashboard": "Dashboard",
     "zones": "Rom",
     "zones_title": "Rom",
     "settings": "Innstillinger",
     "images": "Bilder",
-    "log": "Hendelseslogg"
+    "log": "Hendelseslogg",
+    "help": "Hjelp"
   },
   "common": {
     "enabled": "aktivert",
@@ -179,13 +177,12 @@
     "load_failed": "Kunne ikke laste bildet."
   },
   "docs": {
-    "back_btn": "← Tilbake",
     "title_what_is": "Hva er McCallister Guard?",
     "what_is_body": "Et sikkerhetssystem inspirert av <em>Alene Hjemme</em>: i stedet for å bare utløse en alarm, prøver appen å <strong>avskrekke</strong> tyver med psykologiske triks — blålys i naborommet, sirener, bjeffende hunder, eller videoklipp av en stor person i vinduet. Målet er at tyven snur før noe skjer.",
     "title_modes": "Modi",
     "modes_home": "<strong>Hjemme</strong> — Default. Ingen overvåking, ingen avskrekking. Lys styres normalt.",
     "modes_away": "<strong>Borte</strong> — Full overvåking. Kevin-simulering (lys av/på) starter automatisk for å late som noen er hjemme. Bevegelse i en sone trigger avskrekking i reaksjonssonen.",
-    "modes_perimeter": "<strong>Skallsikring</strong> — Du sover. Kun sensorer du selv har valgt som <em>skallsikring</em> (typisk ytterdører, vinduer og uteområder) kan utløse alarmen. Bevegelse innendørs ignoreres så du kan gå på badet uten å sette i gang sirenen. Velg sensorer under «Soneoversikt».",
+    "modes_perimeter": "<strong>Skallsikring</strong> — Du sover. Kun sensorer du selv har valgt som <em>skallsikring</em> (typisk ytterdører, vinduer og uteområder) kan utløse alarmen. Bevegelse innendørs ignoreres så du kan gå på badet uten å sette i gang sirenen. Velg sensorer under «Rom».",
     "title_perimeter_sensors": "Skallsikring — velg sensorer per rom",
     "perimeter_sensors_body": "Under <strong>Rom</strong> kan du åpne et rom for å se dør-, vindu- og bevegelsessensorene der. Slå på <strong>Skallsikring</strong> for sensorene som skal overvåkes i Skallsikring — typisk ytterdører, vinduer og uteområder. Når Skallsikring er aktiv, ignoreres alle andre sensorer. Hvis ingen sensorer er valgt, brukes alle dør- og vindussensorer.",
     "title_entry_delay": "Inngangsforsinkelse — autorisert inngang",

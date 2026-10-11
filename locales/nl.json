@@ -1,14 +1,12 @@
 {
-  "header": {
-    "help_title": "Help en documentatie"
-  },
   "nav": {
     "dashboard": "Dashboard",
     "zones": "Ruimtes",
     "zones_title": "Ruimtes",
     "settings": "Instellingen",
     "images": "Afbeeldingen",
-    "log": "Gebeurtenislogboek"
+    "log": "Gebeurtenislogboek",
+    "help": "Help"
   },
   "common": {
     "enabled": "ingeschakeld",
@@ -179,13 +177,12 @@
     "load_failed": "Kon de afbeelding niet laden."
   },
   "docs": {
-    "back_btn": "← Terug",
     "title_what_is": "Wat is McCallister Guard?",
     "what_is_body": "Een beveiligingssysteem geïnspireerd door <em>Home Alone</em>: in plaats van simpelweg een alarm te laten afgaan, probeert de app inbrekers <strong>af te schrikken</strong> met psychologische trucs — blauw zwaailicht in de kamer ernaast, sirenes, blaffende honden, of videoclips van een grote persoon voor het raam. Het doel is dat de inbreker rechtsomkeert maakt voordat er iets gebeurt.",
     "title_modes": "Modi",
     "modes_home": "<strong>Thuis</strong> — Standaard. Geen bewaking, geen afschrikking. Lichten worden normaal bediend.",
     "modes_away": "<strong>Afwezig</strong> — Volledige bewaking. Kevin-simulatie (lichten aan/uit) start automatisch om te doen alsof er iemand thuis is. Beweging in een zone activeert afschrikking in de reactiezone.",
-    "modes_perimeter": "<strong>Perimeter</strong> — Je slaapt. Alleen sensoren die je zelf als <em>perimeter</em> hebt aangevinkt (meestal buitendeuren, ramen en buitenruimtes) kunnen het alarm activeren. Beweging binnenshuis wordt genegeerd, zodat je naar het toilet kunt zonder de sirene te activeren. Selecteer sensoren onder “Zone-overzicht”.",
+    "modes_perimeter": "<strong>Perimeter</strong> — Je slaapt. Alleen sensoren die je zelf als <em>perimeter</em> hebt aangevinkt (meestal buitendeuren, ramen en buitenruimtes) kunnen het alarm activeren. Beweging binnenshuis wordt genegeerd, zodat je naar het toilet kunt zonder de sirene te activeren. Selecteer sensoren onder “Ruimtes”.",
     "title_perimeter_sensors": "Perimeter — sensoren per ruimte kiezen",
     "perimeter_sensors_body": "Open onder <strong>Ruimtes</strong> een ruimte om de deur-, raam- en bewegingssensoren te zien. Zet <strong>Perimeter</strong> aan voor de sensoren die in Perimeter-modus bewaakt moeten worden — meestal buitendeuren, ramen en buitenruimtes. Wanneer Perimeter actief is, worden alle andere sensoren genegeerd. Als er helemaal geen sensoren zijn geselecteerd, worden alle deur- en raamsensoren gebruikt.",
     "title_entry_delay": "Ingangsvertraging — geautoriseerde toegang",
