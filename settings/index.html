@@ -135,7 +135,7 @@
     /* ── App header + tabs (sticky, always visible at the top) ─────── */
     .app-header {
       background: var(--bg);
-      border-bottom: 1px solid var(--border);
+      padding-top: 6px;
     }
 
     .tabs,
@@ -144,45 +144,48 @@
       margin: 0 auto;
     }
 
-    /* Plain text tabs. They wrap onto several lines when the screen is narrow. */
+    /* Sheet tabs: plain text, wrapping onto several rows. The selected tab is bold with a thick
+       underline; all tabs share one thin line along the bottom. */
     .tabs {
       display: flex;
       flex-wrap: wrap;
-      gap: 2px 4px;
-      padding: 4px 16px 0;
+      gap: 0;
+      padding: 0;
+      width: calc(100% - 32px);
+      max-width: 748px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border-strong);
     }
 
     .nav-btn {
       position: relative;
-      padding: 10px 14px 9px;
+      padding: 13px 18px 10px;
       border: 0;
       border-bottom: 3px solid transparent;
-      border-radius: 8px 8px 0 0;
-      background: transparent;
-      color: var(--muted);
-      font-size: 15px;
-      font-weight: 600;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      border-radius: 0;
+      background: none;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.2;
     }
 
-    .nav-btn:hover {
-      background: var(--surface);
-    }
-
-    /* The selected tab: bold, tinted background and a thick underline */
     .nav-btn.active {
-      background: var(--brand-soft);
       border-bottom-color: var(--btn);
-      color: var(--brand-strong);
-      font-weight: 750;
+      font-weight: 700;
+    }
+
+    .nav-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
     }
 
     /* Amber dot on a tab that holds unsaved changes */
     .nav-btn.has-changes::after {
       content: '';
       position: absolute;
-      top: 7px;
-      right: 4px;
+      top: 9px;
+      right: 6px;
       width: 8px;
       height: 8px;
       border-radius: 50%;
@@ -1416,7 +1419,11 @@
       }
 
       .tabs {
-        padding: 4px 12px 0;
+        width: calc(100% - 24px);
+      }
+
+      .nav-btn {
+        padding: 12px 14px 9px;
       }
 
       .fields {
