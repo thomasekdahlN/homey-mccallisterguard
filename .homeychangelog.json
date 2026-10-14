@@ -31,5 +31,8 @@
   },
   "0.11.0": {
     "en": "New: choose per sensor which doors are checked when arming Away, plus new flow cards (Alarm escalated, Alert is active, Cancel entry delay). Safer and more reliable alarm handling, with lights and speakers restored after an alarm and recovery after restarts."
+  },
+  "0.12.0": {
+    "en": "New look: tabs at the top, a Help tab, clearer room options with labelled toggles, a floating save button, grouped settings and dark mode. Only rooms with sensors, lights, cameras or media devices are listed."
   }
 }
