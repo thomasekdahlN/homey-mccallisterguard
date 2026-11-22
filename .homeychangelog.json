@@ -34,5 +34,8 @@
   },
   "0.12.0": {
     "en": "New look: tabs at the top, a Help tab, clearer room options with labelled toggles, a floating save button, grouped settings and dark mode. Only rooms with sensors, lights, cameras or media devices are listed."
+  },
+  "1.0.0": {
+    "en": "Adds five dashboard widgets (Guard status, Stop alarm, Perimeter bypass, Event log and Latest snapshot), long-term history in Homey Insights (Guard active, Alarm active, Time to disarm and Sensors offline), and critical Timeline messages that are clearly marked, retried if delivery fails and repeated while an alarm is active, plus a new “Critical notification sent” flow trigger and settings to show only critical messages and set the reminder interval."
   }
 }
