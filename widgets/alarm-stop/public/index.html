@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    :root { --fg: var(--homey-text-color, #1d1d1f); --muted: rgba(128, 128, 128, 0.95); --line: rgba(128, 128, 128, 0.35); --accent: #1a531a; --danger: #c0392b; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: transparent; color: var(--fg); font-family: var(--homey-font-family, -apple-system, system-ui, sans-serif); }
+    .wrap { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    button { font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; padding: 0 8px; }
+    button:disabled { opacity: 0.5; }
+    .sub { font-size: 12px; color: var(--muted); }
+    .err { font-size: 12px; color: var(--danger); }
+    .hidden { display: none; }
+    .state { font-size: 16px; font-weight: 700; }
+    .ok .state { color: #2e8b3d; }
+    .active .state { color: var(--danger); }
+    .stop { background: var(--danger); border-color: var(--danger); color: #fff; font-size: 18px; min-height: 56px; }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="root">
+    <div class="state" id="state">…</div>
+    <div class="sub" id="sub"></div>
+    <button class="stop hidden" id="stop"></button>
+    <div class="err hidden" id="err"></div>
+  </div>
+  <script src="/homey.js" data-origin="settings"></script>
+  <script>
+    let H; let labels = {}; let timer = null; let busy = false;
+    const $ = (id) => document.getElementById(id);
+    const L = (k) => labels[k] || k;
+
+    function render(s) {
+      const active = s.alarmActive || s.inAlert;
+      $('root').className = 'wrap ' + (active ? 'active' : 'ok');
+      $('state').textContent = active ? L('alarm_active') : L('all_clear');
+      $('sub').textContent = L('mode_' + s.mode);
+      $('stop').classList.toggle('hidden', !active);
+      $('stop').textContent = L('stop_alarm');
+      $('stop').disabled = busy;
+    }
+    function showErr(m) { $('err').textContent = m; $('err').classList.toggle('hidden', !m); }
+
+    async function refresh() {
+      let fast = false;
+      try {
+        const s = await H.api('GET', '/status');
+        showErr(''); render(s);
+        fast = s.alarmActive || s.inAlert;
+      } catch (e) { showErr(L('error')); }
+      clearTimeout(timer);
+      timer = setTimeout(() => { if (!document.hidden) refresh(); }, fast ? 2000 : 10000);
+    }
+
+    async function onHomeyReady(homey) {
+      H = homey;
+      try { labels = (await H.api('GET', '/labels')).labels; } catch (e) { /* keep keys */ }
+      $('stop').onclick = async () => {
+        busy = true; $('stop').disabled = true;
+        try { await H.api('POST', '/stop-alarm', {}); } catch (e) { showErr(L('error')); }
+        busy = false; refresh();
+      };
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+      H.ready();
+      refresh();
+    }
+  </script>
+</body>
+</html>

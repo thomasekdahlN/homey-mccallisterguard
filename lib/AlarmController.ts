@@ -10,7 +10,9 @@ import type SnapshotRelay from './SnapshotRelay';
 import type StateMachine from './StateMachine';
 import type Tasks from './Tasks';
 import type ZoneDirectory from './ZoneDirectory';
-import { AlarmType, GuardSettings, SETTINGS_KEYS } from './types';
+import {
+  AlarmType, GuardSettings, MAX_PUSH_PER_EVENT, Mode, SETTINGS_KEYS,
+} from './types';
 import { t } from './i18n';
 
 export type ArmedMode = 'armed_perimeter' | 'armed';
@@ -28,6 +30,9 @@ export interface AlarmContext {
 
 const TEST_DURATION_MS = 15_000;
 
+/** Modes in which an alert is running — critical reminders are sent while the mode stays in this set. */
+const ALERT_MODES: readonly Mode[] = ['deterrence', 'perimeter_alarm', 'alarm'];
+
 /**
  * Owns the lifecycle of an alert: deterrence → full alarm, the soft perimeter alert, stopping, and
  * the test modes. Mode *guards* (who may change the mode, and when) live in ModeController.
@@ -42,6 +47,9 @@ export default class AlarmController {
   private enteringDeterrence = false;
   /** Timestamp of the most recent alarm end, used to suppress auto re-activation of the perimeter. */
   private lastStoppedAt: number | null = null;
+  private reminderTimer: NodeJS.Timeout | null = null;
+  private reminderCount = 0;
+  private alertStartedAt: number | null = null;
 
   constructor(
     private readonly homey: Homey,
@@ -59,13 +67,14 @@ export default class AlarmController {
 
   /** Restores persisted state and subscribes to deterrence events. */
   start(): void {
+    this.stateMachine.onModeChange((next, previous) => this.handleReminderMode(next, previous));
     const stored = this.homey.settings.get(SETTINGS_KEYS.PREVIOUS_ARMED_MODE);
     this.storedPreviousArmedMode = stored === 'armed' || stored === 'armed_perimeter' ? stored : null;
     this.deterrence.onDeterrenceStarted((reactionZoneId, motionZoneId) => {
       this.notifier.timeline(t(this.homey, 'app.deterrence_started_timeline', {
         reaction: this.zones.labelOf(reactionZoneId),
         motion: this.zones.labelOf(motionZoneId),
-      }));
+      }), 'warning');
     });
   }
 
@@ -139,7 +148,9 @@ export default class AlarmController {
       };
       const alarmLabel = alarmType === 'perimeter' ? '**Perimeter**' : '**Alarm**';
       this.log.add('alarm', t(this.homey, 'app.deterrence_alarm_log', { label: alarmLabel, zone: zoneName, device: deviceName }), zoneId, deviceId);
-      this.notifier.timeline(t(this.homey, 'app.deterrence_timeline', { device: deviceName, zone: zoneName }));
+      this.notifier.timeline(t(this.homey, 'app.deterrence_timeline', { device: deviceName, zone: zoneName }), 'critical', {
+        kind: 'deterrence', zone: zoneName, sensor: deviceName,
+      });
 
       await this.stateMachine.setMode('deterrence');
 
@@ -205,7 +216,9 @@ export default class AlarmController {
     // Transition to perimeter_alarm — ModeController skips the generic push for this mode.
     await this.stateMachine.setMode('perimeter_alarm');
     // Push the sensor-specific message after the mode is confirmed.
-    this.notifier.timeline(t(this.homey, 'app.perimeter_alarm_timeline', { device: deviceName, zone: zoneName }));
+    this.notifier.timeline(t(this.homey, 'app.perimeter_alarm_timeline', { device: deviceName, zone: zoneName }), 'critical', {
+      kind: 'perimeter_alarm', zone: zoneName, sensor: deviceName,
+    });
 
     const baseTokens: Record<string, unknown> = {
       zone: zoneName,
@@ -229,7 +242,11 @@ export default class AlarmController {
     await this.stateMachine.setMode('alarm');
     const ctx = this.context;
     const locationMsg = ctx?.zoneName ? t(this.homey, 'app.alarm_triggered_timeline_zone', { zone: ctx.zoneName }) : '';
-    this.notifier.timeline(`${t(this.homey, 'app.alarm_triggered_timeline_base')}${locationMsg}${ctx?.deviceName ? ` — ${ctx.deviceName}` : ''}`);
+    this.notifier.timeline(
+      `${t(this.homey, 'app.alarm_triggered_timeline_base')}${locationMsg}${ctx?.deviceName ? ` — ${ctx.deviceName}` : ''}`,
+      'critical',
+      { kind: 'alarm', zone: ctx?.zoneName, sensor: ctx?.deviceName },
+    );
     // Not awaited: starting sirens/strobe must never wait for the user's flows.
     try {
       this.homey.flow.getTriggerCard('alarm_escalated').trigger({
@@ -347,6 +364,56 @@ export default class AlarmController {
       this.homey.clearTimeout(this.testStopTimer);
       this.testStopTimer = null;
     }
+  }
+
+  // ── Critical reminders ──────────────────────────────────────────
+
+  /**
+   * While an alert is still running and nobody reacts, repeat a critical Timeline message every
+   * `alarm_reminder_minutes` (at most MAX_PUSH_PER_EVENT times). Deterrence → alarm keeps one sequence.
+   */
+  private handleReminderMode(next: Mode, previous: Mode): void {
+    if (!ALERT_MODES.includes(next)) {
+      this.stopReminders();
+      return;
+    }
+    if (ALERT_MODES.includes(previous) && this.alertStartedAt !== null) return;
+    this.startReminders();
+  }
+
+  private startReminders(): void {
+    this.stopReminders();
+    const minutes = this.getSettings().alarm_reminder_minutes;
+    if (!(minutes > 0)) return;
+    this.alertStartedAt = Date.now();
+    this.scheduleReminder(minutes);
+  }
+
+  private stopReminders(): void {
+    if (this.reminderTimer) {
+      this.homey.clearTimeout(this.reminderTimer);
+      this.reminderTimer = null;
+    }
+    this.reminderCount = 0;
+    this.alertStartedAt = null;
+  }
+
+  private scheduleReminder(minutes: number): void {
+    this.reminderTimer = this.homey.setTimeout(this.tasks.safe(async () => {
+      this.reminderTimer = null;
+      const mode = this.stateMachine.getMode();
+      if (!ALERT_MODES.includes(mode) || this.alertStartedAt === null) return;
+      this.reminderCount += 1;
+      const elapsed = Math.max(1, Math.round((Date.now() - this.alertStartedAt) / 60_000));
+      const ctx = this.context;
+      const location = ctx?.zoneName ? t(this.homey, 'app.alarm_triggered_timeline_zone', { zone: ctx.zoneName }) : '';
+      this.notifier.timeline(
+        t(this.homey, 'app.alarm_reminder_timeline', { mode: this.notifier.modeLabel(mode), minutes: elapsed, location }),
+        'critical',
+        { kind: 'reminder', zone: ctx?.zoneName, sensor: ctx?.deviceName },
+      );
+      if (this.reminderCount < MAX_PUSH_PER_EVENT) this.scheduleReminder(minutes);
+    }), minutes * 60_000);
   }
 
   private clearDeterrenceTimer(): void {

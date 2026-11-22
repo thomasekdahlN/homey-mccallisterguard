@@ -2,6 +2,7 @@
 
 import type Homey from 'homey/lib/Homey';
 import type EventLog from './EventLog';
+import type InsightsLogger from './InsightsLogger';
 import type Notifier from './Notifier';
 import type { GuardSettings } from './types';
 import { t } from './i18n';
@@ -15,6 +16,7 @@ export default class ArmingChecks {
     private readonly log: EventLog,
     private readonly notifier: Notifier,
     private readonly getSettings: () => GuardSettings,
+    private readonly insights?: InsightsLogger,
   ) { }
 
   /** Warns about sensors that are offline when leaving the disarmed state. */
@@ -27,10 +29,11 @@ export default class ArmingChecks {
       for (const s of sensors as any[]) {
         if (s.available === false) offline.push(s.name || s.id);
       }
+      this.insights?.recordOfflineSensors(offline.length);
       if (offline.length > 0) {
         const msg = t(this.homey, 'app.health_check_offline', { count: offline.length, names: offline.join(', ') });
         this.log.add('warning', msg);
-        this.notifier.timeline(`⚠️ ${msg}`);
+        this.notifier.timeline(msg, 'warning');
         this.homey.flow.getTriggerCard('health_check_failed')
           .trigger({ offline_count: offline.length })
           .catch(() => { /* best-effort */ });
@@ -58,7 +61,7 @@ export default class ArmingChecks {
       if (open.length > 0) {
         const msg = t(this.homey, 'app.open_contacts_at_arming', { count: open.length, names: open.join(', ') });
         this.log.add('warning', msg);
-        this.notifier.timeline(`⚠️ ${msg}`);
+        this.notifier.timeline(msg, 'warning');
         try {
           await this.homey.flow.getTriggerCard('open_sensors_at_arming').trigger({
             count: open.length,

@@ -1,0 +1,41 @@
+{
+  "name": {
+    "en": "Event log",
+    "nl": "Gebeurtenissen",
+    "no": "Hendelseslogg"
+  },
+  "settings": [
+    {
+      "id": "limit",
+      "type": "number",
+      "value": 8,
+      "min": 1,
+      "max": 20,
+      "title": {
+        "en": "Number of events",
+        "nl": "Aantal gebeurtenissen",
+        "no": "Antall hendelser"
+      }
+    },
+    {
+      "id": "level",
+      "type": "dropdown",
+      "value": "info",
+      "title": {
+        "en": "Show",
+        "nl": "Toon",
+        "no": "Vis"
+      },
+      "values": [
+        { "id": "info", "title": { "en": "Everything", "nl": "Alles", "no": "Alt" } },
+        { "id": "warning", "title": { "en": "Warnings and alarms", "nl": "Waarschuwingen en alarmen", "no": "Advarsler og alarmer" } },
+        { "id": "alarm", "title": { "en": "Alarms only", "nl": "Alleen alarmen", "no": "Kun alarmer" } }
+      ]
+    }
+  ],
+  "height": 300,
+  "api": {
+    "getLabels": { "method": "GET", "path": "/labels" },
+    "getEvents": { "method": "GET", "path": "/events" }
+  }
+}

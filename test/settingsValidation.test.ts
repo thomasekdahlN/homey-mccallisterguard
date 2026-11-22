@@ -61,3 +61,12 @@ describe('url helpers', () => {
     expect(redactUrl('not a url')).toBe('[invalid-url]');
   });
 });
+
+describe('sanitizeSettingsPatch notifications', () => {
+  it('begrenser påminnelsesintervall og godtar bare boolean for kritisk-bryteren', () => {
+    expect(sanitizeSettingsPatch({ alarm_reminder_minutes: 999 }).alarm_reminder_minutes).toBe(120);
+    expect(sanitizeSettingsPatch({ alarm_reminder_minutes: '-4' }).alarm_reminder_minutes).toBe(0);
+    expect(sanitizeSettingsPatch({ timeline_critical_only: true }).timeline_critical_only).toBe(true);
+    expect(sanitizeSettingsPatch({ timeline_critical_only: 'yes' })).toEqual({});
+  });
+});

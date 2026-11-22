@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    :root { --fg: var(--homey-text-color, #1d1d1f); --muted: rgba(128, 128, 128, 0.95); --line: rgba(128, 128, 128, 0.35); --accent: #1a531a; --danger: #c0392b; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: transparent; color: var(--fg); font-family: var(--homey-font-family, -apple-system, system-ui, sans-serif); }
+    .wrap { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    button { font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; padding: 0 8px; }
+    button:disabled { opacity: 0.5; }
+    .sub { font-size: 12px; color: var(--muted); }
+    .err { font-size: 12px; color: var(--danger); }
+    .hidden { display: none; }
+    html, body { height: 100%; }
+    .wrap { padding: 0; height: 100%; position: relative; gap: 0; background: #111; border-radius: 12px; overflow: hidden; }
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .bar { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,0.7)); font-size: 12px; }
+    .badge { padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,0.25); }
+    .badge.alarm { background: var(--danger); }
+    .nav { position: absolute; top: 0; bottom: 0; width: 30%; background: transparent; border: 0; min-height: 0; }
+    .nav.prev { left: 0; } .nav.next { right: 0; }
+    .empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="root">
+    <img id="img" class="hidden" alt="">
+    <div class="empty" id="empty">…</div>
+    <button class="nav prev hidden" id="prev" aria-label="previous"></button>
+    <button class="nav next hidden" id="next" aria-label="next"></button>
+    <div class="bar hidden" id="bar"><span class="badge" id="badge"></span><span id="time"></span></div>
+  </div>
+  <script src="/homey.js" data-origin="settings"></script>
+  <script>
+    let H; let labels = {}; let settings = {}; let items = []; let idx = 0; let shownKey = null; let timer = null;
+    const cache = new Map();
+    const $ = (id) => document.getElementById(id);
+    const L = (k) => labels[k] || k;
+    const keyOf = (it) => it.type + '/' + it.filename;
+
+    function fmt(ts) {
+      const d = new Date(ts);
+      const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      if (new Date().toDateString() === d.toDateString()) return time;
+      return d.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ' ' + time;
+    }
+
+    async function show() {
+      const it = items[idx];
+      const multi = items.length > 1;
+      $('prev').classList.toggle('hidden', !multi); $('next').classList.toggle('hidden', !multi);
+      if (!it) {
+        $('img').classList.add('hidden'); $('bar').classList.add('hidden');
+        $('empty').textContent = L('no_snapshots'); $('empty').classList.remove('hidden'); shownKey = null; return;
+      }
+      const key = keyOf(it);
+      if (key !== shownKey) {
+        try {
+          if (!cache.has(key)) {
+            const r = await H.api('GET', '/image?type=' + it.type + '&filename=' + encodeURIComponent(it.filename));
+            cache.set(key, 'data:image/jpeg;base64,' + r.data);
+            if (cache.size > 8) cache.delete(cache.keys().next().value);
+          }
+          $('img').src = cache.get(key); shownKey = key;
+        } catch (e) { $('empty').textContent = L('error'); $('empty').classList.remove('hidden'); return; }
+      }
+      $('empty').classList.add('hidden'); $('img').classList.remove('hidden'); $('bar').classList.remove('hidden');
+      $('badge').textContent = L('snapshot_' + it.type); $('badge').className = 'badge ' + it.type;
+      $('time').textContent = fmt(it.timestamp);
+    }
+
+    async function refresh() {
+      try {
+        const q = settings.type && settings.type !== 'all' ? '&type=' + settings.type : '';
+        const prevKey = items[idx] ? keyOf(items[idx]) : null;
+        items = (await H.api('GET', '/snapshots?limit=6' + q)).items;
+        // Stay on the snapshot the user is looking at unless it scrolled out of the list.
+        const keep = items.findIndex((i) => keyOf(i) === prevKey);
+        idx = keep >= 0 && idx !== 0 ? keep : 0;
+        await show();
+      } catch (e) { $('empty').textContent = L('error'); $('empty').classList.remove('hidden'); }
+    }
+
+    async function onHomeyReady(homey) {
+      H = homey; settings = H.getSettings() || {};
+      try { labels = (await H.api('GET', '/labels')).labels; } catch (e) { /* keep keys */ }
+      $('prev').onclick = () => { if (items.length) { idx = (idx + 1) % items.length; show(); } };
+      $('next').onclick = () => { if (items.length) { idx = (idx - 1 + items.length) % items.length; show(); } };
+      H.ready();
+      await refresh();
+      timer = setInterval(() => { if (!document.hidden) refresh(); }, 30000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    }
+  </script>
+</body>
+</html>

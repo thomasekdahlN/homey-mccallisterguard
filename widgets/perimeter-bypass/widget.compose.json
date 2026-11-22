@@ -1,0 +1,25 @@
+{
+  "name": {
+    "en": "Perimeter bypass",
+    "nl": "Perimeter omzeilen",
+    "no": "Omgå skallsikring"
+  },
+  "settings": [
+    {
+      "id": "durations",
+      "type": "text",
+      "value": "1,5,15",
+      "title": {
+        "en": "Minutes on the buttons (comma separated)",
+        "nl": "Minuten op de knoppen (kommagescheiden)",
+        "no": "Minutter på knappene (kommaseparert)"
+      }
+    }
+  ],
+  "height": 130,
+  "api": {
+    "getLabels": { "method": "GET", "path": "/labels" },
+    "getStatus": { "method": "GET", "path": "/status" },
+    "bypass": { "method": "POST", "path": "/bypass" }
+  }
+}

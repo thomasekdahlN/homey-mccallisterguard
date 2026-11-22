@@ -1,0 +1,30 @@
+{
+  "name": {
+    "en": "Latest snapshot",
+    "nl": "Laatste foto",
+    "no": "Siste bilde"
+  },
+  "settings": [
+    {
+      "id": "type",
+      "type": "dropdown",
+      "value": "all",
+      "title": {
+        "en": "Snapshots",
+        "nl": "Foto's",
+        "no": "Bilder"
+      },
+      "values": [
+        { "id": "all", "title": { "en": "Alarm and motion", "nl": "Alarm en beweging", "no": "Alarm og bevegelse" } },
+        { "id": "alarm", "title": { "en": "Alarm only", "nl": "Alleen alarm", "no": "Kun alarm" } },
+        { "id": "motion", "title": { "en": "Motion only", "nl": "Alleen beweging", "no": "Kun bevegelse" } }
+      ]
+    }
+  ],
+  "height": "75%",
+  "api": {
+    "getLabels": { "method": "GET", "path": "/labels" },
+    "getSnapshots": { "method": "GET", "path": "/snapshots" },
+    "getImage": { "method": "GET", "path": "/image" }
+  }
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    :root { --fg: var(--homey-text-color, #1d1d1f); --muted: rgba(128, 128, 128, 0.95); --line: rgba(128, 128, 128, 0.35); --accent: #1a531a; --danger: #c0392b; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: transparent; color: var(--fg); font-family: var(--homey-font-family, -apple-system, system-ui, sans-serif); }
+    .wrap { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    button { font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; padding: 0 8px; }
+    button:disabled { opacity: 0.5; }
+    .sub { font-size: 12px; color: var(--muted); }
+    .err { font-size: 12px; color: var(--danger); }
+    .hidden { display: none; }
+    .wrap { padding: 8px 12px; gap: 0; }
+    .row { display: flex; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); align-items: flex-start; }
+    .row:last-child { border-bottom: 0; }
+    .lvl { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex: none; background: #888; }
+    .lvl.warning { background: #d98a00; } .lvl.alarm { background: #e0662b; } .lvl.critical { background: var(--danger); }
+    .msg { font-size: 13px; line-height: 1.3; flex: 1; word-break: break-word; }
+    .time { font-size: 11px; color: var(--muted); white-space: nowrap; margin-top: 2px; }
+    .empty { padding: 20px 0; text-align: center; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="list"></div>
+  <script src="/homey.js" data-origin="settings"></script>
+  <script>
+    let H; let labels = {}; let settings = {}; let timer = null;
+    const $ = (id) => document.getElementById(id);
+    const L = (k) => labels[k] || k;
+
+    function fmt(ts) {
+      const d = new Date(ts);
+      const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (new Date().toDateString() === d.toDateString()) return time;
+      return d.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ' ' + time;
+    }
+
+    function render(events) {
+      const list = $('list');
+      list.innerHTML = '';
+      if (!events.length) {
+        const e = document.createElement('div'); e.className = 'empty'; e.textContent = L('no_events'); list.appendChild(e); return;
+      }
+      events.forEach((ev) => {
+        const row = document.createElement('div'); row.className = 'row';
+        const dot = document.createElement('span'); dot.className = 'lvl ' + ev.level;
+        const msg = document.createElement('div'); msg.className = 'msg'; msg.textContent = ev.message;
+        const time = document.createElement('div'); time.className = 'time'; time.textContent = fmt(ev.ts);
+        row.append(dot, msg, time); list.appendChild(row);
+      });
+    }
+
+    async function refresh() {
+      try {
+        const q = '?limit=' + encodeURIComponent(settings.limit || 8) + '&level=' + encodeURIComponent(settings.level || 'info');
+        render(await H.api('GET', '/events' + q));
+      } catch (e) {
+        $('list').innerHTML = ''; const d = document.createElement('div'); d.className = 'empty'; d.textContent = L('error'); $('list').appendChild(d);
+      }
+    }
+
+    async function onHomeyReady(homey) {
+      H = homey; settings = H.getSettings() || {};
+      try { labels = (await H.api('GET', '/labels')).labels; } catch (e) { /* keep keys */ }
+      H.ready();
+      await refresh();
+      timer = setInterval(() => { if (!document.hidden) refresh(); }, 15000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    }
+  </script>
+</body>
+</html>

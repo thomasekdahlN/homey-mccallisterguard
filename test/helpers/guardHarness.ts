@@ -35,7 +35,7 @@ export function createHarness(overrides: Partial<GuardSettings> = {}) {
   const log = new EventLog(homey as never);
   const stateMachine = new StateMachine(homey as never, log);
   const tasks = new Tasks(homey as never, log);
-  const notifier = new Notifier(homey as never);
+  const notifier = new Notifier(homey as never, log, getSettings);
 
   const deterrence = {
     handleMotion: vi.fn(async () => undefined),

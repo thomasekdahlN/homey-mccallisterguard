@@ -13,6 +13,7 @@ const NUMBER_BOUNDS: Partial<Record<keyof GuardSettings, [min: number, max: numb
   exit_delay: [0, 600],
   entry_delay: [0, 600],
   escalation_minutes: [0, 120],
+  alarm_reminder_minutes: [0, 120],
   blink_on: [1, 600],
   blink_off: [1, 600],
   alarm_blink_on: [1, 600],
@@ -24,7 +25,7 @@ const NUMBER_BOUNDS: Partial<Record<keyof GuardSettings, [min: number, max: numb
 
 const TIME_KEYS: (keyof GuardSettings)[] = ['bedtime', 'armed_perimeter_on', 'armed_perimeter_off'];
 const STRING_ARRAY_KEYS: (keyof GuardSettings)[] = ['perimeter_sensors', 'perimeter_sensors_seen', 'entry_delay_sensors', 'arming_check_excluded', 'kevin_lights'];
-const BOOLEAN_KEYS: (keyof GuardSettings)[] = ['camera_motion_enabled', 'armed_perimeter_auto'];
+const BOOLEAN_KEYS: (keyof GuardSettings)[] = ['camera_motion_enabled', 'armed_perimeter_auto', 'timeline_critical_only'];
 const RECORD_KEYS: (keyof GuardSettings)[] = ['zone_matrix', 'kevin_zones', 'camera_alarm_cams', 'camera_motion_cams', 'camera_snapshot_urls'];
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {

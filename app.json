@@ -594,6 +594,91 @@
       },
       {
         "title": {
+          "en": "Critical notification sent",
+          "nl": "Kritieke melding verzonden",
+          "no": "Kritisk melding sendt"
+        },
+        "hint": {
+          "en": "Fires every time the app sends a critical Timeline message (deterrence, perimeter alarm, full alarm, and repeated reminders while an alert is still active). Use it as one entry point to forward critical events to a channel that can really wake you up, such as Pushover with emergency priority, Telegram or SMS.",
+          "nl": "Wordt geactiveerd telkens wanneer de app een kritieke Tijdlijn-melding verstuurt (afschrikking, perimeteralarm, volledig alarm en herhaalde herinneringen zolang een alarm actief is). Gebruik dit als één ingang om kritieke gebeurtenissen door te sturen naar een kanaal dat je echt kan wekken, zoals Pushover met noodprioriteit, Telegram of sms.",
+          "no": "Utløses hver gang appen sender en kritisk tidslinjemelding (avskrekking, skallsikringsalarm, full alarm og gjentatte påminnelser mens et varsel fortsatt er aktivt). Bruk den som ett felles inngangspunkt for å videresende kritiske hendelser til en kanal som faktisk kan vekke deg, for eksempel Pushover med nødprioritet, Telegram eller SMS."
+        },
+        "tokens": [
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "nl": "Bericht",
+              "no": "Melding"
+            },
+            "example": {
+              "en": "🚨 ALARM triggered in Living room",
+              "nl": "🚨 ALARM geactiveerd in Woonkamer",
+              "no": "🚨 ALARM utløst i Stua"
+            }
+          },
+          {
+            "name": "kind",
+            "type": "string",
+            "title": {
+              "en": "Kind (deterrence, perimeter_alarm, alarm, reminder)",
+              "nl": "Soort (deterrence, perimeter_alarm, alarm, reminder)",
+              "no": "Type (deterrence, perimeter_alarm, alarm, reminder)"
+            },
+            "example": {
+              "en": "alarm",
+              "nl": "alarm",
+              "no": "alarm"
+            }
+          },
+          {
+            "name": "zone",
+            "type": "string",
+            "title": {
+              "en": "Zone",
+              "nl": "Zone",
+              "no": "Sone"
+            },
+            "example": {
+              "en": "Living room",
+              "nl": "Woonkamer",
+              "no": "Stua"
+            }
+          },
+          {
+            "name": "sensor",
+            "type": "string",
+            "title": {
+              "en": "Sensor",
+              "nl": "Sensor",
+              "no": "Sensor"
+            },
+            "example": {
+              "en": "Motion sensor (hallway)",
+              "nl": "Bewegingssensor (hal)",
+              "no": "Bevegelsessensor (gang)"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp (ISO 8601)",
+              "nl": "Tijdstempel (ISO 8601)",
+              "no": "Tidsstempel (ISO 8601)"
+            },
+            "example": {
+              "en": "2026-05-25T19:10:42.123Z",
+              "nl": "2026-05-25T19:10:42.123Z",
+              "no": "2026-05-25T19:10:42.123Z"
+            }
+          }
+        ],
+        "id": "critical_notification"
+      },
+      {
+        "title": {
           "en": "Health check failed (offline devices)",
           "nl": "Gezondheidscontrole mislukt (apparaten offline)",
           "no": "Helsesjekk feilet (offline enheter)"
@@ -1483,5 +1568,235 @@
         "id": "trigger_deterrence"
       }
     ]
+  },
+  "widgets": {
+    "alarm-stop": {
+      "name": {
+        "en": "Stop alarm",
+        "nl": "Alarm stoppen",
+        "no": "Stopp alarm"
+      },
+      "height": 110,
+      "api": {
+        "getLabels": {
+          "method": "GET",
+          "path": "/labels"
+        },
+        "getStatus": {
+          "method": "GET",
+          "path": "/status"
+        },
+        "stopAlarm": {
+          "method": "POST",
+          "path": "/stop-alarm"
+        }
+      },
+      "id": "alarm-stop",
+      "settings": []
+    },
+    "event-log": {
+      "name": {
+        "en": "Event log",
+        "nl": "Gebeurtenissen",
+        "no": "Hendelseslogg"
+      },
+      "settings": [
+        {
+          "id": "limit",
+          "type": "number",
+          "value": 8,
+          "min": 1,
+          "max": 20,
+          "title": {
+            "en": "Number of events",
+            "nl": "Aantal gebeurtenissen",
+            "no": "Antall hendelser"
+          }
+        },
+        {
+          "id": "level",
+          "type": "dropdown",
+          "value": "info",
+          "title": {
+            "en": "Show",
+            "nl": "Toon",
+            "no": "Vis"
+          },
+          "values": [
+            {
+              "id": "info",
+              "title": {
+                "en": "Everything",
+                "nl": "Alles",
+                "no": "Alt"
+              }
+            },
+            {
+              "id": "warning",
+              "title": {
+                "en": "Warnings and alarms",
+                "nl": "Waarschuwingen en alarmen",
+                "no": "Advarsler og alarmer"
+              }
+            },
+            {
+              "id": "alarm",
+              "title": {
+                "en": "Alarms only",
+                "nl": "Alleen alarmen",
+                "no": "Kun alarmer"
+              }
+            }
+          ]
+        }
+      ],
+      "height": 300,
+      "api": {
+        "getLabels": {
+          "method": "GET",
+          "path": "/labels"
+        },
+        "getEvents": {
+          "method": "GET",
+          "path": "/events"
+        }
+      },
+      "id": "event-log"
+    },
+    "guard-status": {
+      "name": {
+        "en": "Guard status",
+        "nl": "Beveiligingsstatus",
+        "no": "Vaktstatus"
+      },
+      "settings": [
+        {
+          "id": "allow_control",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "en": "Allow changing mode",
+            "nl": "Modus wijzigen toestaan",
+            "no": "Tillat bytte av modus"
+          }
+        }
+      ],
+      "height": 170,
+      "api": {
+        "getLabels": {
+          "method": "GET",
+          "path": "/labels"
+        },
+        "getStatus": {
+          "method": "GET",
+          "path": "/status"
+        },
+        "setMode": {
+          "method": "POST",
+          "path": "/mode"
+        },
+        "stopAlarm": {
+          "method": "POST",
+          "path": "/stop-alarm"
+        }
+      },
+      "id": "guard-status"
+    },
+    "latest-snapshot": {
+      "name": {
+        "en": "Latest snapshot",
+        "nl": "Laatste foto",
+        "no": "Siste bilde"
+      },
+      "settings": [
+        {
+          "id": "type",
+          "type": "dropdown",
+          "value": "all",
+          "title": {
+            "en": "Snapshots",
+            "nl": "Foto's",
+            "no": "Bilder"
+          },
+          "values": [
+            {
+              "id": "all",
+              "title": {
+                "en": "Alarm and motion",
+                "nl": "Alarm en beweging",
+                "no": "Alarm og bevegelse"
+              }
+            },
+            {
+              "id": "alarm",
+              "title": {
+                "en": "Alarm only",
+                "nl": "Alleen alarm",
+                "no": "Kun alarm"
+              }
+            },
+            {
+              "id": "motion",
+              "title": {
+                "en": "Motion only",
+                "nl": "Alleen beweging",
+                "no": "Kun bevegelse"
+              }
+            }
+          ]
+        }
+      ],
+      "height": "75%",
+      "api": {
+        "getLabels": {
+          "method": "GET",
+          "path": "/labels"
+        },
+        "getSnapshots": {
+          "method": "GET",
+          "path": "/snapshots"
+        },
+        "getImage": {
+          "method": "GET",
+          "path": "/image"
+        }
+      },
+      "id": "latest-snapshot"
+    },
+    "perimeter-bypass": {
+      "name": {
+        "en": "Perimeter bypass",
+        "nl": "Perimeter omzeilen",
+        "no": "Omgå skallsikring"
+      },
+      "settings": [
+        {
+          "id": "durations",
+          "type": "text",
+          "value": "1,5,15",
+          "title": {
+            "en": "Minutes on the buttons (comma separated)",
+            "nl": "Minuten op de knoppen (kommagescheiden)",
+            "no": "Minutter på knappene (kommaseparert)"
+          }
+        }
+      ],
+      "height": 130,
+      "api": {
+        "getLabels": {
+          "method": "GET",
+          "path": "/labels"
+        },
+        "getStatus": {
+          "method": "GET",
+          "path": "/status"
+        },
+        "bypass": {
+          "method": "POST",
+          "path": "/bypass"
+        }
+      },
+      "id": "perimeter-bypass"
+    }
   }
 }

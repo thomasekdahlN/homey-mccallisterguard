@@ -254,3 +254,35 @@ describe('StateMachine', () => {
     });
   });
 });
+
+describe('StateMachine entry delay cancel', () => {
+  it('melder forløpt tid når inngangsforsinkelsen avbrytes', () => {
+    vi.useFakeTimers();
+    const homey = createMockHomey();
+    const sm = new StateMachine(homey as never, new EventLog(homey as never));
+    const listener = vi.fn();
+    sm.onEntryDelayCancelled(listener);
+    sm.startEntryDelay(60, () => undefined);
+    vi.advanceTimersByTime(12_500);
+    sm.cancelEntryDelay();
+    expect(listener).toHaveBeenCalledWith(12.5);
+    sm.cancelEntryDelay();
+    expect(listener).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('melder ikke når forsinkelsen går ut av seg selv', () => {
+    vi.useFakeTimers();
+    const homey = createMockHomey();
+    const sm = new StateMachine(homey as never, new EventLog(homey as never));
+    const listener = vi.fn();
+    const onTimeout = vi.fn();
+    sm.onEntryDelayCancelled(listener);
+    sm.startEntryDelay(30, onTimeout);
+    vi.advanceTimersByTime(30_000);
+    sm.cancelEntryDelay();
+    expect(onTimeout).toHaveBeenCalled();
+    expect(listener).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+});

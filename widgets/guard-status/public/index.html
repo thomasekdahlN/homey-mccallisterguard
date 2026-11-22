@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    :root {
+      --fg: var(--homey-text-color, #1d1d1f);
+      --muted: var(--homey-text-color-light, rgba(128, 128, 128, 0.95));
+      --line: rgba(128, 128, 128, 0.35);
+      --accent: #1a531a;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: transparent; color: var(--fg); font-family: var(--homey-font-family, -apple-system, system-ui, sans-serif); }
+    .wrap { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .head { display: flex; align-items: center; gap: 10px; }
+    .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--c, #888); flex: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--c, #888) 25%, transparent); }
+    .alert .dot { animation: pulse 1s infinite; }
+    @keyframes pulse { 50% { opacity: 0.35; } }
+    .mode { font-size: 20px; font-weight: 700; line-height: 1.1; }
+    .sub { font-size: 12px; color: var(--muted); }
+    .banner { font-size: 14px; font-weight: 600; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--c, #888) 18%, transparent); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 11px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+    .buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    button { font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; padding: 0 6px; }
+    button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    button.confirm { border-color: #c0392b; color: #c0392b; }
+    button.stop { grid-column: 1 / -1; background: #c0392b; border-color: #c0392b; color: #fff; }
+    button:disabled { opacity: 0.5; }
+    .err { font-size: 12px; color: #c0392b; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="root" class="wrap">
+    <div class="head"><span class="dot"></span><div><div class="mode" id="mode">…</div><div class="sub" id="sub"></div></div></div>
+    <div class="banner hidden" id="banner"></div>
+    <div class="chips" id="chips"></div>
+    <div class="buttons" id="buttons"></div>
+    <div class="err hidden" id="err"></div>
+  </div>
+  <script src="/homey.js" data-origin="settings"></script>
+  <script>
+    const COLORS = {
+      off: '#888888', disarmed: '#2e8b3d', armed: '#d98a00', armed_perimeter: '#2f6fd0',
+      perimeter_alarm: '#e0662b', deterrence: '#e0662b', alarm: '#c0392b',
+    };
+    const CONTROL = [['disarmed', 'mode_disarmed'], ['armed', 'mode_armed'], ['armed_perimeter', 'mode_armed_perimeter']];
+    let H; let labels = {}; let status = null; let offset = 0; let allowControl = true;
+    let confirmUntil = 0; let busy = false; let timer = null; let connErr = false; let actionErr = false;
+    const $ = (id) => document.getElementById(id);
+    const L = (k, v) => String(labels[k] || k).replace(/\{(\w+)\}/g, (m, n) => (v && n in v ? v[n] : m));
+    const nowMs = () => Date.now() + offset;
+    const secsLeft = (ts) => Math.max(0, Math.ceil((ts - nowMs()) / 1000));
+
+    function fmtSince(ts) {
+      const d = new Date(ts);
+      const same = new Date().toDateString() === d.toDateString();
+      const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return same ? time : `${d.toLocaleDateString([], { day: 'numeric', month: 'short' })} ${time}`;
+    }
+
+    function render() {
+      if (!status) return;
+      const s = status;
+      $('root').classList.toggle('alert', s.inAlert);
+      $('root').style.setProperty('--c', COLORS[s.mode] || '#888');
+      $('mode').textContent = L(`mode_${s.mode}`);
+      $('sub').textContent = L('since', { time: fmtSince(s.modeChangedAt) });
+
+      let banner = '';
+      if (s.exitDelayEndsAt) banner = L('exit_delay', { seconds: secsLeft(s.exitDelayEndsAt) });
+      else if (s.entryDelayEndsAt) banner = L('entry_delay', { seconds: secsLeft(s.entryDelayEndsAt) });
+      $('banner').textContent = banner;
+      $('banner').classList.toggle('hidden', !banner);
+
+      const chips = [];
+      if (s.simulationRunning) chips.push(L('chip_kevin'));
+      if (!s.cameraMotionEnabled) chips.push(L('chip_camera_off'));
+      if (s.perimeterBypassEndsAt) chips.push(L('chip_bypass'));
+      if (s.testActive) chips.push(L('chip_test'));
+      $('chips').innerHTML = '';
+      chips.forEach((c) => { const e = document.createElement('span'); e.className = 'chip'; e.textContent = c; $('chips').appendChild(e); });
+
+      const box = $('buttons');
+      box.innerHTML = '';
+      if (s.alarmActive || s.inAlert) {
+        const b = document.createElement('button');
+        b.className = 'stop'; b.textContent = L('stop_alarm'); b.disabled = busy || !allowControl;
+        b.onclick = () => run(() => H.api('POST', '/stop-alarm', {}));
+        box.appendChild(b);
+      }
+      if (allowControl) {
+        CONTROL.forEach(([mode, key]) => {
+          const b = document.createElement('button');
+          const needsConfirm = mode === 'disarmed' && s.mode !== 'disarmed' && s.mode !== 'off';
+          const confirming = needsConfirm && confirmUntil > Date.now();
+          b.textContent = confirming ? L('confirm_disarm') : L(key);
+          if (s.mode === mode) b.classList.add('active');
+          if (confirming) b.classList.add('confirm');
+          b.disabled = busy;
+          b.onclick = () => {
+            if (needsConfirm && !confirming) { confirmUntil = Date.now() + 4000; render(); setTimeout(render, 4100); return; }
+            confirmUntil = 0;
+            run(() => H.api('POST', '/mode', { mode }));
+          };
+          box.appendChild(b);
+        });
+      }
+    }
+
+    async function run(fn) {
+      busy = true; render();
+      try {
+        const r = await fn();
+        actionErr = !!(r && r.success === false);
+        showErr(actionErr ? (r.error || L('mode_change_failed')) : '');
+        if (actionErr) setTimeout(() => { actionErr = false; showErr(connErr ? L('error') : ''); }, 5000);
+      } catch (e) { actionErr = true; showErr(e && e.message ? e.message : L('mode_change_failed')); }
+      busy = false;
+      await refresh();
+    }
+
+    function showErr(msg) { $('err').textContent = msg; $('err').classList.toggle('hidden', !msg); }
+
+    async function refresh() {
+      try {
+        status = await H.api('GET', '/status');
+        offset = status.now - Date.now();
+        connErr = false;
+        if (!actionErr) showErr('');
+        render();
+      } catch (e) { connErr = true; showErr(L('error')); }
+      schedule();
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      const fast = status && (status.inAlert || status.exitDelayEndsAt || status.entryDelayEndsAt);
+      timer = setTimeout(() => { if (!document.hidden) refresh(); else schedule(); }, fast ? 2000 : 10000);
+    }
+
+    // Keeps the countdown smooth between polls.
+    setInterval(() => { if (status && (status.exitDelayEndsAt || status.entryDelayEndsAt)) render(); }, 1000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+
+    async function onHomeyReady(homey) {
+      H = homey;
+      const settings = H.getSettings() || {};
+      allowControl = settings.allow_control !== false;
+      try { labels = (await H.api('GET', '/labels')).labels; } catch (e) { /* English keys as fallback */ }
+      H.ready();
+      await refresh();
+    }
+  </script>
+</body>
+</html>

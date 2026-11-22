@@ -1,0 +1,84 @@
+{
+  "title": {
+    "en": "Critical notification sent",
+    "nl": "Kritieke melding verzonden",
+    "no": "Kritisk melding sendt"
+  },
+  "hint": {
+    "en": "Fires every time the app sends a critical Timeline message (deterrence, perimeter alarm, full alarm, and repeated reminders while an alert is still active). Use it as one entry point to forward critical events to a channel that can really wake you up, such as Pushover with emergency priority, Telegram or SMS.",
+    "nl": "Wordt geactiveerd telkens wanneer de app een kritieke Tijdlijn-melding verstuurt (afschrikking, perimeteralarm, volledig alarm en herhaalde herinneringen zolang een alarm actief is). Gebruik dit als één ingang om kritieke gebeurtenissen door te sturen naar een kanaal dat je echt kan wekken, zoals Pushover met noodprioriteit, Telegram of sms.",
+    "no": "Utløses hver gang appen sender en kritisk tidslinjemelding (avskrekking, skallsikringsalarm, full alarm og gjentatte påminnelser mens et varsel fortsatt er aktivt). Bruk den som ett felles inngangspunkt for å videresende kritiske hendelser til en kanal som faktisk kan vekke deg, for eksempel Pushover med nødprioritet, Telegram eller SMS."
+  },
+  "tokens": [
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message",
+        "nl": "Bericht",
+        "no": "Melding"
+      },
+      "example": {
+        "en": "🚨 ALARM triggered in Living room",
+        "nl": "🚨 ALARM geactiveerd in Woonkamer",
+        "no": "🚨 ALARM utløst i Stua"
+      }
+    },
+    {
+      "name": "kind",
+      "type": "string",
+      "title": {
+        "en": "Kind (deterrence, perimeter_alarm, alarm, reminder)",
+        "nl": "Soort (deterrence, perimeter_alarm, alarm, reminder)",
+        "no": "Type (deterrence, perimeter_alarm, alarm, reminder)"
+      },
+      "example": {
+        "en": "alarm",
+        "nl": "alarm",
+        "no": "alarm"
+      }
+    },
+    {
+      "name": "zone",
+      "type": "string",
+      "title": {
+        "en": "Zone",
+        "nl": "Zone",
+        "no": "Sone"
+      },
+      "example": {
+        "en": "Living room",
+        "nl": "Woonkamer",
+        "no": "Stua"
+      }
+    },
+    {
+      "name": "sensor",
+      "type": "string",
+      "title": {
+        "en": "Sensor",
+        "nl": "Sensor",
+        "no": "Sensor"
+      },
+      "example": {
+        "en": "Motion sensor (hallway)",
+        "nl": "Bewegingssensor (hal)",
+        "no": "Bevegelsessensor (gang)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp (ISO 8601)",
+        "nl": "Tijdstempel (ISO 8601)",
+        "no": "Tidsstempel (ISO 8601)"
+      },
+      "example": {
+        "en": "2026-05-25T19:10:42.123Z",
+        "nl": "2026-05-25T19:10:42.123Z",
+        "no": "2026-05-25T19:10:42.123Z"
+      }
+    }
+  ]
+}

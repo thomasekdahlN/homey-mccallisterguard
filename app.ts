@@ -10,6 +10,7 @@ import DeterrenceEngine from './lib/DeterrenceEngine';
 import EscalationManager from './lib/EscalationManager';
 import EventLog from './lib/EventLog';
 import FlowCards from './lib/FlowCards';
+import InsightsLogger from './lib/InsightsLogger';
 import MediaCaster from './lib/MediaCaster';
 import ModeController from './lib/ModeController';
 import Notifier from './lib/Notifier';
@@ -53,7 +54,7 @@ class McCallisterGuardApp extends Homey.App {
     eventLog.setZoneNameResolver((id) => zones.nameOf(id));
     await zones.start();
 
-    const notifier = new Notifier(this.homey);
+    const notifier = new Notifier(this.homey, eventLog, getSettings);
     const stateMachine = new StateMachine(this.homey, eventLog);
 
     const media = new MediaCaster(this.homey, homeyApi, eventLog, getSettings);
@@ -69,7 +70,10 @@ class McCallisterGuardApp extends Homey.App {
     snapshots.attach(cameras);
 
     const perimeter = new PerimeterGuard(this.homey, homeyApi, eventLog, getSettings);
-    const armingChecks = new ArmingChecks(this.homey, homeyApi, eventLog, notifier, getSettings);
+    const insights = new InsightsLogger(this.homey, eventLog);
+    stateMachine.onModeChange((mode) => insights.recordMode(mode));
+    stateMachine.onEntryDelayCancelled((seconds) => insights.recordDisarmTime(seconds));
+    const armingChecks = new ArmingChecks(this.homey, homeyApi, eventLog, notifier, getSettings, insights);
     const alarm = new AlarmController(
       this.homey, eventLog, stateMachine, deterrence, escalation, media, notifier, zones, snapshots, tasks, getSettings,
     );
@@ -91,6 +95,7 @@ class McCallisterGuardApp extends Homey.App {
     this.scheduler = scheduler;
     this.zones = zones;
 
+    insights.start(stateMachine.getMode());
     alarm.start();
     modes.start();
     await alarm.recoverInterruptedState();
