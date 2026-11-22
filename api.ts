@@ -8,30 +8,7 @@ import { SNAPSHOT_DIR_ALARM, SNAPSHOT_DIR_MOTION } from './lib/types';
 import { buildZoneCaps, isUsefulZone } from './lib/ZoneCapabilities';
 import { t } from './lib/i18n';
 import { sortByZoneName } from './lib/ZoneDirectory';
-
-/** Snapshot metadata returned by getSnapshotList. */
-interface SnapshotMeta {
-  filename: string;
-  timestamp: number;
-  size: number;
-}
-
-/** Builds a sorted (newest-first) list of snapshot metadata from a directory. */
-function listSnapshotDir(dir: string): SnapshotMeta[] {
-  try {
-    return fs.readdirSync(dir)
-      .filter((f) => /^[0-9]+-[0-9a-f]+\.jpg$/i.test(f))
-      .map((filename) => {
-        const timestamp = parseInt(filename.split('-')[0], 10);
-        let size = 0;
-        try { size = fs.statSync(path.join(dir, filename)).size; } catch { /* best-effort */ }
-        return { filename, timestamp, size };
-      })
-      .sort((a, b) => b.timestamp - a.timestamp); // newest first
-  } catch {
-    return [];
-  }
-}
+import { listSnapshotDir } from './lib/SnapshotFiles';
 
 interface Ctx { homey: { app: { services: GuardServices }; i18n: { getLanguage(): string } } }
 interface BodyCtx<T> extends Ctx { body: T }

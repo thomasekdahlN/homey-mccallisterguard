@@ -20,3 +20,4 @@ Thumbs.db
 .git-commit-msg.tmp
 .claude/settings.local.json
 .agents/
+homey-dev-kit/

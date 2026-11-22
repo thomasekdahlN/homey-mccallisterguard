@@ -1,0 +1,13 @@
+{
+  "name": {
+    "en": "Stop alarm",
+    "nl": "Alarm stoppen",
+    "no": "Stopp alarm"
+  },
+  "height": 110,
+  "api": {
+    "getLabels": { "method": "GET", "path": "/labels" },
+    "getStatus": { "method": "GET", "path": "/status" },
+    "stopAlarm": { "method": "POST", "path": "/stop-alarm" }
+  }
+}

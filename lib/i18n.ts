@@ -202,9 +202,9 @@ const MESSAGES = {
     no: '{label} Avskrekking i {zone} — {device}.',
   },
   'app.deterrence_timeline': {
-    en: '🚨 Deterrence: {device} in {zone}',
-    nl: '🚨 Afschrikking: {device} in {zone}',
-    no: '🚨 Avskrekking: {device} i {zone}',
+    en: '🚨 **Deterrence**: {device} in **{zone}**',
+    nl: '🚨 **Afschrikking**: {device} in **{zone}**',
+    no: '🚨 **Avskrekking**: {device} i **{zone}**',
   },
   'app.perimeter_sensor_triggered_log': {
     en: '**Perimeter** sensor triggered: {device} in {zone}.',
@@ -212,19 +212,29 @@ const MESSAGES = {
     no: '**Perimeter** sensor utløst: {device} i {zone}.',
   },
   'app.perimeter_alarm_timeline': {
-    en: '🚨 Perimeter: {device} in {zone}',
-    nl: '🚨 Perimeter: {device} in {zone}',
-    no: '🚨 Skallsikring: {device} i {zone}',
+    en: '🚨 **Perimeter**: {device} in **{zone}**',
+    nl: '🚨 **Perimeter**: {device} in **{zone}**',
+    no: '🚨 **Skallsikring**: {device} i **{zone}**',
   },
   'app.alarm_triggered_timeline_base': {
-    en: '🚨 ALARM triggered',
-    nl: '🚨 ALARM geactiveerd',
-    no: '🚨 ALARM utløst',
+    en: '🚨 **ALARM** triggered',
+    nl: '🚨 **ALARM** geactiveerd',
+    no: '🚨 **ALARM** utløst',
   },
   'app.alarm_triggered_timeline_zone': {
-    en: ' in {zone}',
-    nl: ' in {zone}',
-    no: ' i {zone}',
+    en: ' in **{zone}**',
+    nl: ' in **{zone}**',
+    no: ' i **{zone}**',
+  },
+  'app.alarm_reminder_timeline': {
+    en: '{mode} still active after **{minutes} min**{location}',
+    nl: '{mode} nog steeds actief na **{minutes} min**{location}',
+    no: '{mode} fortsatt aktiv etter **{minutes} min**{location}',
+  },
+  'app.critical_notification_failed': {
+    en: 'Critical Timeline message could not be delivered: {error}',
+    nl: 'Kritieke Tijdlijn-melding kon niet worden afgeleverd: {error}',
+    no: 'Kritisk tidslinjemelding kunne ikke leveres: {error}',
   },
   'app.perimeter_alarm_stopped_timeline': {
     en: 'Perimeter alarm stopped',
@@ -523,6 +533,45 @@ const MESSAGES = {
     nl: '{prefix}: lichten uit',
     no: '{prefix}: lys av',
   },
+
+  // Insights log titles
+  'insight.guard_active': { en: 'Guard active', nl: 'Bewaking actief', no: 'Vakt aktiv' },
+  'insight.alert_active': { en: 'Alarm / deterrence active', nl: 'Alarm / afschrikking actief', no: 'Alarm / avskrekking aktiv' },
+  'insight.disarm_time': { en: 'Time to disarm', nl: 'Tijd tot uitschakelen', no: 'Tid til avvæpning' },
+  'insight.offline_sensors': { en: 'Sensors offline', nl: 'Sensoren offline', no: 'Sensorer frakoblet' },
+  'insight.log_failed': { en: 'Could not create Insights log {id}: {error}', nl: 'Insights-log {id} aanmaken mislukt: {error}', no: 'Kunne ikke opprette Insights-logg {id}: {error}' },
+
+  // Dashboard widgets (labels are delivered to the widget frontends by lib/WidgetHandlers.ts)
+  'widget.mode_off': { en: 'Off', nl: 'Uit', no: 'Av' },
+  'widget.mode_disarmed': { en: 'Home', nl: 'Thuis', no: 'Hjemme' },
+  'widget.mode_armed': { en: 'Away', nl: 'Afwezig', no: 'Borte' },
+  'widget.mode_armed_perimeter': { en: 'Perimeter', nl: 'Perimeter', no: 'Skallsikring' },
+  'widget.mode_perimeter_alarm': { en: 'Perimeter alarm', nl: 'Perimeteralarm', no: 'Skallsikringsalarm' },
+  'widget.mode_deterrence': { en: 'Deterrence', nl: 'Afschrikking', no: 'Avskrekking' },
+  'widget.mode_alarm': { en: 'Alarm', nl: 'Alarm', no: 'Alarm' },
+  'widget.since': { en: 'Since {time}', nl: 'Sinds {time}', no: 'Siden {time}' },
+  'widget.exit_delay': { en: 'Arming in {seconds} s', nl: 'Inschakelen over {seconds} s', no: 'Aktiverer om {seconds} s' },
+  'widget.entry_delay': { en: 'Disarm within {seconds} s', nl: 'Uitschakelen binnen {seconds} s', no: 'Deaktiver innen {seconds} s' },
+  'widget.chip_kevin': { en: 'Kevin mode', nl: 'Kevin-modus', no: 'Kevin-modus' },
+  'widget.chip_camera_off': { en: 'Camera snapshots off', nl: 'Camerabeelden uit', no: 'Kamerabilder av' },
+  'widget.chip_bypass': { en: 'Perimeter bypassed', nl: 'Perimeter omzeild', no: 'Skallsikring omgått' },
+  'widget.chip_test': { en: 'Test', nl: 'Test', no: 'Test' },
+  'widget.stop_alarm': { en: 'Stop alarm', nl: 'Alarm stoppen', no: 'Stopp alarm' },
+  'widget.all_clear': { en: 'All clear', nl: 'Alles veilig', no: 'Alt rolig' },
+  'widget.alarm_active': { en: 'Alarm active', nl: 'Alarm actief', no: 'Alarm aktivt' },
+  'widget.confirm_disarm': { en: 'Tap again to disarm', nl: 'Tik nogmaals om uit te schakelen', no: 'Trykk igjen for å deaktivere' },
+  'widget.read_only': { en: 'View only', nl: 'Alleen bekijken', no: 'Kun visning' },
+  'widget.bypass_title': { en: 'Bypass perimeter', nl: 'Perimeter omzeilen', no: 'Omgå skallsikring' },
+  'widget.bypass_hint': { en: 'Pause the perimeter sensors for a while.', nl: 'Zet de perimetersensoren tijdelijk op pauze.', no: 'Pause skallsikringens sensorer en stund.' },
+  'widget.bypass_remaining': { en: 'Bypassed — {time} left', nl: 'Omzeild — nog {time}', no: 'Omgått — {time} igjen' },
+  'widget.bypass_inactive': { en: 'Perimeter sensors active', nl: 'Perimetersensoren actief', no: 'Skallsikringens sensorer er aktive' },
+  'widget.minutes': { en: '{n} min', nl: '{n} min', no: '{n} min' },
+  'widget.no_events': { en: 'No events yet', nl: 'Nog geen gebeurtenissen', no: 'Ingen hendelser ennå' },
+  'widget.no_snapshots': { en: 'No snapshots yet', nl: 'Nog geen foto\'s', no: 'Ingen bilder ennå' },
+  'widget.snapshot_alarm': { en: 'Alarm', nl: 'Alarm', no: 'Alarm' },
+  'widget.snapshot_motion': { en: 'Motion', nl: 'Beweging', no: 'Bevegelse' },
+  'widget.error': { en: 'Could not reach McCallister Guard', nl: 'McCallister Guard niet bereikbaar', no: 'Får ikke kontakt med McCallister Guard' },
+  'widget.mode_change_failed': { en: 'Could not change mode', nl: 'Modus wijzigen mislukt', no: 'Kunne ikke bytte modus' },
 } as const satisfies Record<string, Record<Lang, string>>;
 
 export type MessageKey = keyof typeof MESSAGES;
@@ -532,4 +581,14 @@ export function t(homey: HomeyI18n, key: MessageKey, vars?: Vars): string {
   const table = MESSAGES[key];
   const template = table[lang] ?? table.en;
   return format(template, vars);
+}
+
+/** All `widget.*` strings in the user's language, keyed without the `widget.` prefix. */
+export function widgetLabels(homey: HomeyI18n): Record<string, string> {
+  const lang = resolveLang(homey);
+  const labels: Record<string, string> = {};
+  for (const [key, table] of Object.entries(MESSAGES)) {
+    if (key.startsWith('widget.')) labels[key.slice('widget.'.length)] = (table as Record<Lang, string>)[lang];
+  }
+  return labels;
 }

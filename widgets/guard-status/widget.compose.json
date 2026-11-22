@@ -1,0 +1,26 @@
+{
+  "name": {
+    "en": "Guard status",
+    "nl": "Beveiligingsstatus",
+    "no": "Vaktstatus"
+  },
+  "settings": [
+    {
+      "id": "allow_control",
+      "type": "checkbox",
+      "value": true,
+      "title": {
+        "en": "Allow changing mode",
+        "nl": "Modus wijzigen toestaan",
+        "no": "Tillat bytte av modus"
+      }
+    }
+  ],
+  "height": 170,
+  "api": {
+    "getLabels": { "method": "GET", "path": "/labels" },
+    "getStatus": { "method": "GET", "path": "/status" },
+    "setMode": { "method": "POST", "path": "/mode" },
+    "stopAlarm": { "method": "POST", "path": "/stop-alarm" }
+  }
+}

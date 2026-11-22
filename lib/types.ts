@@ -84,6 +84,10 @@ export interface GuardSettings {
    * Takes precedence over all automatic URL resolution strategies.
    */
   camera_snapshot_urls: Record<string, string>;
+  /** When true, info-level Timeline messages (mode changes, arrivals) are suppressed; warnings and critical stay. */
+  timeline_critical_only: boolean;
+  /** Minutes between critical reminders while an alert is still active (0 = off). Default: 5. */
+  alarm_reminder_minutes: number;
 }
 
 export const DEFAULT_BLINK_SECONDS = 15;
@@ -135,6 +139,8 @@ export const DEFAULT_SETTINGS: GuardSettings = {
   armed_perimeter_on: '22:00',
   armed_perimeter_off: '06:00',
   camera_snapshot_urls: {},
+  timeline_critical_only: false,
+  alarm_reminder_minutes: 5,
 };
 
 /**

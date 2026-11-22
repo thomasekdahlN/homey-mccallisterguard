@@ -2073,11 +2073,17 @@
           + `<input id="set_armed_perimeter_off" type="time" value="${esc(settings.armed_perimeter_off ?? '06:00')}"></div>`
           + `<div class="field-help field wide" style="margin-top:-4px;">${esc(T('settings.schedule_help'))}</div>`;
 
+        const notifications = `<label class="switch-row field wide"><strong>${esc(T('settings.timeline_critical_only'))}</strong>`
+          + `<span class="switch"><input type="checkbox" id="set_timeline_critical_only" ${settings.timeline_critical_only ? 'checked' : ''}><i></i></span></label>`
+          + `<div class="field-help field wide" style="margin-top:-4px;">${esc(T('settings.timeline_critical_only_help'))}</div>`
+          + field('alarm_reminder_minutes');
+
         $('settings-grid').innerHTML = group('⏱️', 'delays', field('exit_delay') + field('entry_delay') + field('escalation_minutes') + field('deterrence_delay'))
           + group('✨', 'deterrence', field('blink_on') + field('blink_off') + field('alarm_blink_on') + field('alarm_blink_off'))
           + group('💡', 'kevin', field('sunset_offset') + field('bedtime', 'time') + field('random_min') + field('random_max'))
           + group('📷', 'cameras', field('camera_alarm_burst') + field('camera_motion_burst') + field('snapshot_max_count'))
-          + group('🌙', 'schedule', schedule);
+          + group('🌙', 'schedule', schedule)
+          + group('🔔', 'notifications', notifications);
       }
 
       /** Save bar states: clean (nothing to save) · dirty (unsaved edits) · saved (just saved) · error. */
@@ -2196,13 +2202,14 @@
       $('btn-save').addEventListener('click', async () => {
         const payload = {};
         const timeKeys = new Set(['bedtime', 'armed_perimeter_on', 'armed_perimeter_off']);
-        ['bedtime', 'sunset_offset', 'random_min', 'random_max', 'deterrence_delay', 'exit_delay', 'entry_delay', 'escalation_minutes', 'blink_on', 'blink_off', 'alarm_blink_on', 'alarm_blink_off', 'snapshot_max_count', 'camera_alarm_burst', 'camera_motion_burst', 'armed_perimeter_on', 'armed_perimeter_off']
+        ['bedtime', 'sunset_offset', 'random_min', 'random_max', 'deterrence_delay', 'exit_delay', 'entry_delay', 'escalation_minutes', 'blink_on', 'blink_off', 'alarm_blink_on', 'alarm_blink_off', 'snapshot_max_count', 'camera_alarm_burst', 'camera_motion_burst', 'armed_perimeter_on', 'armed_perimeter_off', 'alarm_reminder_minutes']
           .forEach((k) => {
             const v = $('set_' + k).value.trim();
             if (v === '') return; // never send blank fields — the server keeps the current value
             payload[k] = timeKeys.has(k) ? v : Number(v);
           });
         payload.armed_perimeter_auto = $('set_armed_perimeter_auto').checked;
+        payload.timeline_critical_only = $('set_timeline_critical_only').checked;
         await saveSettings(payload, 'settings');
       });
       $('btn-save-zones').addEventListener('click', async () => {

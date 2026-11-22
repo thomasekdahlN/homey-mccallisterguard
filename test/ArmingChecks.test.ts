@@ -49,3 +49,23 @@ describe('ArmingChecks.runHealthCheck', () => {
     expect(trigger).toHaveBeenCalledWith({ offline_count: 1 });
   });
 });
+
+describe('ArmingChecks insights', () => {
+  it('logger antall frakoblede sensorer i Insights, også når alt er ok', async () => {
+    const homey = { ...createMockHomey(), flow: { getTriggerCard: vi.fn(() => ({ trigger: vi.fn(async () => undefined) })) } };
+    const devices = {
+      a: { id: 'a', name: 'A', available: false, capabilities: ['alarm_contact'] },
+      b: { id: 'b', name: 'B', available: true, capabilities: ['alarm_motion'] },
+    };
+    const homeyApi = { devices: { getDevices: vi.fn(async () => devices) } };
+    const insights = { recordOfflineSensors: vi.fn() };
+    const checks = new ArmingChecks(
+      homey as never, homeyApi, { add: vi.fn() } as never, { timeline: vi.fn() } as never, () => ({ ...DEFAULT_SETTINGS }), insights as never,
+    );
+    await checks.runHealthCheck();
+    expect(insights.recordOfflineSensors).toHaveBeenLastCalledWith(1);
+    devices.a.available = true;
+    await checks.runHealthCheck();
+    expect(insights.recordOfflineSensors).toHaveBeenLastCalledWith(0);
+  });
+});

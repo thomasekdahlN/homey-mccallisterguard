@@ -157,9 +157,11 @@ export default class ModeController {
     if (next !== 'disarmed' && next !== 'off' && (previous === 'disarmed' || previous === 'off')) {
       this.armingChecks.runHealthCheck().catch(() => { /* best-effort */ });
     }
-    // perimeter_alarm push is handled by AlarmController with sensor + zone detail.
+    // perimeter_alarm push is handled by AlarmController with sensor + zone detail. The generic mode
+    // label stays info-level: the detailed critical message for deterrence/alarm also comes from
+    // AlarmController, so a single event never produces two critical messages.
     if (next !== 'perimeter_alarm') {
-      this.notifier.timeline(this.notifier.modeLabel(next));
+      this.notifier.timeline(this.notifier.modeLabel(next), 'info');
     }
     try {
       this.homey.flow.getTriggerCard('mode_changed').trigger({

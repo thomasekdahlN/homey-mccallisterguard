@@ -6,6 +6,8 @@ import { isValidTransition, Mode, SETTINGS_KEYS } from './types';
 import { t } from './i18n';
 
 export type ModeChangeListener = (mode: Mode, previous: Mode) => void;
+/** Called when a running entry delay is cancelled (someone disarmed in time), with the elapsed seconds. */
+export type EntryDelayCancelListener = (elapsedSeconds: number) => void;
 
 export default class StateMachine {
 
@@ -16,7 +18,9 @@ export default class StateMachine {
   private exitDelayTarget: Mode | null = null;
   private entryTimer: NodeJS.Timeout | null = null;
   private entryDelayEndsAt: number | null = null;
+  private entryDelayStartedAt: number | null = null;
   private listeners: ModeChangeListener[] = [];
+  private entryCancelListeners: EntryDelayCancelListener[] = [];
 
   constructor(
     private readonly homey: Homey,
@@ -38,6 +42,10 @@ export default class StateMachine {
 
   onModeChange(listener: ModeChangeListener): void {
     this.listeners.push(listener);
+  }
+
+  onEntryDelayCancelled(listener: EntryDelayCancelListener): void {
+    this.entryCancelListeners.push(listener);
   }
 
   async setMode(next: Mode, exitDelaySeconds?: number): Promise<void> {
@@ -76,10 +84,12 @@ export default class StateMachine {
   startEntryDelay(entryDelaySeconds: number, onTimeout: () => void): void {
     if (this.entryTimer) return;
     this.log.add('warning', t(this.homey, 'state.entry_detected_countdown', { seconds: entryDelaySeconds }));
-    this.entryDelayEndsAt = Date.now() + entryDelaySeconds * 1000;
+    this.entryDelayStartedAt = Date.now();
+    this.entryDelayEndsAt = this.entryDelayStartedAt + entryDelaySeconds * 1000;
     this.entryTimer = this.homey.setTimeout(() => {
       this.entryTimer = null;
       this.entryDelayEndsAt = null;
+      this.entryDelayStartedAt = null;
       onTimeout();
     }, entryDelaySeconds * 1000);
   }
@@ -89,6 +99,13 @@ export default class StateMachine {
     this.homey.clearTimeout(this.entryTimer);
     this.entryTimer = null;
     this.entryDelayEndsAt = null;
+    const startedAt = this.entryDelayStartedAt;
+    this.entryDelayStartedAt = null;
+    if (startedAt === null) return;
+    const elapsed = (Date.now() - startedAt) / 1000;
+    for (const listener of this.entryCancelListeners) {
+      try { listener(elapsed); } catch { /* best-effort */ }
+    }
   }
 
   isEntryDelayActive(): boolean {
@@ -144,6 +161,7 @@ export default class StateMachine {
       this.homey.clearTimeout(this.entryTimer);
       this.entryTimer = null;
       this.entryDelayEndsAt = null;
+      this.entryDelayStartedAt = null;
     }
   }
 
